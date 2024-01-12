@@ -1,4 +1,4 @@
-namespace AcutionOnline
+namespace AuctionOnline
 {
     public class WeatherForecast
     {

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace AcutionOnline.Controllers
+namespace AuctionOnline.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

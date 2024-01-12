@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "AcutionOnline": {
+    "AuctionOnline": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

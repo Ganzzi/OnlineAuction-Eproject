@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
-namespace AcutionOnline.Controllers.Admin
+namespace AuctionOnline.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
