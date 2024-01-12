@@ -62,7 +62,7 @@ namespace Application.Service
             {
                 existingToken.Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
                 existingToken.Created = DateTime.Now;
-                existingToken.ExpireDate = DateTime.Now.AddSeconds(70);
+                existingToken.ExpiryDate = DateTime.Now.AddSeconds(70);
                 _u.Repository<RefreshToken>().Update(existingToken);
                 return existingToken;
             }
@@ -70,7 +70,7 @@ namespace Application.Service
             {
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
                 Created = DateTime.Now,
-                ExpireDate = DateTime.Now.AddSeconds(700000),
+                ExpiryDate = DateTime.Now.AddSeconds(700000),
                 UserId = id
             };
             await _u.Repository<RefreshToken>().AddAsync(refreshtoken);
@@ -86,7 +86,7 @@ namespace Application.Service
 
             var spec = new BaseSpecification<RefreshToken>(z => z.UserId == user.UserId);
             var existingToken = await _u.Repository<RefreshToken>().FindOne(spec);
-            if (existingToken == null || existingToken.ExpireDate <= DateTime.Now || existingToken.Token != token)
+            if (existingToken == null || existingToken.ExpiryDate <= DateTime.Now || existingToken.Token != token)
             {
                 return null;
             }

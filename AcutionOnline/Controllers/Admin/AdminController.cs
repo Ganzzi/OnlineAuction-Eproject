@@ -103,7 +103,7 @@ namespace AcutionOnline.Controllers.Admin
         [HttpPost]
         public async Task<IActionResult> UpdateCategory([FromBody] Category category)
         {
-            if (category.Category_Name == null || category.Description == null)
+            if (category.CategoryName == null || category.Description == null)
             {
                 return BadRequest(new
                 {

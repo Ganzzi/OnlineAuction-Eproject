@@ -63,9 +63,9 @@ namespace Application.Service.AdminServicevice
 
                 foreach (var cate in listCate)
                 {
-                    var spec = new BaseSpecification<CategoryItem>(x => x.categoryId == cate.Category_Id);
+                    var spec = new BaseSpecification<CategoryItem>(x => x.CategoryId == cate.CategoryId);
                     var itemCount = await _u.Repository<CategoryItem>().CountAsync(spec);
-                    userRatingAndBidCounts.Add(cate.Category_Name, itemCount);
+                    userRatingAndBidCounts.Add(cate.CategoryName, itemCount);
                 }
 
                 return userRatingAndBidCounts;
@@ -130,9 +130,9 @@ namespace Application.Service.AdminServicevice
         {
             try
             {
-                var spec = new BaseSpecification<Category>(x => x.Category_Id == category.Category_Id);
+                var spec = new BaseSpecification<Category>(x => x.CategoryId == category.CategoryId);
                 var oldcategory = await _u.Repository<Category>().FindOne(spec);
-                oldcategory.Category_Name = category.Category_Name;
+                oldcategory.CategoryName = category.CategoryName;
                 oldcategory.Description = category.Description;
                 _u.Repository<Category>().Update(oldcategory);
                 return true;
@@ -165,26 +165,26 @@ namespace Application.Service.AdminServicevice
             try
             {
                 var skip = take * (page - 1);
-                var catespec = new BaseSpecification<Category>(x => x.Category_Id == id);
+                var catespec = new BaseSpecification<Category>(x => x.CategoryId == id);
                 var cate = await _u.Repository<Category>().FindOne(catespec);
                 BaseSpecification<CategoryItem> sp;
                 
                 if (searchName != null && belongtocategory == false)
                 {
                     sp = new BaseSpecification<CategoryItem>(
-                        ci =>  ci.item.Title.Contains(searchName)
+                        ci =>  ci.Item.Title.Contains(searchName)
                     );
                 }
                 else if (belongtocategory == true && searchName == null)
                 {
                     sp = sp = new BaseSpecification<CategoryItem>(
-                        ci => ci.categoryId == id
+                        ci => ci.CategoryId == id
                     );
                 }
                 else if (belongtocategory == true && searchName != null)
                 {
                     sp = sp = new BaseSpecification<CategoryItem>(
-                   ci => ci.categoryId == id && ci.item.Title.Contains(searchName)
+                   ci => ci.CategoryId == id && ci.Item.Title.Contains(searchName)
                ) ;
                 }
                 else {
@@ -192,7 +192,7 @@ namespace Application.Service.AdminServicevice
                     return (null, 0);
                 }
 
-                sp = sp.AddInclude(query => query.Include(x => x.item)).ApplyPaging(skip, take);       
+                sp = sp.AddInclude(query => query.Include(x => x.Item)).ApplyPaging(skip, take);       
                 var listcategory = await _u.Repository<CategoryItem>().ListAsynccheck(sp);
                 var count = await _u.Repository<CategoryItem>().CountAsync(sp);
 
@@ -209,7 +209,7 @@ namespace Application.Service.AdminServicevice
 
         public async Task<bool> addOrDeleteItemForCate(int cate, int item, bool status)
         {
-            var spec = new BaseSpecification<CategoryItem>(x => x.categoryId == cate && x.ItemId == item);
+            var spec = new BaseSpecification<CategoryItem>(x => x.CategoryId == cate && x.ItemId == item);
             var feildexits = await _u.Repository<CategoryItem>().FindOne(spec);
             try
             {

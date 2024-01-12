@@ -95,14 +95,14 @@ namespace Infrastructure.Data
             modelBuilder.Entity<Category>().HasData(
                 new Category
                 {
-                    Category_Id = 1,
-                    Category_Name = "Category 1",
+                    CategoryId = 1,
+                    CategoryName = "Category 1",
                     Description = "Description for Category 1"
                 },
                 new Category
                 {
-                    Category_Id = 2,
-                    Category_Name = "Category 2",
+                    CategoryId = 2,
+                    CategoryName = "Category 2",
                     Description = "Description for Category 2"
                 }
             );
@@ -114,7 +114,7 @@ namespace Infrastructure.Data
                     ItemId = 1,
                     UserId = 1,
                     Rate = 4.5f,
-                    Rating_date = DateTime.Now
+                    RatingDate = DateTime.Now
                 },
                 new Rating
                 {
@@ -122,7 +122,7 @@ namespace Infrastructure.Data
                     ItemId = 2,
                     UserId = 2,
                     Rate = 4.0f,
-                    Rating_date = DateTime.Now
+                    RatingDate = DateTime.Now
                 }
             );
 
@@ -131,27 +131,27 @@ namespace Infrastructure.Data
                 {
                     Id = 1,
                     ItemId = 1,
-                    categoryId = 1
+                    CategoryId = 1
                 },
                 new CategoryItem
                 {
                     Id = 2,
                     ItemId = 2,
-                    categoryId = 2
+                    CategoryId = 2
                 }
             );
 
             // Configure the relationship between Category and CategoryItem
             modelBuilder.Entity<Category>()
-                .HasMany(c => c.CategoriesItem)
-                .WithOne(ci => ci.category)
-                .HasForeignKey(ci => ci.categoryId)
+                .HasMany(c => c.CategoryItems)
+                .WithOne(ci => ci.Category)
+                .HasForeignKey(ci => ci.CategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Configure the relationship between Item and CategoryItem
             modelBuilder.Entity<Item>()
-                .HasMany(i => i.CategoriesItem)
-                .WithOne(ci => ci.item)
+                .HasMany(i => i.CategoryItems)
+                .WithOne(ci => ci.Item)
                 .HasForeignKey(ci => ci.ItemId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
