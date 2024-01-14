@@ -17,7 +17,8 @@ namespace Application.Service
             _u = u;
         }
 
-        //UserProfile
+
+        //UserProfile ****
         public async Task<User> getUser(string username)
         {
             var spec = new BaseSpecification<User>(x => x.Name == username);
@@ -39,9 +40,32 @@ namespace Application.Service
             }
         }
 
-        //public async Task<> UpdateUser(int id)
-        //{
-        //    var spec = new BaseSpecification<User>()
-        //}
+        // update User
+        public async Task<User> UpdateUser(User model)
+        {
+            try
+            {
+                var Userspec = new BaseSpecification<User>(x => x.Name == model.Name);
+                var User = await _u.Repository<User>().FindOne(Userspec);
+                if (User != null)
+                {
+                    User.Name = model.Name;
+                    User.Email = model.Email;
+                    User.Password = model.Password;
+                    await _u.SaveChangesAsync();
+                    return User;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception e)
+            {
+                await _u.RollBackChangesAsync();
+                return null;
+            }
+
+        }
     }
 }
