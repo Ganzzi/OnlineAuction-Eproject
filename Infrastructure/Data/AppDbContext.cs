@@ -27,6 +27,7 @@ namespace Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<User>().HasData(
                 new User
                 {
@@ -74,23 +75,25 @@ namespace Infrastructure.Data
             );
 
             modelBuilder.Entity<Item>().HasData(
-                new Item
-                {
-                    ItemId = 1,
-                    Title = "Item 1",
-                    Description = "Description for Item 1",
-                    Price = 1000,
-                    ImgUrl = "url_to_image_1"
-                },
-                new Item
-                {
-                    ItemId = 2,
-                    Title = "Item 2",
-                    Description = "Description for Item 2",
-                    Price = 2000,
-                    ImgUrl = "url_to_image_2"
-                }
-            );
+                      new Item
+                      {
+                          ItemId = 1,
+                          Title = "Item 1",
+                          Description = "Description for Item 1",
+                          Price = 1000,
+                          UserId = 1,
+                          ImgUrl = "url_to_image_1"
+                      },
+                      new Item
+                      {
+                          ItemId = 2,
+                          Title = "Item 2",
+                          Description = "Description for Item 2",
+                          Price = 2000,
+                          UserId = 1,
+                          ImgUrl = "url_to_image_2"
+                      }
+                  );
 
             modelBuilder.Entity<Category>().HasData(
                 new Category
@@ -154,6 +157,13 @@ namespace Infrastructure.Data
                 .WithOne(ci => ci.Item)
                 .HasForeignKey(ci => ci.ItemId)
                 .OnDelete(DeleteBehavior.Cascade);
+            // Configure the relationship between Item and User
+            modelBuilder.Entity<User>()
+    .HasMany(u => u.Items)
+    .WithOne(i => i.User)
+    .HasForeignKey(i => i.UserId)
+    .OnDelete(DeleteBehavior.Restrict);
+
         }
 
     }

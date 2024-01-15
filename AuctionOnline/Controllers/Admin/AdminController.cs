@@ -164,21 +164,52 @@ namespace AuctionOnline.Controllers.Admin
             }
         }
 
-        // test 
-        [Route("test")]
-        [HttpPost]
-        public async Task<IActionResult> categoryInlistItem(int id, int page, int take, string searchName, bool belongtocategory)
+        [Route("listItem")]
+        [HttpGet]
+        public async Task<IActionResult> ListItemInAdmin(int page, int take)
         {
-            var check = await _a.categorylistItem(id, page,  take,  searchName,  belongtocategory);
-            if (check != (null, 0))
-            {
-                return Ok(check);
+            var listItem = await _a.getListItemhaveCount(page, take);
+            if (listItem != (null, 0))
+            {               
+                return Ok(new
+                {
+                    listItem = listItem.Item1.Select(x => new
+                    {
+                        itemName = x.Key,
+                        AvgRate = x.Value.Item1,
+                        bidCount = x.Value.Item2,
+                    }),
+                    Countpage = listItem.Item2
+                });
             }
             else
             {
-                return BadRequest(new
+                return NotFound(new
                 {
-                    message = "Fail Action"
+                    message = "Fail Actions"
+                });
+            }
+        }
+
+        [Route("ItemWithListCategoryItem")]
+        [HttpGet]
+        public async Task<IActionResult> ItemAndListCategoryItem(int id,int page, int take)
+        {
+            var listItem = await _a.GetOneItemAndListCategoryItem( id,page, take);
+            if (listItem != (null, null,0))
+            {              
+                return Ok(new
+                {
+                    Item = listItem.Item1,
+                    listcategoryItem =  listItem.Item2,
+                    Count = listItem.Item3
+                });
+            }
+            else
+            {
+                return NotFound(new
+                {
+                    message = "Fail Actions"
                 });
             }
         }

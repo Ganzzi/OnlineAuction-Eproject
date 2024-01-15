@@ -54,7 +54,7 @@ namespace Application.Service
             return AccessToken;
         }
 
-        public async Task<RefreshToken> createRrefreshtoken(int id)
+        public async Task<RefreshToken> createRrefreshtoken(int? id)
         {
             var spec = new BaseSpecification<RefreshToken>(z => z.UserId == id);
             var existingToken = await _u.Repository<RefreshToken>().FindOne(spec);

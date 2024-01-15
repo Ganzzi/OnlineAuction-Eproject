@@ -10,7 +10,7 @@ namespace Application.Interface
     public interface IJwtService
     {
         Task<string> CreateToken(User user);
-        Task<RefreshToken> createRrefreshtoken(int id);
+        Task<RefreshToken> createRrefreshtoken(int? id);
         Task<RefreshToken> checkToken(string token);
     }
 }
