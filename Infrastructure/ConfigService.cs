@@ -14,8 +14,10 @@ namespace Infrastructure
         {
             service.AddDbContext<AppDbContext>(o =>
             {
-                o.UseSqlServer(config["ConnectionStrings.DBConnectionString"],
-                    x => x.MigrationsAssembly("Infrastructure"));
+                o.UseSqlServer(
+                    config.GetConnectionString("DBConnectionString"),
+                    x => x.MigrationsAssembly("Infrastructure")
+                );
             });
 
             service.AddScoped(typeof(IBaseRepos<>), typeof(Repository<>));
