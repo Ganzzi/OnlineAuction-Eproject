@@ -1,7 +1,8 @@
+import { useGlobalState } from "@/context/globalState";
 import useColorMode from "@/hooks/useColorMode";
 
 const DarkModeSwitcher = () => {
-  const [colorMode, setColorMode] = useColorMode();
+  const {colorMode, setColorMode} = useGlobalState();
 
   return (
     <li>

@@ -2,7 +2,7 @@ import { CategoryItem } from "./categoryItem"
 
 export type Category = {
     categoryId: number,
-    categorName: string,
+    categoryName: string,
     description: string,
 
     categoryItems?: CategoryItem[]

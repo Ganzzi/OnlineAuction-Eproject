@@ -1,3 +1,4 @@
+import useColorMode from '@/hooks/useColorMode';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { Notification } from '@/types/models/notification';
 import { User } from '@/types/models/user';
@@ -8,7 +9,9 @@ type GlobalStateProp = {
   accessToken: string,
   setUser: (user: User) => void,
   setAccessToken: (tk: string | null) => void,
-  notifications: Notification[]
+  notifications: Notification[],
+  colorMode: string,
+  setColorMode: (color: string) => void
 }
 
 const initState: GlobalStateProp = {
@@ -30,16 +33,22 @@ const initState: GlobalStateProp = {
   setAccessToken: function (tk: string | null): void {
     throw new Error('Function not implemented.');
   },
-  notifications: []
+  notifications: [],
+  colorMode: localStorage.getItem("color-theme")?.toString() ?? "light",
+  setColorMode: function (tk: string | null): void {
+    throw new Error('Function not implemented.');
+  },
 }
 export const GlobalState = createContext<GlobalStateProp>(initState);
 
 export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
-  const [_g, _s, removeToken] = useLocalStorage("ACCESS_TOKEN", "");
+  const [_g1, setColorModeStorage] = useColorMode();
+  const [_g2, _s2, removeToken] = useLocalStorage("ACCESS_TOKEN", "");
 
   const [user, setUser] = useState<User>(initState.user);
   const [accessToken, _setAccessToken] = useState<string>(initState.accessToken)
   const [notifications, setNotifications] = useState<Array<Notification>>(initState.notifications)
+  const [colorMode, _setColorMode] = useState(initState.colorMode)
 
   const setAccessToken: (tk: string | null) => void = (tk: string | null) => {
     if (tk != null) {
@@ -47,6 +56,13 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
     } else {
       removeToken()
     }
+  }
+
+  const setColorMode = (colorMode: string) => {
+    if (typeof setColorModeStorage === 'function') {
+      setColorModeStorage(colorMode);
+    }
+    _setColorMode(colorMode);
   }
 
   // use effect to get notifications
@@ -61,7 +77,9 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
       setUser,
       accessToken,
       setAccessToken,
-      notifications
+      notifications,
+      colorMode,
+      setColorMode
     }}>
       {children}
     </GlobalState.Provider>
@@ -74,7 +92,8 @@ export const useGlobalState: () => GlobalStateProp = () => {
     setUser,
     accessToken,
     setAccessToken,
-    notifications 
+    notifications ,
+    colorMode, setColorMode
   } = useContext(GlobalState);
 
   return {
@@ -82,6 +101,7 @@ export const useGlobalState: () => GlobalStateProp = () => {
     setUser,
     accessToken,
     setAccessToken,
-    notifications
+    notifications,
+     colorMode, setColorMode
   };
 };

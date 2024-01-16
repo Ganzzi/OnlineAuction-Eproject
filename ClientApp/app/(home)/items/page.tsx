@@ -1,7 +1,12 @@
 import Breadcrumb from "@/components/Dashboard/Breadcrumb";
 import Pagination from "@/components/common/Pagination/Pagination";
+import { category1, category2, item1, item2 } from "@/data/item";
+import { Category } from "@/types/models/category";
 import { SearchParams } from "@/types/next";
 import { Resource, newResource } from "@/types/resource";
+import { useRouter } from "next/router";
+import { useState } from "react";
+import Index from "./Index";
 
 type Item = {}
 
@@ -80,16 +85,16 @@ const fetchItems = async (searchParams: SearchParams): Promise<ItemProps> => {
   }
 }
 
+const items:Item[] = [
+  item1, item2
+]
+
 export default async function  ItemsPage ({ searchParams }: { searchParams: SearchParams }) {
   // const itemProps = await fetchItems(searchParams);
-  const resource = newResource([], 93, searchParams?.page ? parseInt(searchParams.page.toString(), 10) : 1, 10);
+
+  const resource = newResource(items, 93, searchParams?.page ? parseInt(searchParams.page.toString(), 10) : 1, 10);
 
   return (
-    <>
-       <h1>{JSON.stringify(searchParams)}</h1>
-       <h1>{JSON.stringify(resource.meta)}</h1>
-       <Pagination meta={resource.meta} />
-    </>
+    <Index searchParams={searchParams} resource={resource}/>
   );
 };
-
