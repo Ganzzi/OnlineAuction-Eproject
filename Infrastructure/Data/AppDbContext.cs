@@ -172,7 +172,9 @@ namespace Infrastructure.Data
         public AppDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlServer("Data Source=LInh;Initial Catalog=AcutionDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+            optionsBuilder.UseSqlServer(
+                    "Server=localhost;Database=tempdb;User ID=sa;Password=StrongPassword123@;TrustServerCertificate=true;"
+                );
 
             return new AppDbContext(optionsBuilder.Options);
         }

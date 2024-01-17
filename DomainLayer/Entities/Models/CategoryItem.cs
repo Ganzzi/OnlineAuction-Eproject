@@ -18,7 +18,7 @@ namespace DomainLayer.Entities.Models
         public Item? Item { get; set; }
         public int ItemId { get; set; }
 
-        [ForeignKey("categoryId")]
+        [ForeignKey("CategoryId")]
         public Category? Category { get; set; }
         public int CategoryId { get; set; }
     }
