@@ -7,7 +7,7 @@ import { User } from "@/types/models/user";
 // Fake data for User type
 const user1: User = {
     userId: 1,
-    username: 'john_doe',
+    name: 'john_doe',
     email: 'john.doe@example.com',
     password: 'password123',
     role: 'user',
@@ -15,7 +15,7 @@ const user1: User = {
 
 const user2: User = {
     userId: 2,
-    username: 'jane_smith',
+    name: 'jane_smith',
     email: 'jane.smith@example.com',
     password: 'pass456',
     role: 'admin',
@@ -26,8 +26,9 @@ const item1: Item = {
     itemId: 101,
     title: 'Laptop',
     description: 'Powerful laptop for all your needs',
-    imgUrl: 'https://imgs.search.brave.com/QYNbIFQtgZ-SvVfVypQ1mehSR4Vy_VCCSBV6nAeUgFQ/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvNDcx/MjA3MjYzL3Bob3Rv/L2J1c2luZXNzLW5l/d3NwYXBlci5qcGc_/cz02MTJ4NjEyJnc9/MCZrPTIwJmM9bVFa/RExPWmtKVmQ4MDVz/amdVREVmdV9ib09x/Q2d4NEFIZ1VoMVBM/Y1NYND0',
-    price: 1200,
+    image: 'https://imgs.search.brave.com/QYNbIFQtgZ-SvVfVypQ1mehSR4Vy_VCCSBV6nAeUgFQ/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvNDcx/MjA3MjYzL3Bob3Rv/L2J1c2luZXNzLW5l/d3NwYXBlci5qcGc_/cz02MTJ4NjEyJnc9/MCZrPTIwJmM9bVFa/RExPWmtKVmQ4MDVz/amdVREVmdV9ib09x/Q2d4NEFIZ1VoMVBM/Y1NYND0',
+    startingPrice: 1200,
+    increasingAmount: 20,
     sellerId: user1.userId,
     seller: user1,
 };
@@ -36,8 +37,9 @@ const item2: Item = {
     itemId: 102,
     title: 'Smartphone',
     description: 'The latest smartphone with amazing features',
-    imgUrl: 'https://imgs.search.brave.com/QYNbIFQtgZ-SvVfVypQ1mehSR4Vy_VCCSBV6nAeUgFQ/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvNDcx/MjA3MjYzL3Bob3Rv/L2J1c2luZXNzLW5l/d3NwYXBlci5qcGc_/cz02MTJ4NjEyJnc9/MCZrPTIwJmM9bVFa/RExPWmtKVmQ4MDVz/amdVREVmdV9ib09x/Q2d4NEFIZ1VoMVBM/Y1NYND0',
-    price: 800,
+    image: 'https://imgs.search.brave.com/QYNbIFQtgZ-SvVfVypQ1mehSR4Vy_VCCSBV6nAeUgFQ/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvNDcx/MjA3MjYzL3Bob3Rv/L2J1c2luZXNzLW5l/d3NwYXBlci5qcGc_/cz02MTJ4NjEyJnc9/MCZrPTIwJmM9bVFa/RExPWmtKVmQ4MDVz/amdVREVmdV9ib09x/Q2d4NEFIZ1VoMVBM/Y1NYND0',
+    startingPrice: 800,
+    increasingAmount: 20,
     sellerId: user2.userId,
     seller: user2,
 };

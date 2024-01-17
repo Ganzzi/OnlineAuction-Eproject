@@ -17,6 +17,7 @@ namespace DomainLayer.Entities.Models
         public Item? Item { get; set; }
         public int ItemId { get; set; }
 
+        [InverseProperty("AuctionHistories")]
         [ForeignKey("WinnerId")]
         public User? Winner { get; set; }
         public int WinnerId { get; set; }

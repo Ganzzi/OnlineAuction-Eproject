@@ -7,8 +7,7 @@ import { Resource, newResource } from "@/types/resource";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import Index from "./Index";
-
-type Item = {}
+import { Item } from "@/types/models/item";
 
 type Filters = {
     page: number;

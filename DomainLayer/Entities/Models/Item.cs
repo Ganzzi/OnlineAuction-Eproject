@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace DomainLayer.Entities.Models
 {
@@ -24,7 +25,7 @@ namespace DomainLayer.Entities.Models
         public string Image { get; set; }
 
         [NotMapped]
-        public Stream ImageFile { get; set; }
+        public IFormFile ImageFile { get; set; }
 
         [ForeignKey("SellerId")]
         public User? Seller { get; set; }

@@ -14,11 +14,11 @@ const ItemCard = ({ item }: { item: Item }) => {
       >
         <h5 className="text-xl font-bold mb-2">{item.title}</h5>
         <p className="text-gray-600 mb-4">{item.description}</p>
-        <img src={item.imgUrl} alt={item.title} className="w-full mb-4" />
-        <p className="text-gray-600 mb-4">${item.price}</p>
+        <img src={item.image} alt={item.title} className="w-full mb-4" />
+        <p className="text-gray-600 mb-4">${item.startingPrice}</p>
         {item.sellerId && (
           <div className="flex items-center mb-4">
-            <p className="text-gray-600 mb-2">{item.seller?.username}</p>
+            <p className="text-gray-600 mb-2">{item.seller?.name}</p>
           </div>
         )}
       </div>

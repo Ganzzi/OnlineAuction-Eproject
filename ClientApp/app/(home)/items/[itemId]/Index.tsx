@@ -21,10 +21,11 @@ const Index = ({ itemData }: { itemData: Item }) => {
       <div className="md:w-1/2">
         {item && (
           <>
-            <img src={item.imgUrl} />
+            <img src={item.image} />
             <h1 className="text-3xl font-bold mb-4">{item.title}</h1>
             <p className="text-gray-600 mb-4">{item.description}</p>
-            <p className="text-lg font-semibold mb-4">Price: ${item.price}</p>
+            <p className="text-lg font-semibold mb-4">Price: ${item.startingPrice}</p>
+            <p className="text-lg font-semibold mb-4">Increasing Amount: ${item.increasingAmount}</p>
 
             {averageRate && <p className="text-lg mb-4">Average Rate: {averageRate}</p>}
 
@@ -37,7 +38,7 @@ const Index = ({ itemData }: { itemData: Item }) => {
         {/* Bid Form */}
         {user && (
           <div className="mb-8">
-            {true ? (
+            {false ? (
               <>
                 <label htmlFor="bidAmount" className="block text-sm font-medium text-gray-600">
                   Your Bid Amount:

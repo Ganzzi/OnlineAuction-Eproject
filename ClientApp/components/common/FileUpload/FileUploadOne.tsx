@@ -1,3 +1,5 @@
+'use client'
+
 import React, { ChangeEvent } from 'react';
 
 interface FileUploadProps {
@@ -15,7 +17,7 @@ interface FileUploadProps {
     };
 
   return (
-    <div className="relative mb-5.5 block w-full cursor-pointer appearance-none rounded border-2 border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5">
+    <div className="relative my-5.5 block w-full cursor-pointer appearance-none rounded border-2 border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5">
       <input
         type="file"
         accept="image/*"

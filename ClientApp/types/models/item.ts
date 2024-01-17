@@ -8,6 +8,8 @@ export type Item = {
     description: string,
     image: string,
 
+    imageFile?: File,
+
     startingPrice: number,
     increasingAmount: number,
     minSellingPrice?: number,

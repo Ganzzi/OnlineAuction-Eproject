@@ -29,5 +29,11 @@ namespace DomainLayer.Entities.Models
 
         [NotMapped]
         public float? AverageBeingRated {get; set;}
+
+        [InverseProperty("Winner")]
+        public ICollection<AuctionHistory>? AuctionHistories { get; set; }
+
+        [InverseProperty("User")]
+        public ICollection<Notification>? Notifications { get; set; }
     }
 }
