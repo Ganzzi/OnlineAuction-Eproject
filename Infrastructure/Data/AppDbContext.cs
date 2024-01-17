@@ -17,7 +17,7 @@ namespace Infrastructure.Data
         }
         public DbSet<User> Usertable { get; set; }
         public DbSet<Bid> BidTable { get; set; }
-        public DbSet<AcutionHistory> AcutionHistory { get; set; }
+        public DbSet<AuctionHistory> AuctionHistory { get; set; }
         public DbSet<Category> CategoryTable { get; set; }
         public DbSet<Item> ItemTable { get; set; }
         public DbSet<Notification> Notification { get; set; }
@@ -80,18 +80,20 @@ namespace Infrastructure.Data
                           ItemId = 1,
                           Title = "Item 1",
                           Description = "Description for Item 1",
-                          Price = 1000,
-                          UserId = 1,
-                          ImgUrl = "url_to_image_1"
+                          StartingPrice = 1000,
+                          IncreasingAmount = 100,
+                          SellerId = 1,
+                          Image = "url_to_image_1"
                       },
                       new Item
                       {
                           ItemId = 2,
                           Title = "Item 2",
                           Description = "Description for Item 2",
-                          Price = 2000,
-                          UserId = 1,
-                          ImgUrl = "url_to_image_2"
+                          StartingPrice = 2000,
+                          IncreasingAmount = 100,
+                          SellerId = 1,
+                          Image = "url_to_image_2"
                       }
                   );
 
@@ -115,7 +117,8 @@ namespace Infrastructure.Data
                 {
                     RatingId = 1,
                     ItemId = 1,
-                    UserId = 1,
+                    RaterId = 1,
+                    RatedUserId = 2,
                     Rate = 4.5f,
                     RatingDate = DateTime.Now
                 },
@@ -123,7 +126,8 @@ namespace Infrastructure.Data
                 {
                     RatingId = 2,
                     ItemId = 2,
-                    UserId = 2,
+                    RaterId = 2,
+                    RatedUserId = 2,
                     Rate = 4.0f,
                     RatingDate = DateTime.Now
                 }
@@ -160,8 +164,8 @@ namespace Infrastructure.Data
             // Configure the relationship between Item and User
             modelBuilder.Entity<User>()
     .HasMany(u => u.Items)
-    .WithOne(i => i.User)
-    .HasForeignKey(i => i.UserId)
+    .WithOne(i => i.Seller)
+    .HasForeignKey(i => i.SellerId)
     .OnDelete(DeleteBehavior.Restrict);
 
         }

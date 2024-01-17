@@ -20,8 +20,6 @@ namespace DomainLayer.Entities.Models
         [ForeignKey("UserId")]
         public User? User { get; set; }
         public int UserId { get; set; }
-
-
         public string NotificationContent { get; set; }
         public DateTime NotificationDate { get; set; }
     }

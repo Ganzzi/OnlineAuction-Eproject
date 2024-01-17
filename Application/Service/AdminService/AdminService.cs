@@ -24,6 +24,41 @@ namespace Application.Service.AdminServicevice
             _u = u;
         }
 
+        // TODO: refactor
+        /*
+        example: 
+            public async Task<List<(User, int, int, int)>> ListAllUser(int take, int page)
+            {
+                try
+                {
+                    var skip = take * (page - 1);
+                    var userspec = new BaseSpecification<User>().ApplyPaging(skip, take)
+                                    .AddInclude(qr => qr.Include(u => u.Ratings).Include(u => u.Bids).Include(u => u.BeingRateds));
+                    var listUser = await _u.Repository<User>().ListAsynccheck(userspec);
+                    
+                    List<(User, int, int, int)> response = null;
+                    foreach (var user in listUser)
+                    {
+                        response.Add(
+                            (new User {
+                                Name = user.Name,
+                                Email = user.Email,
+                            }, 
+                            user.Ratings.Count,
+                            user.BeingRateds.Count,
+                            user.Bids.Count
+                            )
+                        );
+                    }
+
+                    return response;
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
+            }
+        */
         // gửi về 10 user
         public async Task<IDictionary<string, (int, int)>> ListAllUserWithRatingAndBidCount(int take, int page)
         {
@@ -37,7 +72,7 @@ namespace Application.Service.AdminServicevice
 
                 foreach (var user in listUser)
                 {
-                    var ratingSpec = new BaseSpecification<Rating>(x => x.UserId == user.UserId);
+                    var ratingSpec = new BaseSpecification<Rating>(x => x.RaterId == user.UserId);
                     var userRatings = await _u.Repository<Rating>().ListAsynccheck(ratingSpec);
 
                     var bidSpec = new BaseSpecification<Bid>(x => x.UserId == user.UserId);

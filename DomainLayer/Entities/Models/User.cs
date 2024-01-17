@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,6 +19,15 @@ namespace DomainLayer.Entities.Models
         
         public RefreshToken? RefreshToken { get; set; }
         public ICollection<Bid>? Bids { get; set; }
-        public ICollection<Item>? Items { get; set; } 
+        public ICollection<Item>? Items { get; set; }
+
+        [InverseProperty("Rater")]
+        public ICollection<Rating>? Ratings { get; set; }
+
+        [InverseProperty("RatedUser")]
+        public ICollection<Rating>? BeingRateds { get; set; }
+
+        [NotMapped]
+        public float? AverageBeingRated {get; set;}
     }
 }

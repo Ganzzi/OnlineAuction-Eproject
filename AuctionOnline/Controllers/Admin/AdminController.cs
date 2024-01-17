@@ -18,6 +18,7 @@ namespace AuctionOnline.Controllers.Admin
             _a = a;
         }
 
+        // TODO: additionally return average rated amount
         //all user
         [Route("getallUser")]
         [HttpGet]

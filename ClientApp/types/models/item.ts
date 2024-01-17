@@ -6,8 +6,12 @@ export type Item = {
     itemId: number,
     title: string,
     description: string,
-    imgUrl: string,
-    price: number,
+    image: string,
+
+    startingPrice: number,
+    increasingAmount: number,
+    minSellingPrice?: number,
+    reservePrice?: number,
 
     sellerId: number,
     seller?: User,
