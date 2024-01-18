@@ -101,7 +101,7 @@ namespace Application.Service
             }
         }
 
-        private string dataFormToken(string token)
+        public string dataFormToken(string token)
         {
             var jwt = new JwtSecurityTokenHandler();
             var readjwt = jwt.ReadJwtToken(token);

@@ -28,6 +28,6 @@ namespace DomainLayer.Entities.Models
         [ForeignKey("RatedUserId")] // Specify a unique foreign key name
         [InverseProperty("BeingRateds")]
         public User? RatedUser { get; set; }
-        public int RatedUserId { get; set; }
+        public int? RatedUserId { get; set; }
     }
 }

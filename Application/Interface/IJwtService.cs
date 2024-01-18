@@ -12,5 +12,6 @@ namespace Application.Interface
         Task<string> CreateToken(User user);
         Task<RefreshToken> createRrefreshtoken(int? id);
         Task<RefreshToken> checkToken(string token);
+        public string dataFormToken(string token);
     }
 }

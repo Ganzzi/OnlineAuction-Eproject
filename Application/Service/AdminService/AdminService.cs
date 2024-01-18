@@ -59,6 +59,40 @@ namespace Application.Service.AdminServicevice
                 }
             }
         */
+
+        //new listuser
+        public async Task<List<(User, int, int, int)>> ListAllUser(int take, int page)
+        {
+            try
+            {
+                var skip = take * (page - 1);
+                var userspec = new BaseSpecification<User>().ApplyPaging(skip, take)
+                                .AddInclude(qr => qr.Include(u => u.Ratings).Include(u => u.Bids).Include(u => u.BeingRateds));
+                var listUser = await _u.Repository<User>().ListAsynccheck(userspec);
+
+                List<(User, int, int, int)> response = null;
+                foreach (var user in listUser)
+                {
+                    response.Add(
+                        (new User
+                        {
+                            Name = user.Name,
+                            Email = user.Email,
+                        },
+                        user.Ratings.Count,
+                        user.BeingRateds.Count,
+                        user.Bids.Count
+                        )
+                    );
+                }
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         // gửi về 10 user
         public async Task<IDictionary<string, (int, int)>> ListAllUserWithRatingAndBidCount(int take, int page)
         {
