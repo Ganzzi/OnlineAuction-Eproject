@@ -1,8 +1,11 @@
+'use client'
+
 import useColorMode from '@/hooks/useColorMode';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { Notification } from '@/types/models/notification';
 import { User } from '@/types/models/user';
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
+import { bid1, bid2, item1, item2, user1 } from '@/data/item';
 
 type GlobalStateProp = {
   user: User,
@@ -16,15 +19,13 @@ type GlobalStateProp = {
 
 const initState: GlobalStateProp = {
   user: {
-    userId: 0,
-    username: '',
-    email: undefined,
-    password: undefined,
-    role: undefined,
-    refreshToken: undefined,
-    locked: undefined,
-    resetPasswordToken: undefined,
-    bids: undefined
+    ...user1,
+    soldItems: [
+      item1,
+      item2
+    ], bids: [
+      bid1, bid2
+    ]
   },
   accessToken: '',
   setUser: function (user: User): void {

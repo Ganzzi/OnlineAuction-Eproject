@@ -27,7 +27,6 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
       imageFile: undefined,
       startingPrice: 0,
       increasingAmount: 0,
-      minSellingPrice: undefined,
       reservePrice: undefined,
       sellerId: 0,
       seller: undefined,

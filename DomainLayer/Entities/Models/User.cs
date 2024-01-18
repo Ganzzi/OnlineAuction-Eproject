@@ -19,7 +19,7 @@ namespace DomainLayer.Entities.Models
         
         public RefreshToken? RefreshToken { get; set; }
         public ICollection<Bid>? Bids { get; set; }
-        public ICollection<Item>? Items { get; set; }
+        public ICollection<Item>? SoldItems { get; set; }
 
         [InverseProperty("Rater")]
         public ICollection<Rating>? Ratings { get; set; }

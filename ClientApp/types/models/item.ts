@@ -12,7 +12,6 @@ export type Item = {
 
     startingPrice: number,
     increasingAmount: number,
-    minSellingPrice?: number,
     reservePrice?: number,
 
     sellerId: number,
