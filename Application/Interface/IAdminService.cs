@@ -9,6 +9,9 @@ namespace Application.Interface
 {
     public interface IAdminServicevice
     {
+        //
+        Task<List<(User, int, int, int)>> ListAllUser(int take, int page);
+        //
         Task<IDictionary<string, (int, int)>> ListAllUserWithRatingAndBidCount(int take,int page);
         Task<IDictionary<string, int>> ListAllCategoryAndCountItem();
         Task<bool> LockOrUnlock(string username, string status);
