@@ -32,7 +32,12 @@ namespace DomainLayer.Entities.Models
 
         [InverseProperty("Item")]
         public Rating? Rating {get; set;}
+        
         public ICollection<Bid>? Bids { get; set; }
+
         public ICollection<CategoryItem>? CategoryItems { get; set; }
+
+        [InverseProperty("Item")]
+        public AuctionHistory? AuctionHistory {get; set;}
     }
 }

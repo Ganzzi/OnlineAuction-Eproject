@@ -49,7 +49,7 @@ const Index = ({ searchParams, resource }: { searchParams: SearchParams, resourc
   };
 
   return (
-    <div>
+    <div className='flex flex-col items-end'>
       <button
         onClick={() => router.push('/items/form')}
         className="mt-2 px-4 py-2 bg-meta-5 hover:bg-meta-3 text-white rounded hover:bg-blue-600"
@@ -69,7 +69,7 @@ const Index = ({ searchParams, resource }: { searchParams: SearchParams, resourc
         />
 
         {/* Right Section: List of Item Cards and Pagination */}
-        <div className="w-3/4 p-4">
+        <div className="w-3/4 p-4 space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
             {resource.data.map((item) => (
               <ItemCard key={item.itemId} item={item} />
@@ -113,24 +113,44 @@ const FilterBar: React.FC<FilterBarProps> = ({
         placeholder="Search..."
         value={searchKeyword}
         onChange={(e) => onSearchChange(e.target.value)}
+        className="w-full rounded border border-gray-300 p-2 mb-2"
       />
+
       {/* Search Button */}
-      <button onClick={onSearch}>Search</button>
+      <button
+        onClick={onSearch}
+        className="w-full bg-primary text-white p-2 rounded hover:bg-secondary transition duration-300"
+      >
+        Search
+      </button>
 
       {/* Sort Options */}
-      <select value={sortBy} onChange={(e) => onSortChange(e.target.value)}>
-        <option value="default">Default Sort</option>
-        <option value="name">Sort by Name</option>
-        {/* Add more sorting options as needed */}
-      </select>
+      <div className="mt-4">
+        <label htmlFor="sort" className="block text-sm font-medium text-gray-700">
+          Sort:
+        </label>
+        <select
+          id="sort"
+          value={sortBy}
+          onChange={(e) => onSortChange(e.target.value)}
+          className="w-full rounded border border-gray-300 p-2"
+        >
+          <option value="default">Default Sort</option>
+          <option value="name">Sort by Name</option>
+          {/* Add more sorting options as needed */}
+        </select>
+      </div>
 
       {/* Category Options */}
-      <div>
-        <label htmlFor="category">Category:</label>
+      <div className="mt-4">
+        <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+          Category:
+        </label>
         <select
           id="category"
           value={selectedCategory}
           onChange={(e) => onCategoryChange(e.target.value)}
+          className="w-full rounded border border-gray-300 p-2"
         >
           <option value={999}>All Categories</option>
           {categories.map((category) => (
@@ -140,9 +160,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
           ))}
         </select>
       </div>
-
-
     </div>
+
   );
 };
 

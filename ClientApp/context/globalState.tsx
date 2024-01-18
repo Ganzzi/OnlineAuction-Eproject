@@ -5,7 +5,7 @@ import useLocalStorage from '@/hooks/useLocalStorage';
 import { Notification } from '@/types/models/notification';
 import { User } from '@/types/models/user';
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
-import { bid1, bid2, item1, item2, user1 } from '@/data/item';
+import { auctionHistory1, auctionHistory2, bid1, bid2, item1, item2, user1 } from '@/data/item';
 
 type GlobalStateProp = {
   user: User,
@@ -25,6 +25,8 @@ const initState: GlobalStateProp = {
       item2
     ], bids: [
       bid1, bid2
+    ], auctionHistories: [
+      auctionHistory1, auctionHistory2
     ]
   },
   accessToken: '',

@@ -1,4 +1,4 @@
-import Breadcrumb from "@/components/Dashboard/Breadcrumb";
+import Breadcrumb from "@/components/Home/Breadcrumb";
 import Pagination from "@/components/common/Pagination/Pagination";
 import { category1, category2, item1, item2 } from "@/data/item";
 import { Category } from "@/types/models/category";
@@ -85,7 +85,10 @@ const fetchItems = async (searchParams: SearchParams): Promise<ItemProps> => {
 }
 
 const items:Item[] = [
-  item1, item2
+  item1, item2,
+  item1, item2,
+  item1, item2,
+  item1, item2,
 ]
 
 export default async function  ItemsPage ({ searchParams }: { searchParams: SearchParams }) {
@@ -94,6 +97,12 @@ export default async function  ItemsPage ({ searchParams }: { searchParams: Sear
   const resource = newResource(items, 93, searchParams?.page ? parseInt(searchParams.page.toString(), 10) : 1, 10);
 
   return (
+    <>
+    <Breadcrumb listPages={[{
+      pageName: "market",
+      link: "/items"
+    }]} />
     <Index searchParams={searchParams} resource={resource}/>
+    </>
   );
 };

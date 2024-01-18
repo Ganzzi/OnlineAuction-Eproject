@@ -4,16 +4,18 @@ import DropdownMessage from "../../Dashboard/Header/DropdownMessage";
 import DropdownNotification from "../../Dashboard/Header/DropdownNotification";
 import DropdownUser from "../../Dashboard/Header/DropdownUser";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 const Header = () => {
+  const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
       <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
         <div className='space-x-10 flex flex-row items-center justify-start'>
-          <Link href={'/'}>Logo</Link>
-          <Link href={'/items'}>Market</Link>
+          <Link href={'/'} className={`${!pathname.startsWith("/items") && !pathname.startsWith("/profile") ? "text-meta-7": ""}`}>Logo</Link>
+          <Link href={'/items'} className={`${pathname.startsWith("/items") ? "text-meta-7": ""}`}>Market</Link>
           <Search />
         </div>
 
@@ -26,10 +28,6 @@ const Header = () => {
             {/* <!-- Notification Menu Area --> */}
             <DropdownNotification />
             {/* <!-- Notification Menu Area --> */}
-
-            {/* <!-- Chat Notification Area --> */}
-            <DropdownMessage />
-            {/* <!-- Chat Notification Area --> */}
           </ul>
 
           {/* <!-- User Area --> */}
@@ -66,6 +64,7 @@ const Search = () => {
         type="text"
         name="search"
         placeholder="Search..."
+        className="p-2 rounded-lg dark:bg-gray dark:text-boxdark bg-bodydark text-gray-3"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
