@@ -1,4 +1,5 @@
-﻿using DomainLayer.Core;
+﻿using Application.Interface;
+using DomainLayer.Core;
 using DomainLayer.Entities.Models;
 using DomainLayer.SpecificationPattern;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Application.Service
 {
-    internal class UserService
+    internal class UserService:IuserService
     {
         private readonly IUnitOfWork _u;
         public UserService(IUnitOfWork u)
