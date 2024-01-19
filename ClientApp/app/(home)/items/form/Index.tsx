@@ -32,6 +32,8 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
       seller: undefined,
       categoryItems: undefined,
       bids: undefined,
+      startDate: new Date(),
+      endDate: new Date()
     },
     categories: [],
   };
@@ -128,17 +130,6 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
           placeholder="Increasing Amount"
           value={formData.item.increasingAmount}
           onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, increasingAmount: Number(e.target.value) }, }))}
-          className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
-        />
-      </div>
-
-      <div>
-        <label className="mb-3 block text-black dark:text-white">Min Selling Price</label>
-        <input
-          type="number"
-          placeholder="Min Selling Price"
-          value={formData.item.minSellingPrice || ''}
-          onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, minSellingPrice: Number(e.target.value) }, }))}
           className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
         />
       </div>

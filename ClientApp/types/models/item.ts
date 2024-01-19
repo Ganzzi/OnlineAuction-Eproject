@@ -14,8 +14,8 @@ export type Item = {
     increasingAmount: number,
     reservePrice?: number,
 
-    startDate: Date,
-    endDate: Date,
+    startDate: string,
+    endDate: string,
 
     sellerId: number,
     seller?: User,

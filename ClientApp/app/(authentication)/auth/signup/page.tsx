@@ -6,11 +6,7 @@ import Image from "next/image";
 import Breadcrumb from "@/components/Dashboard/Breadcrumb";
 import { Metadata } from "next";
 import axiosService from "@/axiosService";
-export const metadata: Metadata = {
-  title: "Signup Page | Next.js E-commerce Dashboard Template",
-  description: "This is Signup page for TailAdmin Next.js",
-  // other metadata
-};
+import { useRouter } from "next/navigation";
 
 type SignUpPayload = {
   username: string,
@@ -27,6 +23,8 @@ const initPayload: SignUpPayload = {
 }
 
 const SignUp: React.FC = () => {
+  const router = useRouter();
+
   const [payload, setPayload] = useState<SignUpPayload>(initPayload);
   const [errors, setErrors] = useState({
     username: "",
@@ -38,12 +36,12 @@ const SignUp: React.FC = () => {
   const  handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!payload.email) setErrors({...errors, email: "email must not be blank"})
-    if (!payload.password) setErrors({...errors, password: "password must not be blank"})
-    if (!payload.username) setErrors({...errors, username: "username must not be blank"})
-    if (!payload.retypePassword) setErrors({...errors, retypePassword: "retypePassword must not be blank"})
 
-    const res = await axiosService.post("/auth/login", JSON.stringify(payload));
+    const res = await axiosService.post("/api/auth/signup", JSON.stringify(payload));
+
+    if (res.status == 200) {
+        router.push("/auth/signin")
+    }
   }
   return (
     <>

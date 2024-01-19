@@ -4,6 +4,7 @@ import BidCard from '@/components/Home/market/BidCard';
 import { useGlobalState } from '@/context/globalState';
 import { Item } from '@/types/models/item'
 import { User } from '@/types/models/user';
+import { parseDate } from '@/utils';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 
@@ -17,14 +18,15 @@ const Index = ({ itemData }: { itemData: Item }) => {
   const [ratingAmount, setRatingAmount] = useState<number>();
   const [itemStatus, setItemStatus] = useState<string>(''); // 'started', 'not started', 'ended'
   const [winner, setWinner] = useState<User | null>(null);
-
+  
   useEffect(() => {
     // Assuming you have a utility function to determine the item status
     const calculateItemStatus = (item: Item): string => {
+      
       const currentDate = new Date();
-      if (currentDate < item.startDate) {
+      if (currentDate < parseDate(item.startDate)) {
         return 'not started';
-      } else if (currentDate >= item.startDate && currentDate <= item.endDate) {
+      } else if (currentDate >= parseDate(item.startDate) && currentDate <= parseDate(item.endDate)) {
         return 'started';
       } else {
         return 'ended';

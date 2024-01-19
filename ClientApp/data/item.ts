@@ -97,13 +97,13 @@ const bid2: Bid = {
 
 // Fake data for Category type
 const category1: Category = {
-    categoryId: 301,
+    categoryId: 1,
     categoryName: 'Electronics',
     description: 'Electronic gadgets and devices',
 };
 
 const category2: Category = {
-    categoryId: 302,
+    categoryId: 2,
     categoryName: 'Clothing',
     description: 'Fashionable clothing items',
 };

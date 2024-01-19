@@ -4,7 +4,7 @@ import { User } from "./user"
 export type Bid = {
     bidId: number,
     bidAmount: number,
-    bidDate: Date,
+    bidDate: string,
 
     userId: number,
     user?: User,

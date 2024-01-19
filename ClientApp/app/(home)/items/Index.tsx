@@ -9,13 +9,14 @@ import { Category } from "@/types/models/category";
 import { Item } from '@/types/models/item';
 import Pagination from '@/components/common/Pagination/Pagination';
 import ItemCard from '@/components/Home/ItemCard';
+import { CategoryItem } from '@/types/models/categoryItem';
 
 const categories: Category[] = [
   category1,
   category2
 ];
 
-const Index = ({ searchParams, resource }: { searchParams: SearchParams, resource: Resource<Item> }) => {
+const Index = ({ searchParams, resource }: { searchParams: SearchParams, resource: Resource<CategoryItem> }) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -26,8 +27,8 @@ const Index = ({ searchParams, resource }: { searchParams: SearchParams, resourc
   const handleSearch = () => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('search', searchKeyword);
-    newSearchParams.set('sortBy', sortBy);
-    newSearchParams.set('category', selectedCategory);
+    newSearchParams.set('sort', sortBy);
+    newSearchParams.set("page", "1");
 
     router.push(`${pathname}?${newSearchParams}`);
   };
@@ -35,7 +36,8 @@ const Index = ({ searchParams, resource }: { searchParams: SearchParams, resourc
   const handleSortChange = (value: string) => {
     setSortBy(value);
     const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('sortBy', value);
+    newSearchParams.set('sort', value);
+    newSearchParams.set("page", "1");
 
     router.push(`${pathname}?${newSearchParams}`);
   };
@@ -44,6 +46,7 @@ const Index = ({ searchParams, resource }: { searchParams: SearchParams, resourc
     setSelectedCategory(value);
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('category', value);
+    newSearchParams.set("page", "1");
 
     router.push(`${pathname}?${newSearchParams}`);
   };
@@ -55,7 +58,7 @@ const Index = ({ searchParams, resource }: { searchParams: SearchParams, resourc
         className="mt-2 px-4 py-2 bg-meta-5 hover:bg-meta-3 text-white rounded hover:bg-blue-600"
       >Sell Item</button>
 
-      <div className="flex">
+      <div className="flex flex-row justify-start w-full">
         {/* Left Section: Filter Bar */}
         <FilterBar
           searchKeyword={searchKeyword}
@@ -71,8 +74,8 @@ const Index = ({ searchParams, resource }: { searchParams: SearchParams, resourc
         {/* Right Section: List of Item Cards and Pagination */}
         <div className="w-3/4 p-4 space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
-            {resource.data.map((item) => (
-              <ItemCard key={item.itemId} item={item} />
+            {resource.data?.map((item) => (
+              <ItemCard key={item.itemId} item={item.item} />
             ))}
           </div>
 
@@ -135,8 +138,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
           onChange={(e) => onSortChange(e.target.value)}
           className="w-full rounded border border-gray-300 p-2"
         >
-          <option value="default">Default Sort</option>
-          <option value="name">Sort by Name</option>
+          <option value="title">Default Sort</option>
+          <option value="date">Sort by Date</option>
           {/* Add more sorting options as needed */}
         </select>
       </div>
@@ -152,7 +155,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
           onChange={(e) => onCategoryChange(e.target.value)}
           className="w-full rounded border border-gray-300 p-2"
         >
-          <option value={999}>All Categories</option>
+          <option value={""}>All Categories</option>
           {categories.map((category) => (
             <option key={category.categoryId} value={category.categoryId}>
               {category.categoryName}

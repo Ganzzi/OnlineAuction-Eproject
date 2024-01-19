@@ -2,12 +2,14 @@
 using Application.Interface;
 using Application.Service.AdminServicevice;
 using DomainLayer.Entities.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace AuctionOnline.Controllers.Admin
 {
+    [Authorize( Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase

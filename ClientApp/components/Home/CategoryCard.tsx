@@ -21,8 +21,8 @@ const CategoryCard = ({ category }: { category: Category }) => {
       <h5 className="text-xl font-bold mb-2 text-meta-6">{category.categoryName}</h5>
       <p className="text-meta-8 mb-4">{category.description}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
-        {category.categoryItems?.map((item) => (
-          <ItemCard key={item.itemId} item={item.item} />
+        {category.categoryItems?.map((item, i) => (
+          <ItemCard key={i} item={item.item} />
         ))}
       </div>
       {/* Linking Card */}

@@ -7,19 +7,29 @@ import Loader from "@/components/common/Loader";
 
 import Sidebar from "@/components/Dashboard/Sidebar";
 import Header from "@/components/Dashboard/Header";
+import { useGlobalState } from "@/context/globalState";
+import { useRouter } from "next/navigation";
 
 export default function HomeLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const {accessToken, user} = useGlobalState();
+  const router = useRouter();
+  
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
+
+  useEffect(() => {
+    if(accessToken!==""&&user.role !== "Admin") {
+        router.push("/")
+    }
+  }, [accessToken])
 
   return (
         <div className="dark:bg-boxdark-2 dark:text-bodydark">
