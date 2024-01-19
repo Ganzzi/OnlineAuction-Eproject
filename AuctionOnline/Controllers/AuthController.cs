@@ -63,9 +63,9 @@ namespace AuctionOnline.Controllers
 
         [Route("RefreshToken")]
         [HttpPost]
-        public async Task<IActionResult> RefreshToken(string token)
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest req)
         {
-            var validtoken = await _jwt.RefreshAccessToken(token);
+            var validtoken = await _jwt.RefreshAccessToken(req.AccessToken);
             if (validtoken == null)
             {
                 return BadRequest(new

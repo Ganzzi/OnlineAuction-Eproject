@@ -29,7 +29,7 @@ namespace Application.Service
             // JwtSecurityTokenHandler => cho phép thao tác với token(tạo - gọi method - xác thực)
             var jwtHandeler = new JwtSecurityTokenHandler();
             // tạo key
-            var key = Encoding.ASCII.GetBytes("my16charSecretKey");
+            var key = Encoding.ASCII.GetBytes("my21charSuperSecretKeyForMy21charSuperSecretKey");
             // tạo playload chứa name và role
             var spec = new BaseSpecification<User>(x => x.Name == user.Name);
             var userRole = await _u.Repository<User>().FindOne(spec);

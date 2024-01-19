@@ -8,6 +8,7 @@ import { Metadata } from "next";
 import { useGlobalState } from "@/context/globalState";
 import axiosService from "@/axiosService";
 import { BRAND } from "@/types/brand";
+import axios from "axios";
 
 type SignInPayload = {
     email: string,
@@ -45,7 +46,15 @@ const SignIn: React.FC = () => {
       return
     }
 
-    const res = await axiosService.post("/api/auth/signin", JSON.stringify(payload));
+    const res = await axios.post(
+      "https://localhost:7073/api/auth/signin", 
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "Application/Json"
+        }
+      }
+    );
 
     if (res.status == 200) {
       const data:  SignInResponse = res.data;

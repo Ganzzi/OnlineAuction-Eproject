@@ -58,9 +58,9 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
 
   const setAccessToken: (tk: string | null, refreshToken?: string) => void = (tk: string | null, refreshToken?: string) => {
     if (tk != null && refreshToken) {
-      _setAccessToken(tk)
       setToken(tk);
       setRefreshToken(refreshToken);
+      _setAccessToken(tk)
     } else {      
       removeToken()
       removeRefreshToken()

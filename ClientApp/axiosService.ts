@@ -3,7 +3,6 @@ import axios from "axios";
 
 const axiosService = axios.create({
   baseURL: "https://localhost:7073",
-  // baseURL: "http://localhost:5106",
   headers: {
     "Content-Type": "application/json",
   },
@@ -14,10 +13,13 @@ axiosService.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
       
-      const _token: string = localStorage.getItem("ACCESS_TOKEN") ?? "".toString();
-      const accessToken: string = JSON.parse(_token);
+      const _token = localStorage.getItem("ACCESS_TOKEN");
+      const accessToken: string = JSON.parse(_token == null ? " " : _token);
+
+      console.log("axios: "+accessToken);
       
-      if (accessToken !== "") {
+      
+      if (accessToken !== " ") {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
     }
@@ -37,7 +39,6 @@ axiosService.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      localStorage.removeItem("ACCESS_TOKEN");
       originalRequest._retry = true;
 
       try {
@@ -48,6 +49,7 @@ axiosService.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return axios(originalRequest);
       } catch (refreshError) {
+        localStorage.removeItem("ACCESS_TOKEN");
         // Handle refresh error, e.g., redirect to login page
         console.error("Failed to refresh access token:", refreshError);
         // Redirect to the login page or handle the error appropriately
@@ -59,16 +61,14 @@ axiosService.interceptors.response.use(
 );
 
 const refreshAccessToken = async () => {
-  console.log('refreshing new token...');
-  
   // Assuming you have a function to request a new access token using the old access token
   // This function should make a request to your authentication service
   // and return the new access token
-  const _token: string = localStorage.getItem("ACCESS_TOKEN") ?? "".toString();
-  const accessToken: string = JSON.parse(_token);
+  const _token = localStorage.getItem("ACCESS_TOKEN");
+  const accessToken: string = JSON.parse(_token === null ? " " : _token);
 
-  const response = await axiosService.post("/api/auth/RefreshToken", { accessToken });
-  const newAccessToken = response.data?.AccessToken;
+  const response = await axiosService.post("/api/auth/RefreshToken", {  accessToken });
+  const newAccessToken = response.data?.accessToken;
 
   // Update the local storage with the new access token
   localStorage.setItem("ACCESS_TOKEN", JSON.stringify(newAccessToken));

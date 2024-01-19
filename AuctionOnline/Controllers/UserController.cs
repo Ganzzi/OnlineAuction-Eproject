@@ -1,6 +1,7 @@
 ﻿using Application.Interface;
 using DomainLayer.Core;
 using DomainLayer.Entities.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
