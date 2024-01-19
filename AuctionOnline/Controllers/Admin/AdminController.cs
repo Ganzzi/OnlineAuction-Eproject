@@ -2,12 +2,14 @@
 using Application.Interface;
 using Application.Service.AdminServicevice;
 using DomainLayer.Entities.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace AuctionOnline.Controllers.Admin
 {
+    [Authorize( Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase
@@ -18,6 +20,18 @@ namespace AuctionOnline.Controllers.Admin
             _a = a;
         }
 
+        [Route("getall")]
+        [HttpGet]
+        public async Task<IActionResult> getallUser([FromQuery] int page = 1,
+ [FromQuery] int take = 10)
+        {
+
+            var listUser = await _a.ListAllUser(take, page);
+
+            return Ok(listUser.ToString());
+        }
+
+        // TODO: additionally return average rated amount
         //all user
         [Route("getallUser")]
         [HttpGet]

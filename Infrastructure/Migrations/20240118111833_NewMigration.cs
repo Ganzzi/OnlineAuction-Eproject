@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class V1 : Migration
+    public partial class NewMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,7 +20,7 @@ namespace Infrastructure.Migrations
                     CategoryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -38,6 +38,7 @@ namespace Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -55,9 +56,13 @@ namespace Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<float>(type: "real", nullable: false),
-                    ImgUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
+                    StartingPrice = table.Column<float>(type: "real", nullable: false),
+                    IncreasingAmount = table.Column<float>(type: "real", nullable: false),
+                    ReservePrice = table.Column<float>(type: "real", nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SellerId = table.Column<int>(type: "int", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -65,8 +70,8 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_ItemTable", x => x.ItemId);
                     table.ForeignKey(
-                        name: "FK_ItemTable_Usertable_UserId",
-                        column: x => x.UserId,
+                        name: "FK_ItemTable_Usertable_SellerId",
+                        column: x => x.SellerId,
                         principalTable: "Usertable",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Restrict);
@@ -95,31 +100,30 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AcutionHistory",
+                name: "AuctionHistory",
                 columns: table => new
                 {
-                    AcutionHistoryId = table.Column<int>(type: "int", nullable: false)
+                    AuctionHistoryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ItemId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    startDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    endDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    WinnerId = table.Column<int>(type: "int", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     WinningBid = table.Column<float>(type: "real", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AcutionHistory", x => x.AcutionHistoryId);
+                    table.PrimaryKey("PK_AuctionHistory", x => x.AuctionHistoryId);
                     table.ForeignKey(
-                        name: "FK_AcutionHistory_ItemTable_ItemId",
+                        name: "FK_AuctionHistory_ItemTable_ItemId",
                         column: x => x.ItemId,
                         principalTable: "ItemTable",
                         principalColumn: "ItemId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AcutionHistory_Usertable_UserId",
-                        column: x => x.UserId,
+                        name: "FK_AuctionHistory_Usertable_WinnerId",
+                        column: x => x.WinnerId,
                         principalTable: "Usertable",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
@@ -219,10 +223,11 @@ namespace Infrastructure.Migrations
                 {
                     RatingId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ItemId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
                     Rate = table.Column<float>(type: "real", nullable: false),
                     RatingDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ItemId = table.Column<int>(type: "int", nullable: false),
+                    RaterId = table.Column<int>(type: "int", nullable: false),
+                    RatedUserId = table.Column<int>(type: "int", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -236,8 +241,13 @@ namespace Infrastructure.Migrations
                         principalColumn: "ItemId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Rating_Usertable_UserId",
-                        column: x => x.UserId,
+                        name: "FK_Rating_Usertable_RatedUserId",
+                        column: x => x.RatedUserId,
+                        principalTable: "Usertable",
+                        principalColumn: "UserId");
+                    table.ForeignKey(
+                        name: "FK_Rating_Usertable_RaterId",
+                        column: x => x.RaterId,
                         principalTable: "Usertable",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
@@ -254,21 +264,21 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Usertable",
-                columns: new[] { "UserId", "Created", "Email", "LastModified", "Name", "Password", "Role" },
+                columns: new[] { "UserId", "Avatar", "Created", "Email", "LastModified", "Name", "Password", "Role" },
                 values: new object[,]
                 {
-                    { 1, null, "batman123", null, "batman", "123", "User" },
-                    { 2, null, "ironman123", null, "ironman", "123", "User" },
-                    { 3, null, "admin123", null, "admin", "123", "Admin" }
+                    { 1, null, null, "batman123", null, "batman", "123", "User" },
+                    { 2, null, null, "ironman123", null, "ironman", "123", "User" },
+                    { 3, null, null, "admin123", null, "admin", "123", "Admin" }
                 });
 
             migrationBuilder.InsertData(
                 table: "ItemTable",
-                columns: new[] { "ItemId", "Created", "Description", "ImgUrl", "LastModified", "Price", "Title", "UserId" },
+                columns: new[] { "ItemId", "Created", "Description", "EndDate", "Image", "IncreasingAmount", "LastModified", "ReservePrice", "SellerId", "StartDate", "StartingPrice", "Title" },
                 values: new object[,]
                 {
-                    { 1, null, "Description for Item 1", "url_to_image_1", null, 1000f, "Item 1", 1 },
-                    { 2, null, "Description for Item 2", "url_to_image_2", null, 2000f, "Item 2", 1 }
+                    { 1, null, "Description for Item 1", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "url_to_image_1", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1000f, "Item 1" },
+                    { 2, null, "Description for Item 2", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "url_to_image_2", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2000f, "Item 2" }
                 });
 
             migrationBuilder.InsertData(
@@ -276,8 +286,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "BidId", "BidAmout", "BidDate", "Created", "ItemId", "LastModified", "UserId" },
                 values: new object[,]
                 {
-                    { 1, 100f, new DateTime(2024, 1, 15, 12, 21, 36, 669, DateTimeKind.Local).AddTicks(8523), null, 1, null, 1 },
-                    { 2, 200f, new DateTime(2024, 1, 15, 12, 21, 36, 669, DateTimeKind.Local).AddTicks(8551), null, 2, null, 2 }
+                    { 1, 100f, new DateTime(2024, 1, 18, 18, 18, 33, 534, DateTimeKind.Local).AddTicks(3487), null, 1, null, 1 },
+                    { 2, 200f, new DateTime(2024, 1, 18, 18, 18, 33, 534, DateTimeKind.Local).AddTicks(3512), null, 2, null, 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -291,22 +301,23 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Rating",
-                columns: new[] { "RatingId", "Created", "ItemId", "LastModified", "Rate", "RatingDate", "UserId" },
+                columns: new[] { "RatingId", "Created", "ItemId", "LastModified", "Rate", "RatedUserId", "RaterId", "RatingDate" },
                 values: new object[,]
                 {
-                    { 1, null, 1, null, 4.5f, new DateTime(2024, 1, 15, 12, 21, 36, 669, DateTimeKind.Local).AddTicks(8618), 1 },
-                    { 2, null, 2, null, 4f, new DateTime(2024, 1, 15, 12, 21, 36, 669, DateTimeKind.Local).AddTicks(8620), 2 }
+                    { 1, null, 1, null, 4.5f, 2, 1, new DateTime(2024, 1, 18, 18, 18, 33, 534, DateTimeKind.Local).AddTicks(3574) },
+                    { 2, null, 2, null, 4f, 2, 2, new DateTime(2024, 1, 18, 18, 18, 33, 534, DateTimeKind.Local).AddTicks(3576) }
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AcutionHistory_ItemId",
-                table: "AcutionHistory",
-                column: "ItemId");
+                name: "IX_AuctionHistory_ItemId",
+                table: "AuctionHistory",
+                column: "ItemId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_AcutionHistory_UserId",
-                table: "AcutionHistory",
-                column: "UserId");
+                name: "IX_AuctionHistory_WinnerId",
+                table: "AuctionHistory",
+                column: "WinnerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BidTable_ItemId",
@@ -329,9 +340,9 @@ namespace Infrastructure.Migrations
                 column: "ItemId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ItemTable_UserId",
+                name: "IX_ItemTable_SellerId",
                 table: "ItemTable",
-                column: "UserId");
+                column: "SellerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notification_ItemId",
@@ -346,12 +357,18 @@ namespace Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Rating_ItemId",
                 table: "Rating",
-                column: "ItemId");
+                column: "ItemId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Rating_UserId",
+                name: "IX_Rating_RatedUserId",
                 table: "Rating",
-                column: "UserId");
+                column: "RatedUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Rating_RaterId",
+                table: "Rating",
+                column: "RaterId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RefreshToken_UserId",
@@ -365,7 +382,7 @@ namespace Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AcutionHistory");
+                name: "AuctionHistory");
 
             migrationBuilder.DropTable(
                 name: "BidTable");

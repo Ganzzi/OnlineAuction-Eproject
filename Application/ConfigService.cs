@@ -13,6 +13,7 @@ namespace Application
             service.AddScoped<IJwtService, JwtService>();
             service.AddScoped<IAdminServicevice, AdminService>();
             service.AddScoped<IAuthService, AuthService>();
+            service.AddScoped<IuserService, UserService>();
             return service;
         }
     }

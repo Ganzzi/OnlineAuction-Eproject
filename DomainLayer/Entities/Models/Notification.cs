@@ -17,11 +17,10 @@ namespace DomainLayer.Entities.Models
         public Item? Item { get; set; }
         public int ItemId { get; set; }
 
+        [InverseProperty("Notifications")]
         [ForeignKey("UserId")]
         public User? User { get; set; }
         public int UserId { get; set; }
-
-
         public string NotificationContent { get; set; }
         public DateTime NotificationDate { get; set; }
     }

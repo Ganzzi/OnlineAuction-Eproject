@@ -22,15 +22,18 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DomainLayer.Entities.Models.AcutionHistory", b =>
+            modelBuilder.Entity("DomainLayer.Entities.Models.AuctionHistory", b =>
                 {
-                    b.Property<int>("AcutionHistoryId")
+                    b.Property<int>("AuctionHistoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AcutionHistoryId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuctionHistoryId"));
 
                     b.Property<DateTime?>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("ItemId")
@@ -39,25 +42,20 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("UserId")
+                    b.Property<int>("WinnerId")
                         .HasColumnType("int");
 
                     b.Property<float>("WinningBid")
                         .HasColumnType("real");
 
-                    b.Property<DateTime>("endDate")
-                        .HasColumnType("datetime2");
+                    b.HasKey("AuctionHistoryId");
 
-                    b.Property<DateTime>("startDate")
-                        .HasColumnType("datetime2");
+                    b.HasIndex("ItemId")
+                        .IsUnique();
 
-                    b.HasKey("AcutionHistoryId");
+                    b.HasIndex("WinnerId");
 
-                    b.HasIndex("ItemId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AcutionHistory");
+                    b.ToTable("AuctionHistory");
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.Bid", b =>
@@ -99,7 +97,7 @@ namespace Infrastructure.Migrations
                         {
                             BidId = 1,
                             BidAmout = 100f,
-                            BidDate = new DateTime(2024, 1, 15, 12, 21, 36, 669, DateTimeKind.Local).AddTicks(8523),
+                            BidDate = new DateTime(2024, 1, 18, 18, 18, 33, 534, DateTimeKind.Local).AddTicks(3487),
                             ItemId = 1,
                             UserId = 1
                         },
@@ -107,7 +105,7 @@ namespace Infrastructure.Migrations
                         {
                             BidId = 2,
                             BidAmout = 200f,
-                            BidDate = new DateTime(2024, 1, 15, 12, 21, 36, 669, DateTimeKind.Local).AddTicks(8551),
+                            BidDate = new DateTime(2024, 1, 18, 18, 18, 33, 534, DateTimeKind.Local).AddTicks(3512),
                             ItemId = 2,
                             UserId = 2
                         });
@@ -129,7 +127,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("LastModified")
@@ -212,26 +209,38 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImgUrl")
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Image")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("IncreasingAmount")
+                        .HasColumnType("real");
 
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime2");
 
-                    b.Property<float>("Price")
+                    b.Property<float?>("ReservePrice")
+                        .HasColumnType("real");
+
+                    b.Property<int>("SellerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float>("StartingPrice")
                         .HasColumnType("real");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("ItemId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("SellerId");
 
                     b.ToTable("ItemTable");
 
@@ -240,19 +249,25 @@ namespace Infrastructure.Migrations
                         {
                             ItemId = 1,
                             Description = "Description for Item 1",
-                            ImgUrl = "url_to_image_1",
-                            Price = 1000f,
-                            Title = "Item 1",
-                            UserId = 1
+                            EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Image = "url_to_image_1",
+                            IncreasingAmount = 100f,
+                            SellerId = 1,
+                            StartDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            StartingPrice = 1000f,
+                            Title = "Item 1"
                         },
                         new
                         {
                             ItemId = 2,
                             Description = "Description for Item 2",
-                            ImgUrl = "url_to_image_2",
-                            Price = 2000f,
-                            Title = "Item 2",
-                            UserId = 1
+                            EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Image = "url_to_image_2",
+                            IncreasingAmount = 100f,
+                            SellerId = 1,
+                            StartDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            StartingPrice = 2000f,
+                            Title = "Item 2"
                         });
                 });
 
@@ -312,17 +327,23 @@ namespace Infrastructure.Migrations
                     b.Property<float>("Rate")
                         .HasColumnType("real");
 
+                    b.Property<int?>("RatedUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RaterId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("RatingDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("RatingId");
 
-                    b.HasIndex("ItemId");
+                    b.HasIndex("ItemId")
+                        .IsUnique();
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("RatedUserId");
+
+                    b.HasIndex("RaterId");
 
                     b.ToTable("Rating");
 
@@ -332,16 +353,18 @@ namespace Infrastructure.Migrations
                             RatingId = 1,
                             ItemId = 1,
                             Rate = 4.5f,
-                            RatingDate = new DateTime(2024, 1, 15, 12, 21, 36, 669, DateTimeKind.Local).AddTicks(8618),
-                            UserId = 1
+                            RatedUserId = 2,
+                            RaterId = 1,
+                            RatingDate = new DateTime(2024, 1, 18, 18, 18, 33, 534, DateTimeKind.Local).AddTicks(3574)
                         },
                         new
                         {
                             RatingId = 2,
                             ItemId = 2,
                             Rate = 4f,
-                            RatingDate = new DateTime(2024, 1, 15, 12, 21, 36, 669, DateTimeKind.Local).AddTicks(8620),
-                            UserId = 2
+                            RatedUserId = 2,
+                            RaterId = 2,
+                            RatingDate = new DateTime(2024, 1, 18, 18, 18, 33, 534, DateTimeKind.Local).AddTicks(3576)
                         });
                 });
 
@@ -385,6 +408,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("UserId"));
+
+                    b.Property<string>("Avatar")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("Created")
                         .HasColumnType("datetime2");
@@ -439,23 +465,23 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("DomainLayer.Entities.Models.AcutionHistory", b =>
+            modelBuilder.Entity("DomainLayer.Entities.Models.AuctionHistory", b =>
                 {
                     b.HasOne("DomainLayer.Entities.Models.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId")
+                        .WithOne("AuctionHistory")
+                        .HasForeignKey("DomainLayer.Entities.Models.AuctionHistory", "ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DomainLayer.Entities.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                    b.HasOne("DomainLayer.Entities.Models.User", "Winner")
+                        .WithMany("AuctionHistories")
+                        .HasForeignKey("WinnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Item");
 
-                    b.Navigation("User");
+                    b.Navigation("Winner");
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.Bid", b =>
@@ -498,13 +524,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("DomainLayer.Entities.Models.Item", b =>
                 {
-                    b.HasOne("DomainLayer.Entities.Models.User", "User")
-                        .WithMany("Items")
-                        .HasForeignKey("UserId")
+                    b.HasOne("DomainLayer.Entities.Models.User", "Seller")
+                        .WithMany("SoldItems")
+                        .HasForeignKey("SellerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Seller");
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.Notification", b =>
@@ -516,7 +542,7 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("DomainLayer.Entities.Models.User", "User")
-                        .WithMany()
+                        .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -529,20 +555,26 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("DomainLayer.Entities.Models.Rating", b =>
                 {
                     b.HasOne("DomainLayer.Entities.Models.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId")
+                        .WithOne("Rating")
+                        .HasForeignKey("DomainLayer.Entities.Models.Rating", "ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DomainLayer.Entities.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                    b.HasOne("DomainLayer.Entities.Models.User", "RatedUser")
+                        .WithMany("BeingRateds")
+                        .HasForeignKey("RatedUserId");
+
+                    b.HasOne("DomainLayer.Entities.Models.User", "Rater")
+                        .WithMany("Ratings")
+                        .HasForeignKey("RaterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Item");
 
-                    b.Navigation("User");
+                    b.Navigation("RatedUser");
+
+                    b.Navigation("Rater");
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.RefreshToken", b =>
@@ -561,18 +593,30 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("DomainLayer.Entities.Models.Item", b =>
                 {
+                    b.Navigation("AuctionHistory");
+
                     b.Navigation("Bids");
 
                     b.Navigation("CategoryItems");
+
+                    b.Navigation("Rating");
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.User", b =>
                 {
+                    b.Navigation("AuctionHistories");
+
+                    b.Navigation("BeingRateds");
+
                     b.Navigation("Bids");
 
-                    b.Navigation("Items");
+                    b.Navigation("Notifications");
+
+                    b.Navigation("Ratings");
 
                     b.Navigation("RefreshToken");
+
+                    b.Navigation("SoldItems");
                 });
 #pragma warning restore 612, 618
         }
