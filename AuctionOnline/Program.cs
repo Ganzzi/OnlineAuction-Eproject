@@ -16,8 +16,6 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 builder.Services.AddAppService(builder.Configuration);  
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
-//jwt token
-
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -48,6 +46,12 @@ builder.Services.AddAuthentication(x =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors(opt => opt.AddPolicy(name: "mypolicy",
+        policy =>
+        {
+            policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:3000");
+        }
+    ));
 
 var app = builder.Build();
 
@@ -59,7 +63,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("mypolicy");
+
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,6 +1,7 @@
 ﻿using Application.Interface;
 using DomainLayer.Core;
 using DomainLayer.Entities.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,12 +19,10 @@ namespace AuctionOnline.Controllers
             _s = s;
         }
 
-
-
         // categorylist 
-        [Route("getTopTen")]
+        [Route("CategoriesWithTenItems")]
         [HttpGet]
-        public async Task<IActionResult> categoryListwithTopTenItem()
+        public async Task<IActionResult> CategoriesWithTenItems()
         {
             var topTen = await _s.categorylist();
             if (topTen != null)
@@ -40,9 +39,9 @@ namespace AuctionOnline.Controllers
         }
 
         // itembyid
-        [Route("getItem")]
+        [Route("GetItemById")]
         [HttpGet]
-        public async Task<IActionResult> getItemUseId(int id)
+        public async Task<IActionResult> GetItemById(int id)
         {
             var item = await _s.getItemById(id);
             if (item != null)
@@ -59,9 +58,9 @@ namespace AuctionOnline.Controllers
         }
 
         // search item
-        [Route("searchItem")]
+        [Route("ListItemsWithQuery")]
         [HttpGet]
-        public async Task<IActionResult> searchItemList(int page, int take, string? search, int? cate)
+        public async Task<IActionResult> ListItemsWithQuery(int page, int take, string? search, int? cate)
         {
             var listSeach = await _s.searchItem(page, take, search, cate);
             if (listSeach == (null, 0))
@@ -79,11 +78,12 @@ namespace AuctionOnline.Controllers
         }
 
         //sell item
-        [Route("sell")]
+        // TODO: add CategoryItem[] to db base on category[]
+        [Route("SellItem")]
         [HttpPost]
-        public async Task<IActionResult> Sell([FromBody] Item item)
+        public async Task<IActionResult> SellItem([FromBody] SellItemReqest req)
         {
-            var sellitem = await _s.sellItem(item);
+            var sellitem = await _s.sellItem(req);
             if (sellitem == 1)
             {
                 return Ok(new
@@ -107,10 +107,84 @@ namespace AuctionOnline.Controllers
             }
         }
 
-        //update user
-        [Route("updateUser")]
+        //Update item
+        // TODO: finish function, delete old & add CategoryItem[] to db base on category[]
+        [Route("UpdateItem")]
         [HttpPost]
-        public async Task<IActionResult> updateUser([FromBody] User user)
+        public async Task<IActionResult> UpdateItem([FromBody] SellItemReqest req)
+        {
+            return Ok();
+        }
+
+        // Place a bid
+        // TODO: finish function, get userid by token, new Bid model
+        [Route("PlaceBid")]
+        [HttpPost]
+        public async Task<IActionResult> PlaceBid([FromBody] PlaceBidRequest req)
+        {
+            return Ok();
+        }
+
+        
+
+        // get profile
+        // TODO: get user basic (name, email, role, id,...) info base on token
+        [Route("Profile")]
+        [HttpGet]
+        public async Task<IActionResult> Profile(){
+
+            return Ok();
+        }
+
+        // get profile
+        // TODO: include solditems, bids, auction history (user model)
+        [Route("Profile")]
+        [HttpGet]
+        public async Task<IActionResult> ProfileDetail(){
+            return Ok();
+        }
+
+        // get auction history detail
+        // TODO: get auction history model from userId (use token) & AuctionHistoryId
+        [Route("AuctionHistoryDetail")]
+        [HttpGet]
+        public async Task<IActionResult> AuctionHistoryDetail(int AuctionHistoryId){
+            return Ok();
+        }
+        
+        //rating 
+        // TODO: 
+        // - new rating model, raterId: userId from token, ratedUserId, amount from request
+        // - test function
+        [Route("RateBuyer")]
+        [HttpPost]
+        public async Task<IActionResult> RateBuyer([FromBody] RateBuyerRequest req)
+        {
+            var token = HttpContext.Request.Headers["Authorization"];
+            var username = _j.dataFormToken(token);
+            var RateAction = await _s.Ratting(username, req);
+            if (RateAction == false)
+            {
+                return BadRequest(new
+                {
+                    message = "Fail Action"
+                });
+            }
+            else
+            {
+                return Ok(new
+                {
+                    message = "success"
+                });
+            }
+
+        }
+    
+        //update user
+        // TODO: handle avatar file
+        [Route("UpdateUser")]
+        [HttpPost]
+        public async Task<IActionResult> UpdateUser([FromBody] User user)
         {
             var userupdate = await _s.UpdateUser(user);
             if (userupdate != null)
@@ -129,29 +203,5 @@ namespace AuctionOnline.Controllers
             }
         }
 
-        //rating 
-        [Route("Ratting")]
-        [HttpPost]
-        public async Task<IActionResult> RateItem(int id, float rate)
-        {
-            var token = HttpContext.Request.Headers["Authorization"];
-            var username = _j.dataFormToken(token);
-            var RateAction = await _s.Ratting(username, id, rate);
-            if (RateAction == false)
-            {
-                return BadRequest(new
-                {
-                    message = "Fail Action"
-                });
-            }
-            else
-            {
-                return Ok(new
-                {
-                    message = "success"
-                });
-            }
-
         }
-    }
 }

@@ -12,22 +12,23 @@ import ItemCard from './ItemCard';
 
 const CategoryCard = ({ category }: { category: Category }) => {
   const {colorMode} = useGlobalState();
+  const router = useRouter();
 
   return (
     <div className={`shadow-md rounded-lg p-4
-      ${colorMode === 'dark' ? "bg-gray" : "bg-graydark"}
+      ${colorMode === 'dark' ? "bg-bodydark1" : "bg-graydark"}
     `}>
-      <h5 className="text-xl font-bold mb-2">{category.categoryName}</h5>
-      <p className="text-gray-600 mb-4">{category.description}</p>
+      <h5 className="text-xl font-bold mb-2 text-meta-6">{category.categoryName}</h5>
+      <p className="text-meta-8 mb-4">{category.description}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
-        {category.categoryItems?.map((item) => (
-          <ItemCard key={item.itemId} item={item.item} />
+        {category.categoryItems?.map((item, i) => (
+          <ItemCard key={i} item={item.item} />
         ))}
       </div>
       {/* Linking Card */}
       <Link 
         href={`/items?category=${category.categoryId}`} 
-        className={`block text-center mt-4 p-2 rounded hover:bg-blue-600 transition-colors
+        className={`block text-center mt-6 p-2 rounded hover:bg-meta-3 transition-colors
          ${colorMode === 'dark' ? 'bg-primary' : 'bg-secondary'}
           `}>
           View All Items

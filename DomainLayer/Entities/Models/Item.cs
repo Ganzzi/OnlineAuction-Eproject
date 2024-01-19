@@ -18,7 +18,6 @@ namespace DomainLayer.Entities.Models
         public string Description { get; set; }
         public float StartingPrice { get; set; }
         public float IncreasingAmount { get; set; }
-        public float? MinSellingPrice { get; set; }
         public float? ReservePrice { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -33,7 +32,12 @@ namespace DomainLayer.Entities.Models
 
         [InverseProperty("Item")]
         public Rating? Rating {get; set;}
+        
         public ICollection<Bid>? Bids { get; set; }
+
         public ICollection<CategoryItem>? CategoryItems { get; set; }
+
+        [InverseProperty("Item")]
+        public AuctionHistory? AuctionHistory {get; set;}
     }
 }

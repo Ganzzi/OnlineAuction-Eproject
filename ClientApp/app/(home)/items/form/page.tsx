@@ -1,4 +1,4 @@
-import Breadcrumb from "@/components/Dashboard/Breadcrumb";
+import Breadcrumb from "@/components/Home/Breadcrumb";
 import { Category } from "@/types/models/category";
 import { Item } from "@/types/models/item";
 import { SearchParams } from "@/types/next";
@@ -43,6 +43,15 @@ const ItemSellPage = async ({ searchParams }: { searchParams: SearchParams }) =>
 
   return (
     <>
+      <Breadcrumb listPages={[
+    {
+      pageName: "market",
+      link: "/items/"
+    },{
+      pageName: `${!itemId ? "sell" : "update - "+itemId}` ,
+      link: "/items/form"+ itemId && "?itemId="+itemId
+    },
+    ]} />
       <Index item={itemData?.[0]} categories={categories} existedCategories={itemData?.[1]} />
     </>
   );

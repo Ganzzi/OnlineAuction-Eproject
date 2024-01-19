@@ -163,7 +163,7 @@ namespace Infrastructure.Data
                 .OnDelete(DeleteBehavior.Cascade);
             // Configure the relationship between Item and User
             modelBuilder.Entity<User>()
-    .HasMany(u => u.Items)
+    .HasMany(u => u.SoldItems)
     .WithOne(i => i.Seller)
     .HasForeignKey(i => i.SellerId)
     .OnDelete(DeleteBehavior.Restrict);

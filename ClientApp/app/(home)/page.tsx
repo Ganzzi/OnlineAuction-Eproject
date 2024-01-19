@@ -1,36 +1,41 @@
+'use client'
+
+import axiosService from "@/axiosService";
 import OnlineAuction from "@/components/Dashboard/OnlineAuction";
+import Breadcrumb from "@/components/Home/Breadcrumb";
 import CategoryCard from "@/components/Home/CategoryCard";
 import { category1, category2, categoryItem1, categoryItem2 } from "@/data/item";
 import { Category } from "@/types/models/category";
+import axios from "axios";
 import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "TailAdmin | Next.js E-commerce Dashboard Template",
-  description: "This is Home Blog page for TailAdmin Next.js",
-  // other metadata
-};
-
-const categoryData: Category[] = [
-  {
-    ...category1, categoryItems: [
-      categoryItem1, categoryItem2,
-      categoryItem1, categoryItem2,
-      categoryItem1, categoryItem2,
-    ]
-  },
-  {
-    ...category2, categoryItems: [
-      categoryItem1, categoryItem2
-    ]
-  },
-]
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [categoryData, setCategoryData] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axiosService.get("/api/user/CategoriesWithTenItems");
+        const data: Category[] = res.data;
+        setCategoryData(data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        // Handle the error or provide a fallback mechanism if needed
+      }
+    };
+
+    fetchData();
+  }, []); // Run this effect only once on component mount
+
   return (
-    <div className="space-y-20">
-      {categoryData.map(cate => (
-        <CategoryCard category={cate} />
-      ))}
-    </div>
+    <>
+      <Breadcrumb listPages={[]} />
+      <div className="space-y-20">
+        {categoryData.map((cate) => (
+          <CategoryCard key={cate.categoryId} category={cate} />
+        ))}
+      </div>
+    </>
   );
 }

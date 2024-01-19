@@ -1,14 +1,19 @@
+'use client'
+
 import useColorMode from '@/hooks/useColorMode';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { Notification } from '@/types/models/notification';
 import { User } from '@/types/models/user';
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
+import { auctionHistory1, auctionHistory2, bid1, bid2, item1, item2, user1 } from '@/data/item';
 
 type GlobalStateProp = {
   user: User,
   accessToken: string,
   setUser: (user: User) => void,
-  setAccessToken: (tk: string | null) => void,
+  setAccessToken: (
+    tk: string | null,
+    refreshToken?: string) => void,
   notifications: Notification[],
   colorMode: string,
   setColorMode: (color: string) => void
@@ -16,45 +21,50 @@ type GlobalStateProp = {
 
 const initState: GlobalStateProp = {
   user: {
-    userId: 0,
-    username: '',
-    email: undefined,
-    password: undefined,
-    role: undefined,
-    refreshToken: undefined,
-    locked: undefined,
-    resetPasswordToken: undefined,
-    bids: undefined
+    ...user1,
+    soldItems: [
+      item1,
+      item2
+    ], bids: [
+      bid1, bid2
+    ], auctionHistories: [
+      auctionHistory1, auctionHistory2
+    ]
   },
   accessToken: '',
   setUser: function (user: User): void {
     throw new Error('Function not implemented.');
   },
-  setAccessToken: function (tk: string | null): void {
+  setAccessToken: function (tk: string | null, refreshToken?: string): void {
     throw new Error('Function not implemented.');
   },
   notifications: [],
-  colorMode: localStorage.getItem("color-theme")?.toString() ?? "light",
   setColorMode: function (tk: string | null): void {
     throw new Error('Function not implemented.');
   },
+  colorMode: ''
 }
 export const GlobalState = createContext<GlobalStateProp>(initState);
 
 export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
-  const [_g1, setColorModeStorage] = useColorMode();
-  const [_g2, _s2, removeToken] = useLocalStorage("ACCESS_TOKEN", "");
+  const [getColorMode, setColorModeStorage] = useColorMode();
+  const [getToken, setToken, removeToken] = useLocalStorage("ACCESS_TOKEN", "");
+  const [_g3, setRefreshToken, removeRefreshToken] = useLocalStorage("REFRESH_TOKEN", "");
 
   const [user, setUser] = useState<User>(initState.user);
-  const [accessToken, _setAccessToken] = useState<string>(initState.accessToken)
+  const [accessToken, _setAccessToken] = useState<string>(getToken)
   const [notifications, setNotifications] = useState<Array<Notification>>(initState.notifications)
-  const [colorMode, _setColorMode] = useState(initState.colorMode)
+  const [colorMode, _setColorMode] = useState(getColorMode)
 
-  const setAccessToken: (tk: string | null) => void = (tk: string | null) => {
-    if (tk != null) {
+  const setAccessToken: (tk: string | null, refreshToken?: string) => void = (tk: string | null, refreshToken?: string) => {
+    if (tk != null && refreshToken) {
+      setToken(tk);
+      setRefreshToken(refreshToken);
       _setAccessToken(tk)
-    } else {
+    } else {      
       removeToken()
+      removeRefreshToken()
+      _setAccessToken("")
     }
   }
 
@@ -67,9 +77,16 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
 
   // use effect to get notifications
   useEffect(() => {
-    
+    const fetchUserInfo = async () => {
+
+    }
+
+    if(accessToken!=="") {
+      fetchUserInfo();
+    }
+
     return () => {}
-  }, [user, accessToken])
+  }, [accessToken])
   
   return (
     <GlobalState.Provider value={{

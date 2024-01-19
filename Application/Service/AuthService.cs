@@ -22,12 +22,9 @@ namespace Application.Service
         }
         public async Task<User> Login(LoginModel model)
         {
-            //var spec2 = new BaseSpecification<User>
-            //    (x => x.Name == model.UserName && x.Password == model.Password)
-            //    .AddInclude(query => query.Include(user => user.bids).ThenInclude(bid => bid.Item));
-            var spec = new BaseSpecification<User>(x => x.Password == model.Password && x.Name == model.UserName);
-
+            var spec = new BaseSpecification<User>(x => x.Password == model.Password && x.Email == model.Email);
             var user = await _unit.Repository<User>().FindOne(spec);
+
             if (user == null)
             {
                 return null;
@@ -42,7 +39,7 @@ namespace Application.Service
             {
                 var newUser = new User()
                 {
-                    Name = model.Name,
+                    Name = model.UserName,
                     Password = model.Password,
                     Email = model.Email
                 };

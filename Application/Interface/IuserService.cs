@@ -13,8 +13,8 @@ namespace Application.Interface
         Task<User> getUser(string username);
         Task<User> UpdateUser(User model);
         Task<Item> getItemById(int id);
-        Task<(IList<Item>, int)> searchItem(int page, int take, string search, int? cate);
-        Task<int> sellItem(Item item);
-        Task<bool> Ratting(string username, int id, float rate);
+        Task<(IList<CategoryItem>, int)> searchItem(int page, int take, string? search, int? cate);
+        Task<int> sellItem(SellItemReqest req);
+        Task<bool> Ratting(string username, RateBuyerRequest req);
     }
 }

@@ -94,69 +94,37 @@ namespace Application.Service
         }
 
         //item list with search query
-        public async Task<(IList<Item>, int)> searchItem(int page, int take, string search, int? cate)
+        public async Task<(IList<CategoryItem>, int)> searchItem(int page, int take, string? search, int? cate)
         {
             try
             {
                 var skip = take * (page - 1);
-                var specCount = new BaseSpecification<Item>();
-                var Count = await _u.Repository<Item>().CountAsync(specCount);
-                if (search != null && cate == null)
-                {
-                    var Itemspec = new BaseSpecification<Item>(x => x.Title.Contains(search)).ApplyPaging(skip, take);
-                    var listItem = await _u.Repository<Item>().ListAsynccheck(Itemspec);
-                    foreach (var models in listItem)
-                    {
-                        var specModel = new BaseSpecification<Item>(x => x.ItemId == models.ItemId).AddInclude(x => x.Include(x => x.Bids).Include(x => x.Rating));
-                        var model = await _u.Repository<Item>().FindOne(specModel);
-                       
-                    }
-                    return (listItem, Count);
-                }
-                else if (search != null && cate != null)
-                {
-                    var Itemspec = new BaseSpecification<Item>(x => x.Title.Contains(search) && x.ItemId == cate);
-                    var listItem = await _u.Repository<Item>().ListAsynccheck(Itemspec);
-                    foreach (var models in listItem)
-                    {
-                        var specModel = new BaseSpecification<Item>(x => x.ItemId == models.ItemId).AddInclude(x => x.Include(x => x.Bids).Include(x => x.Rating));
-                        var model = await _u.Repository<Item>().FindOne(specModel);
-                       
-                    }
-                    return (listItem, Count);
-                }
-                else if (search == null && cate != null)
-                {
-                    var Itemspec = new BaseSpecification<Item>(x => x.ItemId == cate).ApplyPaging(skip, take);
-                    var listItem = await _u.Repository<Item>().ListAsynccheck(Itemspec);
-                    foreach (var models in listItem)
-                    {
-                        var specModel = new BaseSpecification<Item>(x => x.ItemId == models.ItemId).AddInclude(x => x.Include(x => x.Bids));
-                        var model = await _u.Repository<Item>().FindOne(specModel);
-                       
-                    }
-                    return (listItem, Count);
-                }
-                else if (search == null && cate == null)
-                {
-                    var Itemspec = new BaseSpecification<Item>().ApplyPaging(skip, take);
-                    var listItem = await _u.Repository<Item>().ListAllAsync();
-                    foreach (var models in listItem)
-                    {
-                        var specModel = new BaseSpecification<Item>(x => x.ItemId == models.ItemId).AddInclude(x => x.Include(x => x.Bids).Include(x => x.Rating));
-                        var model = await _u.Repository<Item>().FindOne(specModel);
-                       
-                    }
-                    return (listItem, Count);
-                }
-                else
-                {
-                    return (null, 0);
-                }
 
+                BaseSpecification<CategoryItem> itemSpec;
+
+                if (!string.IsNullOrEmpty(search))
+                {
+                    itemSpec  = new BaseSpecification<CategoryItem>(x => x.Item.Title.Contains(search));
+                } else if (cate.HasValue)
+                {
+                    itemSpec  = new BaseSpecification<CategoryItem>(x => x.CategoryId == cate.Value);
+                } else {
+                    itemSpec  = new BaseSpecification<CategoryItem>();
+                }
+                
+                var count = await _u.Repository<CategoryItem>().CountAsync(itemSpec);
+
+                itemSpec = itemSpec.ApplyPaging(skip, take)
+                        .AddInclude(x => x.Include(x => x.Item).ThenInclude(x => x.Bids));
+                        // .ApplyOrderBy(x => x.StartDate);
+                
+                var listItem = await _u.Repository<CategoryItem>().ListAsynccheck(itemSpec);
+
+                return (listItem, count);
             }
             catch (Exception ex)
             {
+                // Log the exception or handle it appropriately
                 return (null, 0);
             }
         }
@@ -182,7 +150,8 @@ namespace Application.Service
         {
             try
             {
-                var itemspec = new BaseSpecification<Item>(x => x.ItemId == id).AddInclude(x => x.Include(x => x.Bids));
+                var itemspec = new BaseSpecification<Item>(x => x.ItemId == id)
+                    .AddInclude(x => x.Include(x => x.Bids).Include(x => x.AuctionHistory).Include(x => x.CategoryItems));
                 var item = await _u.Repository<Item>().FindOne(itemspec);
                 if (item != null)
                 {
@@ -202,19 +171,19 @@ namespace Application.Service
         }
 
         // sell item
-        public async Task<int> sellItem(Item item)
+        public async Task<int> sellItem(SellItemReqest req)
         {
 
             try
             {
-                var checkName = new BaseSpecification<Item>(x => x.Title == item.Title);
+                var checkName = new BaseSpecification<Item>(x => x.Title == req.Item.Title);
                 if (checkName != null)
                 {
                     return 0;
                 }
                 else
                 {
-                    var additem = await _u.Repository<Item>().AddAsync(item);
+                    var additem = await _u.Repository<Item>().AddAsync(req.Item);
                     await _u.SaveChangesAsync();
                     return 1;
                 }
@@ -227,13 +196,13 @@ namespace Application.Service
         }
 
         // Rating
-        public async Task<bool> Ratting(string username, int id, float Rating)
+        public async Task<bool> Ratting(string username, RateBuyerRequest req)
         {
             try
             {
                 var Userspec = new BaseSpecification<User>(x => x.Name == username);
                 var user = await _u.Repository<User>().FindOne(Userspec);
-                var itemspec = new BaseSpecification<Item>(x => x.ItemId == id);
+                var itemspec = new BaseSpecification<Item>(x => x.ItemId == req.ItemId);
                 var item = await _u.Repository<Item>().FindOne(itemspec);
                 if (user == null && item == null)
                 {
@@ -243,9 +212,10 @@ namespace Application.Service
                 {
                     var Ratting = new Rating();
                     Ratting.RatingDate = DateTime.Now;
-                    Ratting.Rate = Rating;
-                    Ratting.ItemId = id;
-                    Ratting.RatedUserId = user.UserId;
+                    Ratting.RaterId = user.UserId;
+                    Ratting.RatedUserId = req.RatedUserId;
+                    Ratting.ItemId = req.ItemId;
+                    Ratting.Rate = req.RatingAmount;
                     await _u.SaveChangesAsync();
                     return true;
                 }

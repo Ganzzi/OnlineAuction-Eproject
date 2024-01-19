@@ -1,8 +1,8 @@
 "use client";
-import { useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import useLocalStorage from "./useLocalStorage";
 
-const useColorMode = () => {
+const useColorMode: () => [string, Dispatch<SetStateAction<string>>] = () => {
   const [colorMode, setColorMode, _rm] = useLocalStorage("color-theme", "light");
 
   useEffect(() => {

@@ -8,11 +8,7 @@ import { Metadata } from "next";
 import { useGlobalState } from "@/context/globalState";
 import axiosService from "@/axiosService";
 import { BRAND } from "@/types/brand";
-export const metadata: Metadata = {
-  title: "Signin Page | Next.js E-commerce Dashboard Template",
-  description: "This is Signin page for TailAdmin Next.js",
-  // other metadata
-};
+import axios from "axios";
 
 type SignInPayload = {
     email: string,
@@ -24,7 +20,14 @@ const initPayload: SignInPayload = {
   password: ""
 }
 
+type SignInResponse = {
+  accessToken: string,
+  refreshToken: string  
+}
+
 const SignIn: React.FC = () => {
+  const {setAccessToken} = useGlobalState();
+
   const [payload, setPayload] = useState<SignInPayload>(initPayload);
   const [errors, setErrors] = useState({
     email: "",
@@ -34,12 +37,29 @@ const SignIn: React.FC = () => {
   const  handleSignIn = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!payload.email) setErrors({...errors, email: "email must not be blank"})
-    if (!payload.password) setErrors({...errors, password: "password must not be blank"})
+    if (!payload.email) {
+      setErrors({...errors, email: "email must not be blank"})
+      return
+    }
+    if (!payload.password) {
+      setErrors({...errors, password: "password must not be blank"})
+      return
+    }
 
-    const res = await axiosService.post("/auth/login", JSON.stringify(payload));
+    const res = await axios.post(
+      "https://localhost:7073/api/auth/signin", 
+      JSON.stringify(payload),
+      {
+        headers: {
+          "Content-Type": "Application/Json"
+        }
+      }
+    );
 
-    // const newData: BRAND[] = res.data
+    if (res.status == 200) {
+      const data:  SignInResponse = res.data;
+      setAccessToken(data.accessToken, data.refreshToken)
+    }
   }
 
   return (
