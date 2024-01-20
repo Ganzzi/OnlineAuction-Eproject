@@ -14,6 +14,7 @@ namespace Application
             service.AddScoped<IAdminServicevice, AdminService>();
             service.AddScoped<IAuthService, AuthService>();
             service.AddScoped<IuserService, UserService>();
+            service.AddScoped<IphotoService, PhotoService>();
             return service;
         }
     }

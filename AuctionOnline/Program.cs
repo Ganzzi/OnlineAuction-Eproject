@@ -1,4 +1,5 @@
 ﻿using Application;
+using DomainLayer.Entities;
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -52,7 +53,8 @@ builder.Services.AddCors(opt => opt.AddPolicy(name: "mypolicy",
             policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:3000");
         }
     ));
-
+//cloudinary 
+builder.Services.Configure<CloudKey>(builder.Configuration.GetSection("CloudinarySetting"));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

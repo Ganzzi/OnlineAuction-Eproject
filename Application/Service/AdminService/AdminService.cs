@@ -93,7 +93,8 @@ namespace Application.Service.AdminServicevice
                 return null;
             }
         }
-        // gửi về 10 user
+
+        // gửi về 10 user + avgRate
         public async Task<IDictionary<string, (int, int)>> ListAllUserWithRatingAndBidCount(int take, int page)
         {
             try
@@ -108,10 +109,11 @@ namespace Application.Service.AdminServicevice
                 {
                     var ratingSpec = new BaseSpecification<Rating>(x => x.RaterId == user.UserId);
                     var userRatings = await _u.Repository<Rating>().ListAsynccheck(ratingSpec);
+                    var avgRate = tbc(userRatings);
 
                     var bidSpec = new BaseSpecification<Bid>(x => x.UserId == user.UserId);
                     var userBids = await _u.Repository<Bid>().ListAsynccheck(bidSpec);
-                    userRatingAndBidCounts[user.Name] = (userRatings.Count, userBids.Count);
+                    userRatingAndBidCounts[user.Name] = (avgRate, userBids.Count);
                 }
 
                 return userRatingAndBidCounts;
@@ -339,9 +341,10 @@ namespace Application.Service.AdminServicevice
         }
 
         //thong tin chi tiet item + listcategoryItem(page,take)
-        public async Task<(Item,IList<CategoryItem>,int)> GetOneItemAndListCategoryItem(int id,int page,int take)
+        public async Task<(Item, IList<CategoryItem>, int)> GetOneItemAndListCategoryItem(int id, int page, int take)
         {
-            try { 
+            try
+            {
                 // get item by id
                 var Itemspec = new BaseSpecification<Item>(x => x.ItemId == id);
                 var Item = await _u.Repository<Item>().FindOne(Itemspec);
@@ -352,17 +355,17 @@ namespace Application.Service.AdminServicevice
                 var listCategoryItem = await _u.Repository<CategoryItem>().ListAsynccheck(CategoryItemspec);
                 if (Item != null && listCategoryItem != null)
                 {
-                    return (Item, listCategoryItem,count);
+                    return (Item, listCategoryItem, count);
                 }
                 else
                 {
-                    return (null, null,0);
+                    return (null, null, 0);
                 }
 
             }
-            catch (Exception e )
+            catch (Exception e)
             {
-                return (null,null,0);
+                return (null, null, 0);
             }
         }
 

@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuctionOnline.Controllers.Admin
 {
-    [Authorize( Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase
@@ -23,7 +23,7 @@ namespace AuctionOnline.Controllers.Admin
         [Route("getall")]
         [HttpGet]
         public async Task<IActionResult> getallUser([FromQuery] int page = 1,
- [FromQuery] int take = 10)
+        [FromQuery] int take = 10)
         {
 
             var listUser = await _a.ListAllUser(take, page);
@@ -31,7 +31,7 @@ namespace AuctionOnline.Controllers.Admin
             return Ok(listUser.ToString());
         }
 
-        // TODO: additionally return average rated amount
+        // TODO: additionally return average rated amount ***checked
         //all user
         [Route("getallUser")]
         [HttpGet]
@@ -46,7 +46,7 @@ namespace AuctionOnline.Controllers.Admin
                 userData = listUser.Select(x => new
                 {
                     userName = x.Key,
-                    ratingCount = x.Value.Item1,
+                    avgRating = x.Value.Item1,
                     bidCount = x.Value.Item2
                 }).ToArray()
             });
@@ -160,7 +160,7 @@ namespace AuctionOnline.Controllers.Admin
         // add+remove item in cate
         [Route("ItemInCate")]
         [HttpPost]
-        public async Task<IActionResult> AddorDelItemInCate(bool status, int cate,int item)
+        public async Task<IActionResult> AddorDelItemInCate(bool status, int cate, int item)
         {
             var checkAddorDel = await _a.addOrDeleteItemForCate(cate, item, status);
             if (checkAddorDel == true)
@@ -172,7 +172,8 @@ namespace AuctionOnline.Controllers.Admin
             }
             else
             {
-                return BadRequest(new {
+                return BadRequest(new
+                {
                     message = "Fail Action"
                 });
             }
@@ -184,7 +185,7 @@ namespace AuctionOnline.Controllers.Admin
         {
             var listItem = await _a.getListItemhaveCount(page, take);
             if (listItem != (null, 0))
-            {               
+            {
                 return Ok(new
                 {
                     listItem = listItem.Item1.Select(x => new
@@ -207,15 +208,15 @@ namespace AuctionOnline.Controllers.Admin
 
         [Route("ItemWithListCategoryItem")]
         [HttpGet]
-        public async Task<IActionResult> ItemAndListCategoryItem(int id,int page, int take)
+        public async Task<IActionResult> ItemAndListCategoryItem(int id, int page, int take)
         {
-            var listItem = await _a.GetOneItemAndListCategoryItem( id,page, take);
-            if (listItem != (null, null,0))
-            {              
+            var listItem = await _a.GetOneItemAndListCategoryItem(id, page, take);
+            if (listItem != (null, null, 0))
+            {
                 return Ok(new
                 {
                     Item = listItem.Item1,
-                    listcategoryItem =  listItem.Item2,
+                    listcategoryItem = listItem.Item2,
                     Count = listItem.Item3
                 });
             }

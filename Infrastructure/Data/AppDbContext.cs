@@ -167,7 +167,18 @@ namespace Infrastructure.Data
     .WithOne(i => i.Seller)
     .HasForeignKey(i => i.SellerId)
     .OnDelete(DeleteBehavior.Restrict);
-
+            // Configure the relationship between Rating and User(Rater)
+            modelBuilder.Entity<User>()
+                .HasMany(x => x.Ratings)
+                .WithOne(x => x.Rater)
+                .HasForeignKey(c => c.RaterId)
+                .OnDelete(DeleteBehavior.Restrict);
+            // Configure the relationship between Rating and User(RateUser)
+            modelBuilder.Entity<User>()
+              .HasMany(x => x.BeingRateds)
+              .WithOne(x => x.RatedUser)
+              .HasForeignKey(c => c.RatedUserId)
+              .OnDelete(DeleteBehavior.Restrict);
         }
 
     }

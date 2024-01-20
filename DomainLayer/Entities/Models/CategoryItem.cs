@@ -20,6 +20,6 @@ namespace DomainLayer.Entities.Models
 
         [ForeignKey("CategoryId")]
         public Category? Category { get; set; }
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
     }
 }

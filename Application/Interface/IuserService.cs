@@ -16,5 +16,9 @@ namespace Application.Interface
         Task<(IList<CategoryItem>, int)> searchItem(int page, int take, string? search, int? cate);
         Task<int> sellItem(SellItemReqest req);
         Task<bool> Ratting(string username, RateBuyerRequest req);
+        Task<bool> updateItem(SellItemReqest req);
+        Task<AuctionHistory> GetAcutionHistory(string username, int id);
+        Task<bool> placenewbid(PlaceBidRequest req, string username);
+        Task<(User, int)> getProfileDetail(string username);
     }
 }
