@@ -39,5 +39,9 @@ namespace DomainLayer.Entities.Models
 
         [InverseProperty("User")]
         public ICollection<Notification>? Notifications { get; set; }
+
+        //email
+        public string? tokenResetPassword { get; set; }
+        public DateTime? ResetExpire { get; set; }
     }
 }
