@@ -40,6 +40,8 @@ namespace Infrastructure.Migrations
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    tokenResetPassword = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ResetExpire = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -265,12 +267,12 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Usertable",
-                columns: new[] { "UserId", "Avatar", "Created", "Email", "LastModified", "Name", "Password", "Role" },
+                columns: new[] { "UserId", "Avatar", "Created", "Email", "LastModified", "Name", "Password", "ResetExpire", "Role", "tokenResetPassword" },
                 values: new object[,]
                 {
-                    { 1, null, null, "batman123", null, "batman", "123", "User" },
-                    { 2, null, null, "ironman123", null, "ironman", "123", "User" },
-                    { 3, null, null, "admin123", null, "admin", "123", "Admin" }
+                    { 1, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "batman123", null, "batman", "123", null, "User", null },
+                    { 2, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "ironman123", null, "ironman", "123", null, "User", null },
+                    { 3, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "admin123", null, "admin", "123", null, "Admin", null }
                 });
 
             migrationBuilder.InsertData(
@@ -278,8 +280,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "ItemId", "Created", "Description", "EndDate", "Image", "IncreasingAmount", "LastModified", "ReservePrice", "SellerId", "StartDate", "StartingPrice", "Title" },
                 values: new object[,]
                 {
-                    { 1, null, "Description for Item 1", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "url_to_image_1", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1000f, "Item 1" },
-                    { 2, null, "Description for Item 2", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "url_to_image_2", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2000f, "Item 2" }
+                    { 1, null, "Description for Item 1", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1000f, "Item 1" },
+                    { 2, null, "Description for Item 2", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2000f, "Item 2" }
                 });
 
             migrationBuilder.InsertData(
@@ -287,8 +289,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "BidId", "BidAmout", "BidDate", "Created", "ItemId", "LastModified", "UserId" },
                 values: new object[,]
                 {
-                    { 1, 100f, new DateTime(2024, 1, 21, 11, 26, 8, 223, DateTimeKind.Local).AddTicks(7853), null, 1, null, 1 },
-                    { 2, 200f, new DateTime(2024, 1, 21, 11, 26, 8, 223, DateTimeKind.Local).AddTicks(7884), null, 2, null, 2 }
+                    { 1, 100f, new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6666), null, 1, null, 1 },
+                    { 2, 200f, new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6689), null, 2, null, 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -305,8 +307,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "RatingId", "Created", "ItemId", "LastModified", "Rate", "RatedUserId", "RaterId", "RatingDate" },
                 values: new object[,]
                 {
-                    { 1, null, 1, null, 4.5f, 2, 1, new DateTime(2024, 1, 21, 11, 26, 8, 223, DateTimeKind.Local).AddTicks(7951) },
-                    { 2, null, 2, null, 4f, 2, 2, new DateTime(2024, 1, 21, 11, 26, 8, 223, DateTimeKind.Local).AddTicks(7954) }
+                    { 1, null, 1, null, 4.5f, 2, 1, new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6749) },
+                    { 2, null, 2, null, 4f, 2, 2, new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6751) }
                 });
 
             migrationBuilder.CreateIndex(

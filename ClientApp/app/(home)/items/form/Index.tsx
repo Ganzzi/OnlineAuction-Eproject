@@ -83,14 +83,12 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
       Object.entries(formData.item).forEach(([key, value]) => {
         // Check for undefined values before appending to FormData
         if (value !== undefined && value !== null) {
-          console.log("appended");
           formDataToSend.append(`item.${key}`, value.toString());
         }
       });
   
       // Append imageFile to FormData
       if (formData.item.imageFile) {
-        console.log("appended");
         formDataToSend.append('item.ImageFile', formData.item.imageFile);
       }
 

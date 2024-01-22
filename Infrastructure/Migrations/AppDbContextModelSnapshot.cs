@@ -97,7 +97,7 @@ namespace Infrastructure.Migrations
                         {
                             BidId = 1,
                             BidAmout = 100f,
-                            BidDate = new DateTime(2024, 1, 21, 11, 26, 8, 223, DateTimeKind.Local).AddTicks(7853),
+                            BidDate = new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6666),
                             ItemId = 1,
                             UserId = 1
                         },
@@ -105,7 +105,7 @@ namespace Infrastructure.Migrations
                         {
                             BidId = 2,
                             BidAmout = 200f,
-                            BidDate = new DateTime(2024, 1, 21, 11, 26, 8, 223, DateTimeKind.Local).AddTicks(7884),
+                            BidDate = new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6689),
                             ItemId = 2,
                             UserId = 2
                         });
@@ -250,7 +250,7 @@ namespace Infrastructure.Migrations
                             ItemId = 1,
                             Description = "Description for Item 1",
                             EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Image = "url_to_image_1",
+                            Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             IncreasingAmount = 100f,
                             SellerId = 1,
                             StartDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -262,7 +262,7 @@ namespace Infrastructure.Migrations
                             ItemId = 2,
                             Description = "Description for Item 2",
                             EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Image = "url_to_image_2",
+                            Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             IncreasingAmount = 100f,
                             SellerId = 1,
                             StartDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -355,7 +355,7 @@ namespace Infrastructure.Migrations
                             Rate = 4.5f,
                             RatedUserId = 2,
                             RaterId = 1,
-                            RatingDate = new DateTime(2024, 1, 21, 11, 26, 8, 223, DateTimeKind.Local).AddTicks(7951)
+                            RatingDate = new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6749)
                         },
                         new
                         {
@@ -364,7 +364,7 @@ namespace Infrastructure.Migrations
                             Rate = 4f,
                             RatedUserId = 2,
                             RaterId = 2,
-                            RatingDate = new DateTime(2024, 1, 21, 11, 26, 8, 223, DateTimeKind.Local).AddTicks(7954)
+                            RatingDate = new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6751)
                         });
                 });
 
@@ -430,8 +430,14 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("ResetExpire")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Role")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("tokenResetPassword")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId");
@@ -442,6 +448,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             UserId = 1,
+                            Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             Email = "batman123",
                             Name = "batman",
                             Password = "123",
@@ -450,6 +457,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             UserId = 2,
+                            Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             Email = "ironman123",
                             Name = "ironman",
                             Password = "123",
@@ -458,6 +466,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             UserId = 3,
+                            Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             Email = "admin123",
                             Name = "admin",
                             Password = "123",

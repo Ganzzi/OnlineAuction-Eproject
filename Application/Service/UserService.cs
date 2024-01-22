@@ -26,16 +26,17 @@ namespace Application.Service
         {
             try
             {
-                var categoryspec = new BaseSpecification<Category>();
-                var liscategory = await _u.Repository<Category>().ListAllAsync();
+                var categoryspec = new BaseSpecification<Category>()
+                     .AddInclude(x => x.Include(x => x.CategoryItems).ThenInclude(x => x.Item));
+                var liscategory = await _u.Repository<Category>().ListAsynccheck(categoryspec);
 
-                foreach (var item in liscategory)
-                {
-                    var categoryItemSpec = new BaseSpecification<CategoryItem>(x => x.CategoryId == item.CategoryId)
-                        .AddInclude(x => x.Include(x => x.Item).ThenInclude(x => x.Bids));
-                    var categoryItemList = await _u.Repository<CategoryItem>().FindOne(categoryItemSpec);
-                    var TopTen = categoryItemList.Item.Bids.OrderByDescending(x => x.BidAmout).Take(10);
-                }
+                // foreach (var item in liscategory)
+                // {
+                //     var categoryItemSpec = new BaseSpecification<CategoryItem>(x => x.CategoryId == item.CategoryId)
+                //         .AddInclude(x => x.Include(x => x.Item).ThenInclude(x => x.Bids));
+                //     var categoryItemList = await _u.Repository<CategoryItem>().FindOne(categoryItemSpec);
+                //     // var TopTen = categoryItemList.Item.Bids.OrderByDescending(x => x.BidAmout).Take(10);
+                // }
                 return liscategory;
             }
             catch (Exception e)

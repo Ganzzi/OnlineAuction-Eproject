@@ -85,7 +85,7 @@ namespace AuctionOnline.Controllers
         // ****checked
         [Route("SellItem")]
         [HttpPost]
-        public async Task<IActionResult> SellItem([FromBody] SellItemReqest req)
+        public async Task<IActionResult> SellItem([FromForm] SellItemReqest req)
         {
             var sellitem = await _s.sellItem(req);
             if (sellitem == 1)
@@ -116,7 +116,7 @@ namespace AuctionOnline.Controllers
         // ****checked
         [Route("UpdateItem")]
         [HttpPost]
-        public async Task<IActionResult> UpdateItem([FromBody] SellItemReqest req)
+        public async Task<IActionResult> UpdateItem([FromForm] SellItemReqest req)
         {
             var responforUpdateItem = await _s.updateItem(req);
             if (responforUpdateItem == true)
@@ -185,7 +185,7 @@ namespace AuctionOnline.Controllers
         // get profile
         // TODO: include solditems, bids, auction history (user model)
         //***check
-        [Route("Profiledetails")]
+        [Route("Profiledetail")]
         [HttpGet]
         public async Task<IActionResult> ProfileDetail()
         {
@@ -203,6 +203,7 @@ namespace AuctionOnline.Controllers
             return Ok();
         }
 
+        // TODO
         // get auction history detail
         // TODO: get auction history model from userId (use token) & AuctionHistoryId
         // ***checked
@@ -232,7 +233,7 @@ namespace AuctionOnline.Controllers
         // TODO: 
         // - new rating model, raterId: userId from token, ratedUserId, amount from request
         // - test function
-        //
+        // TODO
         [Route("RateBuyer")]
         [HttpPost]
         public async Task<IActionResult> RateBuyer([FromBody] RateBuyerRequest req)
@@ -262,7 +263,7 @@ namespace AuctionOnline.Controllers
         // *** checked
         [Route("UpdateUser")]
         [HttpPost]
-        public async Task<IActionResult> UpdateUser([FromBody] User user)
+        public async Task<IActionResult> UpdateUser([FromForm] User user)
         {
             var userupdate = await _s.UpdateUser(user);
             if (userupdate != null)
@@ -281,6 +282,7 @@ namespace AuctionOnline.Controllers
             }
         }
 
+        // TODO
         //checkEmail and send link reset
         [Route("sendlink")]
         [HttpPost]
@@ -310,6 +312,7 @@ namespace AuctionOnline.Controllers
             }
         }
 
+        // TODO
         //reset Email
         [Route("resetpassword")]
         [HttpPost]
