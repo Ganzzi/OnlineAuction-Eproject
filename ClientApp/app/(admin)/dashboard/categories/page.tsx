@@ -13,6 +13,7 @@ const CategoriesPage = ({ searchParams }: { searchParams: SearchParams }) => {
       <Pagination meta={resource.meta} />
       <br /><br />
       <CategoryItemList/>
+       
     </>
   );
 };

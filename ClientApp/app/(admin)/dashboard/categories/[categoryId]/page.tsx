@@ -1,9 +1,14 @@
 import Breadcrumb from "@/components/Dashboard/Breadcrumb";
-
-const CategoryDetailPage = () => {
+import { Resource, newResource } from "@/types/resource";
+import { SearchParams } from "@/types/next";
+import Pagination from "@/components/common/Pagination/Pagination";
+const CategoryDetailPage = ({ searchParams }: { searchParams: SearchParams }) => {
+  const resource = newResource([], 93, searchParams?.page ? parseInt(searchParams.page.toString(), 10) : 1, 10);
   return (
     <>
           <Breadcrumb pageName="Category  Edit" />
+          <Pagination meta={resource.meta} />
+          <br></br>
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
 
             <div className="flex flex-col gap-5.5 p-6.5">
@@ -37,6 +42,7 @@ const CategoryDetailPage = () => {
               </div>
             </div>
           </div>
+ 
     </>
   );
 };
