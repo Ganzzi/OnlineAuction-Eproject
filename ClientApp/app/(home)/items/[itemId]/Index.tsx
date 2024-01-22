@@ -1,17 +1,18 @@
 "use client"
 
+import axiosService from '@/axiosService';
 import BidCard from '@/components/Home/market/BidCard';
 import { useGlobalState } from '@/context/globalState';
 import { Item } from '@/types/models/item'
 import { User } from '@/types/models/user';
 import { parseDate } from '@/utils';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 
 
 const Index = ({ itemData }: { itemData: Item }) => {
   const router = useRouter();
-  const { user } = useGlobalState(); // replace with your authentication context
+  const { user, accessToken } = useGlobalState(); // replace with your authentication context
 
   const [item, setItem] = useState<Item>(itemData);
   const [bidAmount, setBidAmount] = useState('');
@@ -22,7 +23,6 @@ const Index = ({ itemData }: { itemData: Item }) => {
   useEffect(() => {
     // Assuming you have a utility function to determine the item status
     const calculateItemStatus = (item: Item): string => {
-      
       const currentDate = new Date();
       if (currentDate < parseDate(item.startDate)) {
         return 'not started';
@@ -38,7 +38,20 @@ const Index = ({ itemData }: { itemData: Item }) => {
     setWinner(itemData?.auctionHistory?.winner ?? null);
    
   }, [itemData]);
+  
+  const handlePlaceBid = async () => {
 
+    if (accessToken === "") {
+      router.push("/auth/signin")
+    }
+    const res = await axiosService.post("/api/user/placeBid", {
+      itemId: item.itemId,
+      amount: bidAmount
+    })
+
+    console.log(res.data);
+    
+  }
   const isItemSeller = user && item?.seller?.userId === user.userId;
   
   return (
@@ -49,6 +62,7 @@ const Index = ({ itemData }: { itemData: Item }) => {
             <img src={item.image} alt={item.title} className="mb-4" />
             <h1 className="text-3xl font-bold mb-4">{item.title}</h1>
             <p className="text-gray-600 mb-4">{item.description}</p>
+            <p className="text-gray-600 mb-4">Seller: {item.seller?.name}</p>
             <p className="text-lg font-semibold mb-4">Price: ${item.startingPrice}</p>
             <p className="text-lg font-semibold mb-4">Increasing Amount: ${item.increasingAmount}</p>
             <p className="text-lg font-semibold mb-4">Status: {itemStatus}</p>
@@ -85,7 +99,7 @@ const Index = ({ itemData }: { itemData: Item }) => {
               className="mt-1 p-2 border rounded w-full"
             />
             <button
-              onClick={() => router.push("/items/bid")}
+              onClick={handlePlaceBid}
               className="mt-2 px-4 py-2 bg-meta-5 hover:bg-meta-3 text-white rounded hover:bg-blue-600"
             >
               Place Bid

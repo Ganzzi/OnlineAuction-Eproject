@@ -6,6 +6,7 @@ import { Notification } from '@/types/models/notification';
 import { User } from '@/types/models/user';
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import { auctionHistory1, auctionHistory2, bid1, bid2, item1, item2, user1 } from '@/data/item';
+import axiosService from '@/axiosService';
 
 type GlobalStateProp = {
   user: User,
@@ -78,7 +79,10 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
   // use effect to get notifications
   useEffect(() => {
     const fetchUserInfo = async () => {
+      const res = await axiosService.get("/api/user/Profile");
+      const user: User = res.data.user;
 
+      setUser(user);
     }
 
     if(accessToken!=="") {

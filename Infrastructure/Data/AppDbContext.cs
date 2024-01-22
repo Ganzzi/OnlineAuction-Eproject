@@ -36,6 +36,7 @@ namespace Infrastructure.Data
                     Password = "123",
                     Email = "batman123",
                     Role = "User",
+                    Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
                 },
                 new User
                 {
@@ -44,6 +45,7 @@ namespace Infrastructure.Data
                     Password = "123",
                     Email = "ironman123",
                     Role = "User",
+                    Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
                 },
                 new User
                 {
@@ -52,6 +54,7 @@ namespace Infrastructure.Data
                     Password = "123",
                     Email = "admin123",
                     Role = "Admin",
+                    Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
                 }
             );
 
@@ -83,7 +86,7 @@ namespace Infrastructure.Data
                           StartingPrice = 1000,
                           IncreasingAmount = 100,
                           SellerId = 1,
-                          Image = "url_to_image_1"
+                          Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
                       },
                       new Item
                       {
@@ -93,7 +96,7 @@ namespace Infrastructure.Data
                           StartingPrice = 2000,
                           IncreasingAmount = 100,
                           SellerId = 1,
-                          Image = "url_to_image_2"
+                          Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
                       }
                   );
 

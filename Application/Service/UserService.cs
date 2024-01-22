@@ -169,7 +169,7 @@ namespace Application.Service
             try
             {
                 var itemspec = new BaseSpecification<Item>(x => x.ItemId == id)
-                    .AddInclude(x => x.Include(x => x.Bids).Include(x => x.AuctionHistory).Include(x => x.CategoryItems));
+                    .AddInclude(x => x.Include(x => x.Bids).Include(x => x.AuctionHistory).Include(x => x.CategoryItems).ThenInclude(ci => ci.Category).Include(x => x.Seller));
                 var item = await _u.Repository<Item>().FindOne(itemspec);
                 if (item != null)
                 {
@@ -191,35 +191,47 @@ namespace Application.Service
         // sell item => img
         public async Task<int> sellItem(SellItemReqest req)
         {
-
             try
             {
-                var checkName = new BaseSpecification<Item>(x => x.Title == req.Item.Title);
-                var finditem = await _u.Repository<Item>().FindOne(checkName);
-                if (checkName != null)
+                // Check if an item with the same title already exists
+                var existingItem = await _u.Repository<Item>().FindOne(new BaseSpecification<Item>(x => x.Title == req.Item.Title));
+                if (existingItem != null)
                 {
-
+                    // Item with the same title already exists
                     return 0;
                 }
-                else
-                {
 
-                    var addImgtoCloudinary = await _p.addPhoto(req.Item.ImageFile);
-                    req.Item.Image = addImgtoCloudinary;
-                    var additem = await _u.Repository<Item>().AddAsync(req.Item);
-                    foreach (var re in req.Categories)
-                    {
-                        var cateItem = new CategoryItem();
-                        cateItem.ItemId = finditem.ItemId;
-                        cateItem.CategoryId = re.CategoryId;
-                        var addcateItem = await _u.Repository<CategoryItem>().AddAsync(cateItem);
-                    }
-                    await _u.SaveChangesAsync();
-                    return 1;
+                // Add the item with the associated image
+                req.Item.Image = await _p.addPhoto(req.Item.ImageFile);
+                var addedItem = await _u.Repository<Item>().AddAsync(req.Item);
+
+                await _u.SaveChangesAsync();
+
+                // Check if the item was added successfully
+                if (addedItem == null || addedItem.ItemId <= 0)
+                {
+                    // Handle the case where the item was not added successfully
+                    return -1;
                 }
+
+                // Create CategoryItem entities for each category and associate them with the added item
+                foreach (var re in req.Categories)
+                {
+                    var cateItem = new CategoryItem();
+                    cateItem.ItemId = addedItem.ItemId; // Make sure ItemId is valid
+                    cateItem.CategoryId = re.CategoryId;
+                    var addcateItem = await _u.Repository<CategoryItem>().AddAsync(cateItem);
+                }
+
+                // Save changes
+                await _u.SaveChangesAsync();
+
+                // Return success status
+                return 1;
             }
             catch (Exception ex)
             {
+                // Handle exceptions and roll back changes
                 await _u.RollBackChangesAsync();
                 return -1;
             }

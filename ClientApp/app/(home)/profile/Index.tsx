@@ -332,7 +332,7 @@ const BidsList: React.FC<BidsListProps> = ({ bids }) => {
         <div className="space-x-8 mx-20 mb-10 p-3 text-gray-2 bg-body rounded-md">
             <h2 className="text-xl font-semibold mb-4 text-center">Placed Bids</h2>
             <ul className="list-disc px-4">
-                {bids.map((bid) => (
+                {bids?.map((bid) => (
                     <li key={bid.bidId} className="mb-2 hover:bg-meta-3 px-2 py-1 flex flex-row justify-between items-start"
                         onClick={() => router.push(`/items/${bid?.item?.itemId}`)}
 

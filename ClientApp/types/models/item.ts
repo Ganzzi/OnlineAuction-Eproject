@@ -17,7 +17,7 @@ export type Item = {
     startDate: string,
     endDate: string,
 
-    sellerId: number,
+    sellerId?: number,
     seller?: User,
 
     categoryItems?: CategoryItem[]

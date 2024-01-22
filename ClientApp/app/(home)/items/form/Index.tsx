@@ -1,6 +1,8 @@
 'use client'
 
+import axiosService from "@/axiosService"
 import FileUpload from "@/components/common/FileUpload/FileUploadOne"
+import { useGlobalState } from "@/context/globalState"
 import { Category } from "@/types/models/category"
 import { Item } from "@/types/models/item"
 import { useEffect, useState } from "react"
@@ -18,22 +20,26 @@ type SellItemPayload = {
 }
 
 const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => {
+  console.log(existedCategories);
+  
+  const {user} = useGlobalState();
   const initialFormData: SellItemPayload = {
     item: {
       itemId: 0,
       title: '',
       description: '',
-      image: '',
+      image: 'null',
       imageFile: undefined,
       startingPrice: 0,
       increasingAmount: 0,
       reservePrice: undefined,
-      sellerId: 0,
+      // sellerId: user.userId,
+      sellerId: undefined,
       seller: undefined,
       categoryItems: undefined,
       bids: undefined,
-      startDate: new Date(),
-      endDate: new Date()
+      startDate: new Date().toDateString(),
+      endDate: new Date().toDateString()
     },
     categories: [],
   };
@@ -56,33 +62,59 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
   }, [])
 
   const handleFileChange = (file: File) => {
+    console.log('get a file: '+ file.name);
+    
     setFormData((prevFormData) => ({
       ...prevFormData,
       item: {
         ...prevFormData.item,
-        image: file.name, // Assuming you want to store the file name
         imageFile: file,
       },
     }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+  
+    try {
+      const formDataToSend = new FormData();
+  
+      // Append item fields to FormData
+      Object.entries(formData.item).forEach(([key, value]) => {
+        // Check for undefined values before appending to FormData
+        if (value !== undefined && value !== null) {
+          console.log("appended");
+          formDataToSend.append(`item.${key}`, value.toString());
+        }
+      });
+  
+      // Append imageFile to FormData
+      if (formData.item.imageFile) {
+        console.log("appended");
+        formDataToSend.append('item.ImageFile', formData.item.imageFile);
+      }
 
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      item: {
-        ...prevFormData.item,
-      },
-      categories: selectedCategories.map((op) => ({
-        categoryId: op.value,
-        categoryName: op.label,
-      })),
-    }));
+      selectedCategories.forEach((category, index) => {
+        formDataToSend.append(`categories[${index}].categoryId`, category.value.toString());
+        formDataToSend.append(`categories[${index}].categoryName`, category.label);
+      });
 
-    // Add logic to handle form submission with formData
-    console.log('Form submitted:', formData);
+      console.log(Array.from(formDataToSend));
+  
+      const res = await axiosService.post(`/api/user/${item == undefined ? "sellItem" : "updateItem"}`, formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      console.log(res);
+  
+    } catch (error) {
+      console.error('Error during form submission', error);
+    }
   };
+  
+  
 
   return (
     <form onSubmit={handleSubmit}>

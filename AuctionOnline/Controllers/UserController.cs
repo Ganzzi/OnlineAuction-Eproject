@@ -82,8 +82,15 @@ namespace AuctionOnline.Controllers
         // ****checked
         [Route("SellItem")]
         [HttpPost]
-        public async Task<IActionResult> SellItem([FromBody] SellItemReqest req)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> SellItem([FromForm] SellItemReqest req)
         {
+            
+            var token = HttpContext.Request.Headers["Authorization"];
+            var user = await _s.getUser(_j.dataFormToken(token));
+
+            req.Item.SellerId = user.UserId;
+
             var sellitem = await _s.sellItem(req);
             if (sellitem == 1)
             {
@@ -113,8 +120,14 @@ namespace AuctionOnline.Controllers
         // ****checked
         [Route("UpdateItem")]
         [HttpPost]
-        public async Task<IActionResult> UpdateItem([FromBody] SellItemReqest req)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateItem([FromForm] SellItemReqest req)
         {
+            var token = HttpContext.Request.Headers["Authorization"];
+            var user = await _s.getUser(_j.dataFormToken(token));
+            
+            req.Item.SellerId = user.UserId;
+
             var responforUpdateItem = await _s.updateItem(req);
             if (responforUpdateItem == true)
             {
@@ -161,7 +174,7 @@ namespace AuctionOnline.Controllers
         // TODO: get user basic (name, email, role, id,...) info base on token
         [Route("Profile")]
         [HttpGet]
-        public async Task<IActionResult> userProfile()
+        public async Task<IActionResult> Profile()
         {
             var token = HttpContext.Request.Headers["Authorization"];
             var username = _j.dataFormToken(token);
@@ -182,7 +195,7 @@ namespace AuctionOnline.Controllers
         // get profile
         // TODO: include solditems, bids, auction history (user model)
         //***check
-        [Route("Profiledetails")]
+        [Route("Profiledetail")]
         [HttpGet]
         public async Task<IActionResult> ProfileDetail()
         {
