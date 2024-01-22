@@ -177,7 +177,7 @@ namespace Infrastructure.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
             optionsBuilder.UseSqlServer(
-                    "Server=localhost;Database=tempdb;User ID=sa;Password=StrongPassword123@;TrustServerCertificate=true;"
+                    "Server=localhost;Database=tempdb;User ID=sas;Password=1;TrustServerCertificate=true;"
                 );
 
             return new AppDbContext(optionsBuilder.Options);
