@@ -17,7 +17,7 @@ namespace Infrastructure.Data
         }
         public DbSet<User> Usertable { get; set; }
         public DbSet<Bid> BidTable { get; set; }
-        public DbSet<AcutionHistory> AcutionHistory { get; set; }
+        public DbSet<AuctionHistory> AuctionHistory { get; set; }
         public DbSet<Category> CategoryTable { get; set; }
         public DbSet<Item> ItemTable { get; set; }
         public DbSet<Notification> Notification { get; set; }
@@ -27,6 +27,7 @@ namespace Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<User>().HasData(
                 new User
                 {
@@ -74,23 +75,27 @@ namespace Infrastructure.Data
             );
 
             modelBuilder.Entity<Item>().HasData(
-                new Item
-                {
-                    ItemId = 1,
-                    Title = "Item 1",
-                    Description = "Description for Item 1",
-                    Price = 1000,
-                    ImgUrl = "url_to_image_1"
-                },
-                new Item
-                {
-                    ItemId = 2,
-                    Title = "Item 2",
-                    Description = "Description for Item 2",
-                    Price = 2000,
-                    ImgUrl = "url_to_image_2"
-                }
-            );
+                      new Item
+                      {
+                          ItemId = 1,
+                          Title = "Item 1",
+                          Description = "Description for Item 1",
+                          StartingPrice = 1000,
+                          IncreasingAmount = 100,
+                          SellerId = 1,
+                          Image = "url_to_image_1"
+                      },
+                      new Item
+                      {
+                          ItemId = 2,
+                          Title = "Item 2",
+                          Description = "Description for Item 2",
+                          StartingPrice = 2000,
+                          IncreasingAmount = 100,
+                          SellerId = 1,
+                          Image = "url_to_image_2"
+                      }
+                  );
 
             modelBuilder.Entity<Category>().HasData(
                 new Category
@@ -112,7 +117,8 @@ namespace Infrastructure.Data
                 {
                     RatingId = 1,
                     ItemId = 1,
-                    UserId = 1,
+                    RaterId = 1,
+                    RatedUserId = 2,
                     Rate = 4.5f,
                     RatingDate = DateTime.Now
                 },
@@ -120,7 +126,8 @@ namespace Infrastructure.Data
                 {
                     RatingId = 2,
                     ItemId = 2,
-                    UserId = 2,
+                    RaterId = 2,
+                    RatedUserId = 2,
                     Rate = 4.0f,
                     RatingDate = DateTime.Now
                 }
@@ -154,6 +161,13 @@ namespace Infrastructure.Data
                 .WithOne(ci => ci.Item)
                 .HasForeignKey(ci => ci.ItemId)
                 .OnDelete(DeleteBehavior.Cascade);
+            // Configure the relationship between Item and User
+            modelBuilder.Entity<User>()
+    .HasMany(u => u.SoldItems)
+    .WithOne(i => i.Seller)
+    .HasForeignKey(i => i.SellerId)
+    .OnDelete(DeleteBehavior.Restrict);
+
         }
 
     }
@@ -162,7 +176,9 @@ namespace Infrastructure.Data
         public AppDbContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlServer("Data Source=LInh;Initial Catalog=AcutionDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+            optionsBuilder.UseSqlServer(
+                    "Server=localhost;Database=tempdb;User ID=sa;Password=StrongPassword123@;TrustServerCertificate=true;"
+                );
 
             return new AppDbContext(optionsBuilder.Options);
         }

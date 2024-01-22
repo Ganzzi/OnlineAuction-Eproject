@@ -1,6 +1,7 @@
 ﻿using Application.DTO;
 using Application.Interface;
 using Application.Service;
+using Azure.Core;
 using DomainLayer.Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,9 +22,9 @@ namespace AuctionOnline.Controllers
             _jwt = jwt; 
         }
 
-        [Route("login")]
+        [Route("SignIn")]
         [HttpPost]
-        public async Task<IActionResult> signIn(LoginModel model)
+        public async Task<IActionResult> SignIn(LoginModel model)
         {
             //if (!IsValidPassword(model.Password))
             //{
@@ -36,21 +37,21 @@ namespace AuctionOnline.Controllers
             if (User == null)
             {
 
-                return NotFound();
+                return BadRequest();
             }
-            var token = _jwt.CreateToken(User);
-            var RToken = _jwt.createRrefreshtoken(User.UserId);
+            var token = await _jwt.CreateToken(User);
+            var RefreshToken = await  _jwt.createRrefreshtoken(User.UserId);
             
             return Ok(new
             {
-               AcessToken = token.Result,
-               RToken = RToken.Result.Token,
+               AccessToken = token,
+               RefreshToken = RefreshToken.Token,
             }) ;
         }
 
-        [Route("register")]
+        [Route("SignUp")]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] RegisterModel model)
+        public async Task<IActionResult> SignUp([FromBody] RegisterModel model)
         {
             var user2 = await _authService.Register(model);
             if (user2 != null)
@@ -60,11 +61,11 @@ namespace AuctionOnline.Controllers
             return BadRequest();
         }
 
-        [Route("checkToken")]
+        [Route("RefreshToken")]
         [HttpPost]
-        public async Task<IActionResult> checkvalidToken(string token)
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest req)
         {
-            var validtoken = await _jwt.checkToken(token);
+            var validtoken = await _jwt.RefreshAccessToken(req.AccessToken);
             if (validtoken == null)
             {
                 return BadRequest(new
@@ -74,7 +75,9 @@ namespace AuctionOnline.Controllers
             }
             else
             {
-                return Ok(validtoken.AccessToken);
+                return Ok(new {
+                    AccessToken = validtoken.AccessToken
+                });
             }
         }
 
@@ -85,7 +88,5 @@ namespace AuctionOnline.Controllers
             var regex = new System.Text.RegularExpressions.Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$");
             return regex.IsMatch(password);
         }
-
-
     }
 }

@@ -6,8 +6,11 @@ export type Rating = {
     rate: number,
     ratingDate: Date,
 
-    userId: number,
-    user?: User,
+    raterId: number,
+    rater?: User,
+
+    ratedUserId: number,
+    ratedUser?: User,
 
     itemId: number,
     item?: Item

@@ -9,6 +9,9 @@ namespace Application.Interface
 {
     public interface IAdminServicevice
     {
+        //
+        Task<List<(User, int, int, int)>> ListAllUser(int take, int page);
+        //
         Task<IDictionary<string, (int, int)>> ListAllUserWithRatingAndBidCount(int take,int page);
         Task<IDictionary<string, int>> ListAllCategoryAndCountItem();
         Task<bool> LockOrUnlock(string username, string status);
@@ -18,6 +21,7 @@ namespace Application.Interface
         Task<Item> takeOneItem(int id);
         Task<bool> addOrDeleteItemForCate(int cate, int item, bool status);
         Task<(IList<CategoryItem>, int)> categorylistItem(int id, int page, int take, string searchName, bool belongtocategory);
-
+        Task<(IDictionary<string, (int, int)>, int)> getListItemhaveCount(int page, int take);
+        Task<(Item, IList<CategoryItem>,int)> GetOneItemAndListCategoryItem(int id, int page, int take);
     }
 }

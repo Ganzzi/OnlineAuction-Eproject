@@ -12,16 +12,22 @@ namespace DomainLayer.Entities.Models
     {
         [Key]
         public int RatingId { get; set; }
+        public float Rate { get; set; }
+        public DateTime RatingDate { get; set; }
         
         [ForeignKey("ItemId")]
+        [InverseProperty("Rating")]
         public Item? Item { get; set; }
         public int ItemId { get; set; }
 
-        [ForeignKey("UserId")]
-        public User? User { get; set; }
-        public int UserId { get; set; }
-        
-        public float Rate { get; set; }
-        public DateTime RatingDate { get; set; }
+        [ForeignKey("RaterId")] // Specify a unique foreign key name
+        [InverseProperty("Ratings")]
+        public User? Rater { get; set; }
+        public int RaterId { get; set; }
+
+        [ForeignKey("RatedUserId")] // Specify a unique foreign key name
+        [InverseProperty("BeingRateds")]
+        public User? RatedUser { get; set; }
+        public int RatedUserId { get; set; }
     }
 }
