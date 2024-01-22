@@ -191,7 +191,7 @@ namespace Infrastructure.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
             optionsBuilder.UseSqlServer(
-                    "Server=localhost;Database=tempdb;User ID=sa;Password=StrongPassword123@;TrustServerCertificate=true;"
+                    "Data Source=LInh;Initial Catalog=AcutionDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False"
                 );
 
             return new AppDbContext(optionsBuilder.Options);

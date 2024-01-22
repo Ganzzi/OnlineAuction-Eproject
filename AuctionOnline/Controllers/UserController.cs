@@ -1,4 +1,5 @@
-﻿using Application.Interface;
+﻿using Application.DTO;
+using Application.Interface;
 using DomainLayer.Core;
 using DomainLayer.Entities.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -13,10 +14,12 @@ namespace AuctionOnline.Controllers
     {
         private readonly IJwtService _j;
         private readonly IuserService _s;
-        public UserController(IJwtService j, IuserService s)
+        private readonly IresetEmailService _e;
+        public UserController(IJwtService j, IuserService s, IresetEmailService e)
         {
             _j = j;
             _s = s;
+            _e = e;
         }
 
         // categorylist 
@@ -82,15 +85,8 @@ namespace AuctionOnline.Controllers
         // ****checked
         [Route("SellItem")]
         [HttpPost]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> SellItem([FromForm] SellItemReqest req)
+        public async Task<IActionResult> SellItem([FromBody] SellItemReqest req)
         {
-            
-            var token = HttpContext.Request.Headers["Authorization"];
-            var user = await _s.getUser(_j.dataFormToken(token));
-
-            req.Item.SellerId = user.UserId;
-
             var sellitem = await _s.sellItem(req);
             if (sellitem == 1)
             {
@@ -120,14 +116,8 @@ namespace AuctionOnline.Controllers
         // ****checked
         [Route("UpdateItem")]
         [HttpPost]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UpdateItem([FromForm] SellItemReqest req)
+        public async Task<IActionResult> UpdateItem([FromBody] SellItemReqest req)
         {
-            var token = HttpContext.Request.Headers["Authorization"];
-            var user = await _s.getUser(_j.dataFormToken(token));
-            
-            req.Item.SellerId = user.UserId;
-
             var responforUpdateItem = await _s.updateItem(req);
             if (responforUpdateItem == true)
             {
@@ -174,7 +164,7 @@ namespace AuctionOnline.Controllers
         // TODO: get user basic (name, email, role, id,...) info base on token
         [Route("Profile")]
         [HttpGet]
-        public async Task<IActionResult> Profile()
+        public async Task<IActionResult> userProfile()
         {
             var token = HttpContext.Request.Headers["Authorization"];
             var username = _j.dataFormToken(token);
@@ -195,7 +185,7 @@ namespace AuctionOnline.Controllers
         // get profile
         // TODO: include solditems, bids, auction history (user model)
         //***check
-        [Route("Profiledetail")]
+        [Route("Profiledetails")]
         [HttpGet]
         public async Task<IActionResult> ProfileDetail()
         {
@@ -288,6 +278,68 @@ namespace AuctionOnline.Controllers
                 {
                     message = "Fail Actions"
                 });
+            }
+        }
+
+        //checkEmail and send link reset
+        [Route("sendlink")]
+        [HttpPost]
+        public async Task<IActionResult> checkemailandsendlink(string email)
+        {
+            var checkEmail = await _e.CheckEmailAndTokenEmail(email);
+            if (checkEmail == null)
+            {
+                return BadRequest(new
+                {
+                    message = "No Email exit"
+                });
+            }
+            if (_e.sendMail(checkEmail))
+            {
+                return Ok(new
+                {
+                    message = "Success Action"
+                });
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    message = "Fail to send Reset link"
+                });
+            }
+        }
+
+        //reset Email
+        [Route("resetpassword")]
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
+        {
+            var checkPasswordReset = await _e.checkTokenEmailAndSaveNewPassword(model);
+            if (checkPasswordReset == 0)
+            {
+                return BadRequest(new
+                {
+                    message = "Fail Action"
+                });
+            }
+            else if (checkPasswordReset == 1)
+            {
+                return Ok(new
+                {
+                    message = "Success Action"
+                });
+            }
+            else if (checkPasswordReset == -1)
+            {
+                return BadRequest(new
+                {
+                    message = "Token Expire Or invalid Token"
+                });
+            }
+            else
+            {
+                return BadRequest();
             }
         }
 
