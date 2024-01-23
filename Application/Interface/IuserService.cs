@@ -18,7 +18,7 @@ namespace Application.Interface
         Task<bool> Ratting(string username, RateBuyerRequest req);
         Task<bool> updateItem(SellItemReqest req);
         Task<AuctionHistory> GetAcutionHistory(string username, int id);
-        Task<bool> placenewbid(PlaceBidRequest req, string username);
+        Task<bool> PlaceABid(PlaceBidRequest req, string username);
         Task<(User, int)> getProfileDetail(string username);
     }
 }

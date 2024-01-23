@@ -20,7 +20,6 @@ const ProfilePage = () => {
     const fetchUserProfile =async () => {
       const res = await axiosService.get('/api/user/Profiledetail');      
       const data: User = res.data.user
-      console.log(data);
       
       setUserData(data);
     }
@@ -56,26 +55,19 @@ const ProfilePage = () => {
                               className="absolute bottom-0 right-0 flex h-8.5 w-8.5 cursor-pointer items-center justify-center rounded-full bg-primary text-white hover:bg-opacity-90 sm:bottom-2 sm:right-2"
                           >
                               <svg
-                                  className="fill-current"
-                                  width="14"
-                                  height="14"
-                                  viewBox="0 0 14 14"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                              >
-                                  <path
-                                      fillRule="evenodd"
-                                      clipRule="evenodd"
-                                      d="M4.76464 1.42638C4.87283 1.2641 5.05496 1.16663 5.25 1.16663H8.75C8.94504 1.16663 9.12717 1.2641 9.23536 1.42638L10.2289 2.91663H12.25C12.7141 2.91663 13.1592 3.101 13.4874 3.42919C13.8156 3.75738 14 4.2025 14 4.66663V11.0833C14 11.5474 13.8156 11.9925 13.4874 12.3207C13.1592 12.6489 12.7141 12.8333 12.25 12.8333H1.75C1.28587 12.8333 0.840752 12.6489 0.512563 12.3207C0.184375 11.9925 0 11.5474 0 11.0833V4.66663C0 4.2025 0.184374 3.75738 0.512563 3.42919C0.840752 3.101 1.28587 2.91663 1.75 2.91663H3.77114L4.76464 1.42638ZM5.56219 2.33329L4.5687 3.82353C4.46051 3.98582 4.27837 4.08329 4.08333 4.08329H1.75C1.59529 4.08329 1.44692 4.14475 1.33752 4.25415C1.22812 4.36354 1.16667 4.51192 1.16667 4.66663V11.0833C1.16667 11.238 1.22812 11.3864 1.33752 11.4958C1.44692 11.6052 1.59529 11.6666 1.75 11.6666H12.25C12.4047 11.6666 12.5531 11.6052 12.6625 11.4958C12.7719 11.3864 12.8333 11.238 12.8333 11.0833V4.66663C12.8333 4.51192 12.7719 4.36354 12.6625 4.25415C12.5531 4.14475 12.4047 4.08329 12.25 4.08329H9.91667C9.72163 4.08329 9.53949 3.98582 9.4313 3.82353L8.43781 2.33329H5.56219Z"
-                                      fill=""
-                                  />
-                                  <path
-                                      fillRule="evenodd"
-                                      clipRule="evenodd"
-                                      d="M7.00004 5.83329C6.03354 5.83329 5.25004 6.61679 5.25004 7.58329C5.25004 8.54979 6.03354 9.33329 7.00004 9.33329C7.96654 9.33329 8.75004 8.54979 8.75004 7.58329C8.75004 6.61679 7.96654 5.83329 7.00004 5.83329ZM4.08337 7.58329C4.08337 5.97246 5.38921 4.66663 7.00004 4.66663C8.61087 4.66663 9.91671 5.97246 9.91671 7.58329C9.91671 9.19412 8.61087 10.5 7.00004 10.5C5.38921 10.5 4.08337 9.19412 4.08337 7.58329Z"
-                                      fill=""
-                                  />
-                              </svg>
+  className="fill-current"
+  width="14"
+  height="14"
+  viewBox="0 0 14 14"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    fillRule="evenodd"
+    clipRule="evenodd"
+    d="M2.965 10.633C2.73 10.868 2.357 10.868 2.122 10.633L0.235 8.747C0 8.513 0 8.14 0.235 7.905L8.535 0.606C8.77 0.371 9.143 0.371 9.378 0.606L11.265 2.492C11.5 2.727 11.5 3.1 11.265 3.335L3.965 10.633C3.73 10.868 3.357 10.868 3.122 10.633V10.633ZM11.557 1.115L12.885 2.443L13.557 1.771C14.025 1.303 14.975 1.303 15.443 1.771L16.828 3.156C17.297 3.625 17.297 4.575 16.828 5.043L5.5 16.371C5.032 16.839 4.082 16.839 3.614 16.371L1.828 14.586C1.36 14.118 1.36 13.168 1.828 12.7L13.157 1.371C13.625 0.902 14.575 0.902 15.043 1.371L16.828 3.157C17.297 3.625 17.297 4.575 16.828 5.043L11.557 1.115Z"
+  />
+</svg>
                           </label>
                       </div>
                   </div>
@@ -273,14 +265,14 @@ const ProfilePage = () => {
                   </div>
               </div>
 
-              <BidsList bids={userData.bids} />
+              <BidsList bids={userData.bids?.reverse()} />
 
               <div className="flex space-x-8 px-20 mb-10 text-gray-2">
                   <div className="w-1/2 bg-body p-5 rounded-md">
-                      <SoldItemsList soldItems={userData.soldItems} />
+                      <SoldItemsList soldItems={userData.soldItems?.reverse()} />
                   </div>
                   <div className="w-1/2 bg-body p-5 rounded-md">
-                      <BoughtItemsList auctionHistories={userData.auctionHistories}/>
+                      <BoughtItemsList auctionHistories={userData.auctionHistories?.reverse()}/>
                   </div>
               </div>
           </div>
@@ -298,11 +290,12 @@ const SoldItemsList: React.FC<SoldItemsListProps> = ({ soldItems }) => {
   return (
       <div>
           <h2 className="text-xl font-semibold mb-4 text-center">Sold Items</h2>
+          
           <ul className="list-disc px-4">
               {soldItems?.map((item) => (
                   <li
                       key={item.itemId}
-                      onClick={() => router.push(`/items/${item.itemId}`)}
+                      onClick={() => router.push(`/profile/auction/${item?.auctionHistory?.auctionHistoryId}`)}
                       className="mb-2 hover:bg-meta-3 px-2 py-1 flex flex-row items-center">
                       <img src={item?.image} width={30} height={30} className="mr-2" alt="" /> {item.title} - ${item.startingPrice.toFixed(2)}
                   </li>
@@ -325,8 +318,8 @@ const BoughtItemsList: React.FC<BoughtItemsListProps> = ({ auctionHistories }) =
                   <ul className="list-disc px-4">
                       {auctionHistories?.map((auc) => (
                           <li
-                              key={auc.autionHistoryId}
-                              onClick={() => router.push(`/profile/auction/${auc.autionHistoryId}`)}
+                              key={auc.auctionHistoryId}
+                              onClick={() => router.push(`/profile/auction/${auc.auctionHistoryId}`)}
                               className="mb-2 hover:bg-meta-3 px-2 py-1 flex flex-row items-center">
                               <img src={auc?.item?.image} width={30} height={30} className="mr-2" alt="" />{auc?.item?.title} - ${auc?.winningBid.toFixed(2)} - {new Date(auc.endDate).toLocaleString()}
                           </li>

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240122123606_NewMigration")]
+    [Migration("20240123040228_NewMigration")]
     partial class NewMigration
     {
         /// <inheritdoc />
@@ -45,7 +45,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("WinnerId")
+                    b.Property<int?>("WinnerId")
                         .HasColumnType("int");
 
                     b.Property<float>("WinningBid")
@@ -59,6 +59,22 @@ namespace Infrastructure.Migrations
                     b.HasIndex("WinnerId");
 
                     b.ToTable("AuctionHistory");
+
+                    b.HasData(
+                        new
+                        {
+                            AuctionHistoryId = 1,
+                            EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ItemId = 1,
+                            WinningBid = 199f
+                        },
+                        new
+                        {
+                            AuctionHistoryId = 2,
+                            EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ItemId = 2,
+                            WinningBid = 199f
+                        });
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.Bid", b =>
@@ -69,7 +85,7 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BidId"));
 
-                    b.Property<float>("BidAmout")
+                    b.Property<float>("BidAmount")
                         .HasColumnType("real");
 
                     b.Property<DateTime>("BidDate")
@@ -99,16 +115,16 @@ namespace Infrastructure.Migrations
                         new
                         {
                             BidId = 1,
-                            BidAmout = 100f,
-                            BidDate = new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6666),
+                            BidAmount = 100f,
+                            BidDate = new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1157),
                             ItemId = 1,
                             UserId = 1
                         },
                         new
                         {
                             BidId = 2,
-                            BidAmout = 200f,
-                            BidDate = new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6689),
+                            BidAmount = 200f,
+                            BidDate = new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1192),
                             ItemId = 2,
                             UserId = 2
                         });
@@ -358,16 +374,16 @@ namespace Infrastructure.Migrations
                             Rate = 4.5f,
                             RatedUserId = 2,
                             RaterId = 1,
-                            RatingDate = new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6749)
+                            RatingDate = new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1340)
                         },
                         new
                         {
                             RatingId = 2,
                             ItemId = 2,
                             Rate = 4f,
-                            RatedUserId = 2,
+                            RatedUserId = 1,
                             RaterId = 2,
-                            RatingDate = new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6751)
+                            RatingDate = new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1348)
                         });
                 });
 
@@ -452,7 +468,7 @@ namespace Infrastructure.Migrations
                         {
                             UserId = 1,
                             Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
-                            Email = "batman123",
+                            Email = "batman123@gmail.com",
                             Name = "batman",
                             Password = "123",
                             Role = "User"
@@ -461,7 +477,7 @@ namespace Infrastructure.Migrations
                         {
                             UserId = 2,
                             Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
-                            Email = "ironman123",
+                            Email = "ironman123@gmail.com",
                             Name = "ironman",
                             Password = "123",
                             Role = "User"
@@ -470,7 +486,7 @@ namespace Infrastructure.Migrations
                         {
                             UserId = 3,
                             Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
-                            Email = "admin123",
+                            Email = "admin123@gmail.com",
                             Name = "admin",
                             Password = "123",
                             Role = "Admin"
@@ -487,9 +503,7 @@ namespace Infrastructure.Migrations
 
                     b.HasOne("DomainLayer.Entities.Models.User", "Winner")
                         .WithMany("AuctionHistories")
-                        .HasForeignKey("WinnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WinnerId");
 
                     b.Navigation("Item");
 

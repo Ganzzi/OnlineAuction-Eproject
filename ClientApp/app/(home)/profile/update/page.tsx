@@ -4,6 +4,7 @@ import axiosService from "@/axiosService";
 import FileUpload from "@/components/common/FileUpload/FileUploadOne";
 import { useGlobalState } from "@/context/globalState";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type ProfileUpdatePayload = {
@@ -15,6 +16,7 @@ type ProfileUpdatePayload = {
 };
 
 const ProfileUpdatingPage: React.FC = () => {
+  const router = useRouter();
   const {user} = useGlobalState();
   const [profileData, setProfileData] = useState<ProfileUpdatePayload>(
     {
@@ -250,7 +252,8 @@ const ProfileUpdatingPage: React.FC = () => {
             <div className="flex justify-end gap-4.5">
               <button
                 className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
-                type="submit"
+                type="reset"
+                onClick={() => router.back()}
               >
                 Cancel
               </button>

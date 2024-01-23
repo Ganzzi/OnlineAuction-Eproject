@@ -2,9 +2,9 @@ import { Item } from "./item"
 import { User } from "./user"
 
 export type AuctionHistory = {
-    autionHistoryId: number,
+    auctionHistoryId: number,
     winningBid: number, // bid amount
-    endDate: Date,
+    endDate: string,
 
     winnerId: number,
     winner?: User,

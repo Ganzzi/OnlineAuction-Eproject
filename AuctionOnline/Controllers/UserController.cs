@@ -85,8 +85,15 @@ namespace AuctionOnline.Controllers
         // ****checked
         [Route("SellItem")]
         [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> SellItem([FromForm] SellItemReqest req)
         {
+
+            var token = HttpContext.Request.Headers["Authorization"];
+            var user = await _s.getUser(_j.dataFormToken(token));
+
+            req.Item.SellerId = user.UserId;
+
             var sellitem = await _s.sellItem(req);
             if (sellitem == 1)
             {
@@ -116,8 +123,14 @@ namespace AuctionOnline.Controllers
         // ****checked
         [Route("UpdateItem")]
         [HttpPost]
+        [Consumes("multipart/form-data")]
         public async Task<IActionResult> UpdateItem([FromForm] SellItemReqest req)
         {
+            var token = HttpContext.Request.Headers["Authorization"];
+            var user = await _s.getUser(_j.dataFormToken(token));
+
+            req.Item.SellerId = user.UserId;
+
             var responforUpdateItem = await _s.updateItem(req);
             if (responforUpdateItem == true)
             {
@@ -143,7 +156,7 @@ namespace AuctionOnline.Controllers
         {
             var token = HttpContext.Request.Headers["Authorization"];
             var username = _j.dataFormToken(token);
-            var bidCheck = await _s.placenewbid(req, username);
+            var bidCheck = await _s.PlaceABid(req, username);
             if (bidCheck == true)
             {
                 return Ok(new
@@ -164,7 +177,7 @@ namespace AuctionOnline.Controllers
         // TODO: get user basic (name, email, role, id,...) info base on token
         [Route("Profile")]
         [HttpGet]
-        public async Task<IActionResult> userProfile()
+        public async Task<IActionResult> Profile()
         {
             var token = HttpContext.Request.Headers["Authorization"];
             var username = _j.dataFormToken(token);
@@ -202,7 +215,6 @@ namespace AuctionOnline.Controllers
             }
             return Ok();
         }
-
         // TODO
         // get auction history detail
         // TODO: get auction history model from userId (use token) & AuctionHistoryId
@@ -212,13 +224,11 @@ namespace AuctionOnline.Controllers
         public async Task<IActionResult> AuctionHistoryDetail(int AuctionHistoryId)
         {
             var token = HttpContext.Request.Headers["Authorization"];
-            var getAuction = await _s.GetAcutionHistory(token, AuctionHistoryId);
-            if (getAuction != null)
+            var username = _j.dataFormToken(token);
+            var Auction = await _s.GetAcutionHistory(username, AuctionHistoryId);
+            if (Auction != null)
             {
-                return Ok(new
-                {
-                    message = "Success Action"
-                });
+                return Ok(Auction);
             }
             else
             {

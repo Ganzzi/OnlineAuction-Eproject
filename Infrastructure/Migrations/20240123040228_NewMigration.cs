@@ -108,7 +108,7 @@ namespace Infrastructure.Migrations
                     AuctionHistoryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ItemId = table.Column<int>(type: "int", nullable: false),
-                    WinnerId = table.Column<int>(type: "int", nullable: false),
+                    WinnerId = table.Column<int>(type: "int", nullable: true),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     WinningBid = table.Column<float>(type: "real", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -127,8 +127,7 @@ namespace Infrastructure.Migrations
                         name: "FK_AuctionHistory_Usertable_WinnerId",
                         column: x => x.WinnerId,
                         principalTable: "Usertable",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -139,7 +138,7 @@ namespace Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     ItemId = table.Column<int>(type: "int", nullable: false),
-                    BidAmout = table.Column<float>(type: "real", nullable: false),
+                    BidAmount = table.Column<float>(type: "real", nullable: false),
                     BidDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -270,9 +269,9 @@ namespace Infrastructure.Migrations
                 columns: new[] { "UserId", "Avatar", "Created", "Email", "LastModified", "Name", "Password", "ResetExpire", "Role", "tokenResetPassword" },
                 values: new object[,]
                 {
-                    { 1, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "batman123", null, "batman", "123", null, "User", null },
-                    { 2, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "ironman123", null, "ironman", "123", null, "User", null },
-                    { 3, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "admin123", null, "admin", "123", null, "Admin", null }
+                    { 1, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "batman123@gmail.com", null, "batman", "123", null, "User", null },
+                    { 2, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "ironman123@gmail.com", null, "ironman", "123", null, "User", null },
+                    { 3, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "admin123@gmail.com", null, "admin", "123", null, "Admin", null }
                 });
 
             migrationBuilder.InsertData(
@@ -285,12 +284,21 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "BidTable",
-                columns: new[] { "BidId", "BidAmout", "BidDate", "Created", "ItemId", "LastModified", "UserId" },
+                table: "AuctionHistory",
+                columns: new[] { "AuctionHistoryId", "Created", "EndDate", "ItemId", "LastModified", "WinnerId", "WinningBid" },
                 values: new object[,]
                 {
-                    { 1, 100f, new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6666), null, 1, null, 1 },
-                    { 2, 200f, new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6689), null, 2, null, 2 }
+                    { 1, null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, null, null, 199f },
+                    { 2, null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2, null, null, 199f }
+                });
+
+            migrationBuilder.InsertData(
+                table: "BidTable",
+                columns: new[] { "BidId", "BidAmount", "BidDate", "Created", "ItemId", "LastModified", "UserId" },
+                values: new object[,]
+                {
+                    { 1, 100f, new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1157), null, 1, null, 1 },
+                    { 2, 200f, new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1192), null, 2, null, 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -307,8 +315,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "RatingId", "Created", "ItemId", "LastModified", "Rate", "RatedUserId", "RaterId", "RatingDate" },
                 values: new object[,]
                 {
-                    { 1, null, 1, null, 4.5f, 2, 1, new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6749) },
-                    { 2, null, 2, null, 4f, 2, 2, new DateTime(2024, 1, 22, 19, 36, 6, 742, DateTimeKind.Local).AddTicks(6751) }
+                    { 1, null, 1, null, 4.5f, 2, 1, new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1340) },
+                    { 2, null, 2, null, 4f, 1, 2, new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1348) }
                 });
 
             migrationBuilder.CreateIndex(

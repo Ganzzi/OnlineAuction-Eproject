@@ -35,7 +35,7 @@ namespace Application.Service
                 //     var categoryItemSpec = new BaseSpecification<CategoryItem>(x => x.CategoryId == item.CategoryId)
                 //         .AddInclude(x => x.Include(x => x.Item).ThenInclude(x => x.Bids));
                 //     var categoryItemList = await _u.Repository<CategoryItem>().FindOne(categoryItemSpec);
-                //     // var TopTen = categoryItemList.Item.Bids.OrderByDescending(x => x.BidAmout).Take(10);
+                //     // var TopTen = categoryItemList.Item.Bids.OrderByDescending(x => x.BidAmount).Take(10);
                 // }
                 return liscategory;
             }
@@ -224,6 +224,13 @@ namespace Application.Service
                     var addcateItem = await _u.Repository<CategoryItem>().AddAsync(cateItem);
                 }
 
+                await _u.Repository<AuctionHistory>().AddAsync(new AuctionHistory
+                    {
+                        ItemId = addedItem.ItemId,
+                        EndDate = new DateTime(),
+                        WinningBid = 0
+                    });
+
                 // Save changes
                 await _u.SaveChangesAsync();
 
@@ -259,6 +266,8 @@ namespace Application.Service
                     Ratting.RatedUserId = req.RatedUserId;
                     Ratting.ItemId = req.ItemId;
                     Ratting.Rate = req.RatingAmount;
+                    await _u.Repository<Rating>().AddAsync(Ratting);
+
                     await _u.SaveChangesAsync();
                     return true;
                 }
@@ -351,7 +360,14 @@ namespace Application.Service
             {
                 var specUser = new BaseSpecification<User>(x => x.Name == username);
                 var user = await _u.Repository<User>().FindOne(specUser);
-                var specAuctionHistory = new BaseSpecification<AuctionHistory>(x => x.WinnerId == user.UserId && x.AuctionHistoryId == id);
+                // var specAuctionHistory = new BaseSpecification<AuctionHistory>
+                //     (x => (x.WinnerId == user.UserId || x.Item.SellerId == user.UserId) && x.AuctionHistoryId == id)
+                //     .AddInclude(q => q.Include(ah => ah.Winner).Include(ah => ah.Item));
+
+                var specAuctionHistory = new BaseSpecification<AuctionHistory>
+                    (x => x.AuctionHistoryId == id && (x.Item.SellerId == user.UserId || (x.WinnerId != null && x.WinnerId == user.UserId)))
+                    .AddInclude(q => q.Include(ah => ah.Winner).Include(ah => ah.Item).ThenInclude(i => i.Seller).Include(ah => ah.Item).ThenInclude(i => i.Rating));
+
                 var AuctionHistory = await _u.Repository<AuctionHistory>().FindOne(specAuctionHistory);
                 return AuctionHistory;
             }
@@ -363,20 +379,35 @@ namespace Application.Service
         }
 
         // place bid
-        public async Task<bool> placenewbid(PlaceBidRequest req, string username)
+        public async Task<bool> PlaceABid(PlaceBidRequest req, string username)
         {
             try
             {
                 var specUser = new BaseSpecification<User>(x => x.Name == username);
                 var user = await _u.Repository<User>().FindOne(specUser);
-                if (user != null)
+                var Item = await _u.Repository<Item>().FindOne(new BaseSpecification<Item>(i => i.ItemId == req.ItemId));
+                var ah = await _u.Repository<AuctionHistory>().FindOne(new BaseSpecification<AuctionHistory>(ah => ah.ItemId == Item.ItemId));
+                
+                if (ah != null && ah.WinnerId != null)    
+                {
+                    return false;
+                }
+
+                if (user != null && Item != null)
                 {
                     var specBid = new BaseSpecification<Bid>(x => x.ItemId == req.ItemId);
                     var bid = new Bid();
                     bid.UserId = user.UserId;
                     bid.ItemId = req.ItemId;
-                    bid.BidAmout = req.Amount;
+                    bid.BidAmount = req.Amount;
                     await _u.Repository<Bid>().AddAsync(bid);
+
+                    if (req.Amount >= Item.ReservePrice)
+                    {
+                        ah.WinnerId = user.UserId;
+                        _u.Repository<AuctionHistory>().Update(ah);
+                    }
+
                     await _u.SaveChangesAsync();
                     return true;
                 }
@@ -395,7 +426,7 @@ namespace Application.Service
         {
             try
             {
-                var specUser = new BaseSpecification<User>(x => x.Name == username).AddInclude(x => x.Include(x => x.SoldItems).Include(c => c.Bids).Include(i => i.AuctionHistories));
+                var specUser = new BaseSpecification<User>(x => x.Name == username).AddInclude(x => x.Include(x => x.SoldItems).ThenInclude(i => i.AuctionHistory).Include(c => c.Bids).ThenInclude(b => b.Item).Include(i => i.AuctionHistories).ThenInclude(ah => ah.Item));
                 var user = await _u.Repository<User>().FindOne(specUser);
                 int itemCount = user.SoldItems.Count();
                 if (user != null)
