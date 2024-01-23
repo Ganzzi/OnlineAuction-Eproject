@@ -63,9 +63,15 @@ namespace AuctionOnline.Controllers
         // search item
         [Route("ListItemsWithQuery")]
         [HttpGet]
-        public async Task<IActionResult> ListItemsWithQuery(int page, int take, string? search, int? cate)
+        public async Task<IActionResult> ListItemsWithQuery(
+            [FromQuery] int page = 1,
+            [FromQuery] int take = 10, 
+            [FromQuery] string? search = "",
+            [FromQuery] string? order = "",
+            [FromQuery] int? cate = null
+        )
         {
-            var listSeach = await _s.searchItem(page, take, search, cate);
+            var listSeach = await _s.searchItem(page, take, search, order, cate);
             if (listSeach == (null, 0))
             {
                 return NotFound();

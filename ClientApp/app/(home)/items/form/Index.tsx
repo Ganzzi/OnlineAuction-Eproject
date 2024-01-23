@@ -19,9 +19,7 @@ type SellItemPayload = {
   categories: Category[]
 }
 
-const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => {
-  console.log(existedCategories);
-  
+const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => {  
   const {user} = useGlobalState();
   const initialFormData: SellItemPayload = {
     item: {
@@ -38,8 +36,8 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
       seller: undefined,
       categoryItems: undefined,
       bids: undefined,
-      startDate: new Date().toDateString(),
-      endDate: new Date().toDateString()
+      startDate: new Date().toISOString().split('T')[0], // Set initial start date to today
+      endDate: new Date().toISOString().split('T')[0],   // Set initial end date to today
     },
     categories: [],
   };
@@ -104,9 +102,6 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
           'Content-Type': 'multipart/form-data',
         },
       });
-  
-      console.log(res);
-  
     } catch (error) {
       console.error('Error during form submission', error);
     }
@@ -187,6 +182,26 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
           value={selectedCategories}
           onChange={setSelectedCategories}
           labelledBy="Select"
+        />
+      </div>
+
+      <div>
+        <label className="mb-3 block text-black dark:text-white">Start Date</label>
+        <input
+          type="date"
+          value={formData.item.startDate}
+          onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, startDate: e.target.value }, }))}
+          className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-3 block text-black dark:text-white">End Date</label>
+        <input
+          type="date"
+          value={formData.item.endDate}
+          onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, endDate: e.target.value }, }))}
+          className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
         />
       </div>
 

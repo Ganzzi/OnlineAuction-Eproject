@@ -27,16 +27,20 @@ namespace Application.Service
             try
             {
                 var categoryspec = new BaseSpecification<Category>()
-                     .AddInclude(x => x.Include(x => x.CategoryItems).ThenInclude(x => x.Item));
+                ;
+                    //  .AddInclude(x => x.Include(x => x.CategoryItems).ThenInclude(x => x.Item));
                 var liscategory = await _u.Repository<Category>().ListAsynccheck(categoryspec);
 
-                // foreach (var item in liscategory)
-                // {
-                //     var categoryItemSpec = new BaseSpecification<CategoryItem>(x => x.CategoryId == item.CategoryId)
-                //         .AddInclude(x => x.Include(x => x.Item).ThenInclude(x => x.Bids));
-                //     var categoryItemList = await _u.Repository<CategoryItem>().FindOne(categoryItemSpec);
-                //     // var TopTen = categoryItemList.Item.Bids.OrderByDescending(x => x.BidAmount).Take(10);
-                // }
+                foreach (var item in liscategory)
+                {
+                    var cateItemSpec = new BaseSpecification<CategoryItem>
+                        (ci => ci.CategoryId == item.CategoryId)
+                        .AddInclude(q => q.Include(ci => ci.Item))
+                        .ApplyPaging(0, 10)
+                        .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
+                        item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
+                }
+
                 return liscategory;
             }
             catch (Exception e)
@@ -75,31 +79,25 @@ namespace Application.Service
             {
                 var Userspec = new BaseSpecification<User>(x => x.Name == model.Name);
                 var user = await _u.Repository<User>().FindOne(Userspec);
-                if (user != null && user.AvatarFile != null)
+
+                if (model.AvatarFile != null)
                 {
                     var deleteCloudinary = await _p.DeletPhoto(user.Avatar);
-                    var CloudinaryUserAvatar = await _p.addPhoto(user.AvatarFile);
+                    var CloudinaryUserAvatar = await _p.addPhoto(model.AvatarFile);
                     user.Name = model.Name;
                     user.Email = model.Email;
-                    user.Password = model.Password;
                     user.Avatar = CloudinaryUserAvatar;
-                    _u.Repository<User>().Update(user);
-                    await _u.SaveChangesAsync();
-                    return user;
                 }
-                else if (user != null && user.AvatarFile == null)
+                else 
                 {
                     user.Name = model.Name;
                     user.Email = model.Email;
-                    user.Password = model.Password;
-                    _u.Repository<User>().Update(user);
-                    await _u.SaveChangesAsync();
-                    return user;
                 }
-                else
-                {
-                    return null;
-                }
+                if (model.Password != null) user.Password = model.Password;
+                
+                _u.Repository<User>().Update(user);
+                await _u.SaveChangesAsync();
+                return user;
             }
             catch (Exception e)
             {
@@ -110,34 +108,22 @@ namespace Application.Service
         }
 
         //item list with search query
-        public async Task<(IList<CategoryItem>, int)> searchItem(int page, int take, string? search, int? cate)
+        public async Task<(IList<Item>, int)> searchItem(int page, int take, string search, string order, int? cate)
         {
             try
             {
                 var skip = take * (page - 1);
 
-                BaseSpecification<CategoryItem> itemSpec;
-
-                if (!string.IsNullOrEmpty(search))
-                {
-                    itemSpec = new BaseSpecification<CategoryItem>(x => x.Item.Title.Contains(search));
-                }
-                else if (cate.HasValue)
-                {
-                    itemSpec = new BaseSpecification<CategoryItem>(x => x.CategoryId == cate.Value);
-                }
-                else
-                {
-                    itemSpec = new BaseSpecification<CategoryItem>();
-                }
-
-                var count = await _u.Repository<CategoryItem>().CountAsync(itemSpec);
-
-                itemSpec = itemSpec.ApplyPaging(skip, take)
-                        .AddInclude(x => x.Include(x => x.Item).ThenInclude(x => x.Bids));
-                // .ApplyOrderBy(x => x.StartDate);
-
-                var listItem = await _u.Repository<CategoryItem>().ListAsynccheck(itemSpec);
+                var iSpec = new BaseSpecification<Item>(
+                    x => (search == null || x.Title.Contains(search)) && (cate == null || x.CategoryItems.Any(ci => ci.CategoryId == cate))
+                );
+                var count = await _u.Repository<Item>().CountAsync(iSpec);
+                 iSpec = iSpec
+                            .ApplyPaging(skip, take)
+                            .AddInclude(x => x.Include(x => x.Bids))
+                            .ApplyOrderBy(x => order == "date" ? x.StartDate : x.Title);
+                
+                var listItem = await _u.Repository<Item>().ListAsynccheck(iSpec);
 
                 return (listItem, count);
             }
@@ -147,21 +133,6 @@ namespace Application.Service
                 return (null, 0);
             }
         }
-
-        // tbc
-        //public async Task<int> tbc(int? id)
-        //{
-        //    float avg = 0;
-        //    float sum = 0;
-        //    var specitem = new BaseSpecification<Rating>(x => x.ItemId == id);
-        //    var listitem = await _u.Repository<Rating>().ListAsynccheck(specitem);
-        //    foreach (Rating rating in listitem)
-        //    {
-        //        sum = +rating.;
-        //    }
-        //    avg = sum / listitem.Count;
-        //    return (int)avg;
-        //}
 
 
         //  get item by id
