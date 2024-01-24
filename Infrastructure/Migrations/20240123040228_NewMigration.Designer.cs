@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240118111833_NewMigration")]
+    [Migration("20240123040228_NewMigration")]
     partial class NewMigration
     {
         /// <inheritdoc />
@@ -45,7 +45,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("WinnerId")
+                    b.Property<int?>("WinnerId")
                         .HasColumnType("int");
 
                     b.Property<float>("WinningBid")
@@ -59,6 +59,22 @@ namespace Infrastructure.Migrations
                     b.HasIndex("WinnerId");
 
                     b.ToTable("AuctionHistory");
+
+                    b.HasData(
+                        new
+                        {
+                            AuctionHistoryId = 1,
+                            EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ItemId = 1,
+                            WinningBid = 199f
+                        },
+                        new
+                        {
+                            AuctionHistoryId = 2,
+                            EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ItemId = 2,
+                            WinningBid = 199f
+                        });
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.Bid", b =>
@@ -69,7 +85,7 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BidId"));
 
-                    b.Property<float>("BidAmout")
+                    b.Property<float>("BidAmount")
                         .HasColumnType("real");
 
                     b.Property<DateTime>("BidDate")
@@ -99,16 +115,16 @@ namespace Infrastructure.Migrations
                         new
                         {
                             BidId = 1,
-                            BidAmout = 100f,
-                            BidDate = new DateTime(2024, 1, 18, 18, 18, 33, 534, DateTimeKind.Local).AddTicks(3487),
+                            BidAmount = 100f,
+                            BidDate = new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1157),
                             ItemId = 1,
                             UserId = 1
                         },
                         new
                         {
                             BidId = 2,
-                            BidAmout = 200f,
-                            BidDate = new DateTime(2024, 1, 18, 18, 18, 33, 534, DateTimeKind.Local).AddTicks(3512),
+                            BidAmount = 200f,
+                            BidDate = new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1192),
                             ItemId = 2,
                             UserId = 2
                         });
@@ -162,7 +178,7 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("Created")
@@ -253,7 +269,7 @@ namespace Infrastructure.Migrations
                             ItemId = 1,
                             Description = "Description for Item 1",
                             EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Image = "url_to_image_1",
+                            Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             IncreasingAmount = 100f,
                             SellerId = 1,
                             StartDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -265,7 +281,7 @@ namespace Infrastructure.Migrations
                             ItemId = 2,
                             Description = "Description for Item 2",
                             EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Image = "url_to_image_2",
+                            Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             IncreasingAmount = 100f,
                             SellerId = 1,
                             StartDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -330,7 +346,7 @@ namespace Infrastructure.Migrations
                     b.Property<float>("Rate")
                         .HasColumnType("real");
 
-                    b.Property<int?>("RatedUserId")
+                    b.Property<int>("RatedUserId")
                         .HasColumnType("int");
 
                     b.Property<int>("RaterId")
@@ -358,16 +374,16 @@ namespace Infrastructure.Migrations
                             Rate = 4.5f,
                             RatedUserId = 2,
                             RaterId = 1,
-                            RatingDate = new DateTime(2024, 1, 18, 18, 18, 33, 534, DateTimeKind.Local).AddTicks(3574)
+                            RatingDate = new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1340)
                         },
                         new
                         {
                             RatingId = 2,
                             ItemId = 2,
                             Rate = 4f,
-                            RatedUserId = 2,
+                            RatedUserId = 1,
                             RaterId = 2,
-                            RatingDate = new DateTime(2024, 1, 18, 18, 18, 33, 534, DateTimeKind.Local).AddTicks(3576)
+                            RatingDate = new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1348)
                         });
                 });
 
@@ -406,11 +422,11 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("DomainLayer.Entities.Models.User", b =>
                 {
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("UserId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<string>("Avatar")
                         .HasColumnType("nvarchar(max)");
@@ -433,8 +449,14 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("ResetExpire")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Role")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("tokenResetPassword")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId");
@@ -445,7 +467,8 @@ namespace Infrastructure.Migrations
                         new
                         {
                             UserId = 1,
-                            Email = "batman123",
+                            Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
+                            Email = "batman123@gmail.com",
                             Name = "batman",
                             Password = "123",
                             Role = "User"
@@ -453,7 +476,8 @@ namespace Infrastructure.Migrations
                         new
                         {
                             UserId = 2,
-                            Email = "ironman123",
+                            Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
+                            Email = "ironman123@gmail.com",
                             Name = "ironman",
                             Password = "123",
                             Role = "User"
@@ -461,7 +485,8 @@ namespace Infrastructure.Migrations
                         new
                         {
                             UserId = 3,
-                            Email = "admin123",
+                            Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
+                            Email = "admin123@gmail.com",
                             Name = "admin",
                             Password = "123",
                             Role = "Admin"
@@ -478,9 +503,7 @@ namespace Infrastructure.Migrations
 
                     b.HasOne("DomainLayer.Entities.Models.User", "Winner")
                         .WithMany("AuctionHistories")
-                        .HasForeignKey("WinnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WinnerId");
 
                     b.Navigation("Item");
 
@@ -511,8 +534,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("DomainLayer.Entities.Models.Category", "Category")
                         .WithMany("CategoryItems")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("DomainLayer.Entities.Models.Item", "Item")
                         .WithMany("CategoryItems")
@@ -565,12 +587,14 @@ namespace Infrastructure.Migrations
 
                     b.HasOne("DomainLayer.Entities.Models.User", "RatedUser")
                         .WithMany("BeingRateds")
-                        .HasForeignKey("RatedUserId");
+                        .HasForeignKey("RatedUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("DomainLayer.Entities.Models.User", "Rater")
                         .WithMany("Ratings")
                         .HasForeignKey("RaterId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Item");

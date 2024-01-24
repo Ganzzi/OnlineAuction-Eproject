@@ -27,7 +27,7 @@ const CategoryCard = ({ category }: { category: Category }) => {
       </div>
       {/* Linking Card */}
       <Link 
-        href={`/items?category=${category.categoryId}`} 
+        href={`/items?cate=${category.categoryId}`} 
         className={`block text-center mt-6 p-2 rounded hover:bg-meta-3 transition-colors
          ${colorMode === 'dark' ? 'bg-primary' : 'bg-secondary'}
           `}>

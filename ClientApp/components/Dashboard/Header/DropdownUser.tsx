@@ -43,7 +43,7 @@ const DropdownUser = () => {
     setAccessToken(null);
     router.push("/auth/signin")
   }
-
+  
   return (
     <div className="relative">
       <Link
@@ -60,7 +60,7 @@ const DropdownUser = () => {
         </span>
 
         <span className="h-12 w-12 rounded-full">
-          <Image
+          <img
             width={112}
             height={112}
             src={user.avatar ?? "/images/user/user-01.png"}

@@ -1,6 +1,7 @@
 import { AuctionHistory } from "./auctionHistory"
 import { Bid } from "./bid"
 import { CategoryItem } from "./categoryItem"
+import { Rating } from "./rating"
 import { User } from "./user"
 
 export type Item = {
@@ -17,11 +18,14 @@ export type Item = {
     startDate: string,
     endDate: string,
 
-    sellerId: number,
+    sellerId?: number,
     seller?: User,
 
     categoryItems?: CategoryItem[]
     bids?: Bid[]
 
-    auctionHistory?: AuctionHistory
+    auctionHistory?: AuctionHistory,
+
+    rating?: Rating
+
 }

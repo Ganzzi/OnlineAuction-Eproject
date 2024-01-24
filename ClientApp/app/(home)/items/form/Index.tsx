@@ -1,6 +1,8 @@
 'use client'
 
+import axiosService from "@/axiosService"
 import FileUpload from "@/components/common/FileUpload/FileUploadOne"
+import { useGlobalState } from "@/context/globalState"
 import { Category } from "@/types/models/category"
 import { Item } from "@/types/models/item"
 import { useEffect, useState } from "react"
@@ -17,23 +19,25 @@ type SellItemPayload = {
   categories: Category[]
 }
 
-const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => {
+const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => {  
+  const {user} = useGlobalState();
   const initialFormData: SellItemPayload = {
     item: {
       itemId: 0,
       title: '',
       description: '',
-      image: '',
+      image: 'null',
       imageFile: undefined,
       startingPrice: 0,
       increasingAmount: 0,
       reservePrice: undefined,
-      sellerId: 0,
+      // sellerId: user.userId,
+      sellerId: undefined,
       seller: undefined,
       categoryItems: undefined,
       bids: undefined,
-      startDate: new Date(),
-      endDate: new Date()
+      startDate: new Date().toISOString().split('T')[0], // Set initial start date to today
+      endDate: new Date().toISOString().split('T')[0],   // Set initial end date to today
     },
     categories: [],
   };
@@ -56,33 +60,54 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
   }, [])
 
   const handleFileChange = (file: File) => {
+    console.log('get a file: '+ file.name);
+    
     setFormData((prevFormData) => ({
       ...prevFormData,
       item: {
         ...prevFormData.item,
-        image: file.name, // Assuming you want to store the file name
         imageFile: file,
       },
     }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+  
+    try {
+      const formDataToSend = new FormData();
+  
+      // Append item fields to FormData
+      Object.entries(formData.item).forEach(([key, value]) => {
+        // Check for undefined values before appending to FormData
+        if (value !== undefined && value !== null) {
+          formDataToSend.append(`item.${key}`, value.toString());
+        }
+      });
+  
+      // Append imageFile to FormData
+      if (formData.item.imageFile) {
+        formDataToSend.append('item.ImageFile', formData.item.imageFile);
+      }
 
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      item: {
-        ...prevFormData.item,
-      },
-      categories: selectedCategories.map((op) => ({
-        categoryId: op.value,
-        categoryName: op.label,
-      })),
-    }));
+      selectedCategories.forEach((category, index) => {
+        formDataToSend.append(`categories[${index}].categoryId`, category.value.toString());
+        formDataToSend.append(`categories[${index}].categoryName`, category.label);
+      });
 
-    // Add logic to handle form submission with formData
-    console.log('Form submitted:', formData);
+      console.log(Array.from(formDataToSend));
+  
+      const res = await axiosService.post(`/api/user/${item == undefined ? "sellItem" : "updateItem"}`, formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } catch (error) {
+      console.error('Error during form submission', error);
+    }
   };
+  
+  
 
   return (
     <form onSubmit={handleSubmit}>
@@ -157,6 +182,26 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
           value={selectedCategories}
           onChange={setSelectedCategories}
           labelledBy="Select"
+        />
+      </div>
+
+      <div>
+        <label className="mb-3 block text-black dark:text-white">Start Date</label>
+        <input
+          type="date"
+          value={formData.item.startDate}
+          onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, startDate: e.target.value }, }))}
+          className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-3 block text-black dark:text-white">End Date</label>
+        <input
+          type="date"
+          value={formData.item.endDate}
+          onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, endDate: e.target.value }, }))}
+          className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
         />
       </div>
 

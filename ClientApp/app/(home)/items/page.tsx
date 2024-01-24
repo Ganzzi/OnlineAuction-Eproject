@@ -11,6 +11,7 @@ import { Item } from "@/types/models/item";
 import axios from "axios";
 import https from 'https'
 import { CategoryItem } from "@/types/models/categoryItem";
+import { getListCategories } from "./form/page";
 
 type Filters = {
     page: number;
@@ -21,16 +22,9 @@ type Filters = {
     category:  string;
 }
 type ItemProps = {
-    resource: Resource<CategoryItem>;
+    resource: Resource<Item>;
     filters: Filters
 }
-
-const items:Item[] = [
-  item1, item2,
-  item1, item2,
-  item1, item2,
-  item1, item2,
-]
 
 const fetchItems = async (searchParams: SearchParams): Promise<ItemProps> => { 
   let page = 1
@@ -43,50 +37,47 @@ const fetchItems = async (searchParams: SearchParams): Promise<ItemProps> => {
     perPage = parseInt(searchParams.per_page.toString(), 10)
   }
 
-  // let sort = 'id'
-  // if (searchParams?.sort) {
-  //   sort = searchParams.sort.toString()
-  // }
-
-  // let order = 'asc'
-  // if (searchParams?.order && typeof searchParams.order === 'string') {
-  //   order = searchParams.order
-  // }
+  let order = 'title'
+  if (searchParams?.order) {
+    order = searchParams.order.toString()
+  }
 
   let search = ""
   if(searchParams?.search  && typeof searchParams.search === 'string'){
     search = searchParams.search;
   }
 
-  let category = ""
-  if(searchParams?.category  && typeof searchParams.category === 'string'){
-    category = searchParams.category;
+  let cate = ""
+  if(searchParams?.cate  && typeof searchParams.cate === 'string'){
+    cate = searchParams.cate;
   }
 
   const url = new URL('https://localhost:7073/api/User/ListItemsWithQuery')
   url.searchParams.set('page', page.toString())
   url.searchParams.set('take', perPage.toString())
   // url.searchParams.set('sort', sort)
-  // url.searchParams.set('order', order)
+  url.searchParams.set('order', order)
   url.searchParams.set("search",  search)
-  url.searchParams.set("cate",  category)
+  url.searchParams.set("cate",  cate)
+
+  console.log(url.toString());
 
   const response = await axios.get(url.toString(), {
     httpsAgent: new https.Agent({ rejectUnauthorized: false }), // Ignore SSL certificate validation errors
   });
 
-  const res = response.data;
+  const res = response.data;  
 
-  const items: CategoryItem[] = res?.listSearch;
+  const items: Item[] = res?.listSearch;
   const total = res?.count;  
 
-  const resource: Resource<CategoryItem> = newResource(items, total, page, perPage)
+  const resource: Resource<Item> = newResource(items, total, page, perPage)
 
   const  filters = {
     page,
     perPage,
     search,
-    category
+    category: cate
     // sort,
     // order,
   }
@@ -100,6 +91,7 @@ const fetchItems = async (searchParams: SearchParams): Promise<ItemProps> => {
 
 export default async function  ItemsPage ({ searchParams }: { searchParams: SearchParams }) {
   const itemProps = await fetchItems(searchParams);
+  const categories = await getListCategories();
 
   return (
     <>
@@ -107,7 +99,7 @@ export default async function  ItemsPage ({ searchParams }: { searchParams: Sear
       pageName: "market",
       link: "/items"
     }]} />
-    <Index searchParams={searchParams} resource={itemProps.resource}/>
+    <Index searchParams={searchParams} resource={itemProps.resource} categories={categories}/>
     </>
   );
 };

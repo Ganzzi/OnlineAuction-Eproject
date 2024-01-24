@@ -4,6 +4,8 @@ import { Item } from "@/types/models/item";
 import { SearchParams } from "@/types/next";
 import { category1, category2, item1 } from "@/data/item";
 import Index from "./Index";
+import axios from "axios";
+import https from 'https'
 
 // Fake data
 const itemData = {...item1}
@@ -21,17 +23,26 @@ const existedCategories = [
 ]
 
 const getItemById: (itemId: number) => Promise<[Item, Category[]]> = async (itemId: number) => {
-  // Fetch item details
-  // const response = await fetch(`/api/items/${itemId}`);
-  // const itemData = await response.json();
+  const url = new URL('https://localhost:7073/api/User/getItemById')
+  url.searchParams.set("id", itemId.toString());
 
-  return [itemData, existedCategories];
+  const response = await axios.get(url.toString(), {
+    httpsAgent: new https.Agent({ rejectUnauthorized: false }), // Ignore SSL certificate validation errors
+  });
+
+  const itemData: Item = response.data;
+  
+  return [itemData, itemData?.categoryItems?.map(ci => ci?.category) ?? []];
 };
 
-const getListCategories: () => Promise<Category[]> = async () => {
-  // Fetch categories
-  // const response = await fetch(``);
-  // const categoriesData: Category[] = await response.json();
+export const getListCategories: () => Promise<Category[]> = async () => {
+  const url = new URL('https://localhost:7073/api/User/CategoriesWithTenItems')
+
+  const response = await axios.get(url.toString(), {
+    httpsAgent: new https.Agent({ rejectUnauthorized: false }), // Ignore SSL certificate validation errors
+  });
+
+  const categoriesData: Category[] = response.data;
 
   return categoriesData;
 };

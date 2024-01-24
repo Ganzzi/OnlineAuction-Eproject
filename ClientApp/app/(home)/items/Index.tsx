@@ -11,32 +11,27 @@ import Pagination from '@/components/common/Pagination/Pagination';
 import ItemCard from '@/components/Home/ItemCard';
 import { CategoryItem } from '@/types/models/categoryItem';
 
-const categories: Category[] = [
-  category1,
-  category2
-];
-
-const Index = ({ searchParams, resource }: { searchParams: SearchParams, resource: Resource<CategoryItem> }) => {
+const Index = ({ searchParams, resource, categories }: { searchParams: SearchParams, resource: Resource<Item>, categories: Category[] }) => {
   const router = useRouter();
   const pathname = usePathname();
 
   const [searchKeyword, setSearchKeyword] = useState<string>(searchParams?.search as string || '');
-  const [sortBy, setSortBy] = useState<string>(searchParams?.sortBy as string || 'name');
-  const [selectedCategory, setSelectedCategory] = useState(searchParams?.category as string || 'all');
+  const [orderBy, setOrderBy] = useState<string>(searchParams?.orderBy as string || 'name');
+  const [selectedCategory, setSelectedCategory] = useState(searchParams?.cate as string || 'all');
 
   const handleSearch = () => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('search', searchKeyword);
-    newSearchParams.set('sort', sortBy);
+    newSearchParams.set('order', orderBy);
     newSearchParams.set("page", "1");
 
     router.push(`${pathname}?${newSearchParams}`);
   };
 
-  const handleSortChange = (value: string) => {
-    setSortBy(value);
+  const handleOrderChange = (value: string) => {
+    setOrderBy(value);
     const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('sort', value);
+    newSearchParams.set('order', value);
     newSearchParams.set("page", "1");
 
     router.push(`${pathname}?${newSearchParams}`);
@@ -45,7 +40,7 @@ const Index = ({ searchParams, resource }: { searchParams: SearchParams, resourc
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value);
     const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('category', value);
+    newSearchParams.set('cate', value);
     newSearchParams.set("page", "1");
 
     router.push(`${pathname}?${newSearchParams}`);
@@ -62,20 +57,20 @@ const Index = ({ searchParams, resource }: { searchParams: SearchParams, resourc
         {/* Left Section: Filter Bar */}
         <FilterBar
           searchKeyword={searchKeyword}
-          sortBy={sortBy}
-          selectedCategory={selectedCategory}
+          orderBy={orderBy}
           onSearchChange={setSearchKeyword}
-          onSortChange={handleSortChange}
+          onOrderChange={handleOrderChange}
           onCategoryChange={handleCategoryChange}
           onSearch={handleSearch}
           categories={categories} // Assuming you have a Category type
+          selectedCategory={selectedCategory}
         />
 
         {/* Right Section: List of Item Cards and Pagination */}
         <div className="w-3/4 p-4 space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
             {resource.data?.map((item) => (
-              <ItemCard key={item.itemId} item={item.item} />
+              <ItemCard key={item.itemId} item={item} />
             ))}
           </div>
 
@@ -89,10 +84,10 @@ const Index = ({ searchParams, resource }: { searchParams: SearchParams, resourc
 
 interface FilterBarProps {
   searchKeyword: string;
-  sortBy: string;
+  orderBy: string;
   selectedCategory: string;
   onSearchChange: (value: string) => void;
-  onSortChange: (value: string) => void;
+  onOrderChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onSearch: () => void;
   categories: Category[]; // Assuming you have a Category type
@@ -100,10 +95,10 @@ interface FilterBarProps {
 
 const FilterBar: React.FC<FilterBarProps> = ({
   searchKeyword,
-  sortBy,
+  orderBy,
   selectedCategory,
   onSearchChange,
-  onSortChange,
+  onOrderChange,
   onCategoryChange,
   onSearch,
   categories,
@@ -127,20 +122,20 @@ const FilterBar: React.FC<FilterBarProps> = ({
         Search
       </button>
 
-      {/* Sort Options */}
+      {/* Order Options */}
       <div className="mt-4">
-        <label htmlFor="sort" className="block text-sm font-medium text-gray-700">
-          Sort:
+        <label htmlFor="order" className="block text-sm font-medium text-gray-700">
+          Order:
         </label>
         <select
-          id="sort"
-          value={sortBy}
-          onChange={(e) => onSortChange(e.target.value)}
+          id="order"
+          value={orderBy}
+          onChange={(e) => onOrderChange(e.target.value)}
           className="w-full rounded border border-gray-300 p-2"
         >
-          <option value="title">Default Sort</option>
-          <option value="date">Sort by Date</option>
-          {/* Add more sorting options as needed */}
+          <option value="title">Order By Title</option>
+          <option value="date">Order by Starting Date</option>
+          {/* Add more ordering options as needed */}
         </select>
       </div>
 

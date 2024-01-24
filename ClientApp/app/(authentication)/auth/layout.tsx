@@ -29,11 +29,13 @@ export default function HomeLayout({
   }, [accessToken])
 
   return (
-        <div className="dark:bg-boxdark-2 dark:text-bodydark">
+        <div className="dark:bg-boxdark bg-white" style={{
+          height: '100vh'
+        }}>
           {loading ? (
             <Loader />
           ) : (
-            <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+            <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
                 <main>
                   <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
                     {children}

@@ -20,8 +20,8 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body suppressHydrationWarning={true}>
-         <GlobalStateProvider >
+      <body suppressHydrationWarning={true} className="bg-meta-4">
+         <GlobalStateProvider>
           {children}    
         </GlobalStateProvider>
       </body>
