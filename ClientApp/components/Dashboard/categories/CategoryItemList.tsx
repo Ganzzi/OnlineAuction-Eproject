@@ -6,34 +6,38 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 
 const categoryItems:CategoryItem []=[]
-type Props = {}
-const categories: Category[]=[
-  {
-    categoryId: 1,
-    categorName: "2",
-    description: "2",
-    categoryItems : categoryItems,
-},
-{
-  categoryId: 1,
-  categorName: "2",
-  description: "2",
-  categoryItems : categoryItems,
-},
-{
-  categoryId: 1,
-  categorName: "2",
-  description: "2",
-  categoryItems : categoryItems,
-},  {
-  categoryId: 1,
-  categorName: "2",
-  description: "2",
-  categoryItems : categoryItems,
-}
-]
 
-const CategoryItemList = (props: Props) => {
+// const categories: Category[]=[
+//   {
+//     categoryId: 1,
+//     categoryName: "2",
+//     description: "2",
+//     categoryItems : categoryItems,
+// },
+// {
+//   categoryId: 1,
+//   categoryName: "2",
+//   description: "2",
+//   categoryItems : categoryItems,
+// },
+// {
+//   categoryId: 1,
+//   categoryName: "2",
+//   description: "2",
+//   categoryItems : categoryItems,
+// },  {
+//   categoryId: 1,
+//   categoryName: "2",
+//   description: "2",
+//   categoryItems : categoryItems,
+// }
+// ]
+
+export type CategoryResponse = {
+  category: Category,
+  itemCount: number
+}
+const CategoryItemList = ({data}: {data: CategoryResponse[]}) => {
   const router = useRouter();
   return (
   <div>
@@ -66,33 +70,33 @@ const CategoryItemList = (props: Props) => {
             </tr>
           </thead>
           <tbody>
-            {categories.map((item, key) => (
+            {data.map((item, key) => (
               <tr onClick={()=>{
-                router.push(`/dashboard/categories/${item.categoryId}`)
+                router.push(`/dashboard/categories/${item.category.categoryId}`)
               }} key={key}>
                 <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
                   <h5 className="font-medium text-black dark:text-white">
-                    {item.categoryId}
+                    {item.category.categoryId}
                   </h5>
                  
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                   <p className="text-black dark:text-white">
-                  <p className="text-sm">{item.categorName}</p>
+                  <p className="text-sm">{item.category.categoryName}</p>
                   </p>
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                   <p className="text-black dark:text-white">
-                    {item.description}
+                    {item.category.description}
                   </p>
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                  <p>
-                    {item.categoryItems?.length||0}
+                    {item.itemCount || 0}
                   </p>
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                <Link href={`/dashboard/categories/form?categoryId=${item.categoryId}`} className="inline-flex items-center justify-center rounded-full bg-black py-4 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-5">
+                <Link href={`/dashboard/categories/form?categoryId=${item.category.categoryId}`} className="inline-flex items-center justify-center rounded-full bg-black py-4 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-5">
               Edit
             </Link>
              | 
