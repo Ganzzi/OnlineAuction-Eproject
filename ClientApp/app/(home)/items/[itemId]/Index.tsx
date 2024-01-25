@@ -1,6 +1,6 @@
 "use client"
 
-import axiosService from '@/axiosService';
+import axiosService from '@/services/axiosService';
 import BidCard from '@/components/Home/market/BidCard';
 import { useGlobalState } from '@/context/globalState';
 import { Item } from '@/types/models/item'
@@ -8,6 +8,7 @@ import { User } from '@/types/models/user';
 import { parseDate } from '@/utils';
 import { useRouter } from 'next/navigation';
 import React, { use, useEffect, useState } from 'react'
+import signalRService from '@/services/signalRService';
 
 
 const Index = ({ itemData }: { itemData: Item }) => {
@@ -44,10 +45,18 @@ const Index = ({ itemData }: { itemData: Item }) => {
     if (accessToken === "") {
       router.push("/auth/signin")
     }
+    
+    await signalRService.joinItemRoom(user.userId, item.itemId, parseInt(bidAmount, 10));
+
     const res = await axiosService.post("/api/user/placeBid", {
       itemId: item.itemId,
       amount: bidAmount
     })
+    if (res.status == 200) {
+      
+      // await signalRService.joinItemRoom(user.userId, item.itemId, parseInt(bidAmount, 10));
+      // console.log("joining");
+    }
 
     console.log(res.data);
     

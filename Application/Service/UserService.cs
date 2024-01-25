@@ -161,7 +161,7 @@ namespace Application.Service
         }
 
         // sell item => img
-        public async Task<int> sellItem(SellItemReqest req)
+        public async Task<Item> sellItem(SellItemReqest req)
         {
             try
             {
@@ -170,7 +170,7 @@ namespace Application.Service
                 if (existingItem != null)
                 {
                     // Item with the same title already exists
-                    return 0;
+                    return null;
                 }
 
                 // Add the item with the associated image
@@ -183,7 +183,7 @@ namespace Application.Service
                 if (addedItem == null || addedItem.ItemId <= 0)
                 {
                     // Handle the case where the item was not added successfully
-                    return -1;
+                    return null;
                 }
 
                 // Create CategoryItem entities for each category and associate them with the added item
@@ -206,13 +206,13 @@ namespace Application.Service
                 await _u.SaveChangesAsync();
 
                 // Return success status
-                return 1;
+                return addedItem;
             }
             catch (Exception ex)
             {
                 // Handle exceptions and roll back changes
                 await _u.RollBackChangesAsync();
-                return -1;
+                return null;
             }
         }
 
@@ -256,66 +256,59 @@ namespace Application.Service
         {
             try
             {
-                var checkName = new BaseSpecification<Item>(x => x.Title == req.Item.Title);
+                var checkName = new BaseSpecification<Item>(x => x.ItemId == req.Item.ItemId);
                 var finditem = await _u.Repository<Item>().FindOne(checkName);
-                var specCategoryItem = new BaseSpecification<CategoryItem>(x => x.ItemId == finditem.ItemId);
-                var cateItem = await _u.Repository<CategoryItem>().FindOne(specCategoryItem);
-                if (req.Item.ImageFile == null)
+
+                var newItem = new Item();
+                newItem.Title = req.Item.Title;
+                newItem.Description = req.Item.Description;
+                newItem.ReservePrice = req.Item.ReservePrice;
+                newItem.StartingPrice = req.Item.StartingPrice;
+                newItem.IncreasingAmount = req.Item.IncreasingAmount;
+                newItem.StartDate = req.Item.StartDate;
+                newItem.EndDate = req.Item.EndDate;
+                newItem.SellerId = req.Item.SellerId;
+
+                if (req.Item.ImageFile != null)
                 {
-                    // dont have img
-                    _u.Repository<CategoryItem>().Delete(cateItem);
-                    var newItem = new Item();
-                    newItem.Title = req.Item.Title;
-                    newItem.Description = req.Item.Description;
-                    newItem.ReservePrice = req.Item.ReservePrice;
-                    newItem.StartingPrice = req.Item.StartingPrice;
-                    newItem.IncreasingAmount = req.Item.IncreasingAmount;
-                    newItem.StartDate = req.Item.StartDate;
-                    newItem.EndDate = req.Item.EndDate;
-                    newItem.Image = finditem.Image;
-                    await _u.Repository<Item>().AddAsync(newItem);
-                    foreach (var item in req.Categories)
-                    {
-                        var newcateItem = new CategoryItem();
-                        newcateItem.ItemId = finditem.ItemId;
-                        newcateItem.CategoryId = item.CategoryId;
-                        await _u.Repository<CategoryItem>().AddAsync(newcateItem);
-                    }
-                    await _u.SaveChangesAsync();
-                    return true;
-                }
-                else if (req.Item.ImageFile != null)
-                {
-                    // have img
-                    _u.Repository<CategoryItem>().Delete(cateItem);
                     await _p.DeletPhoto(finditem.Image);
                     var addpicture = await _p.addPhoto(req.Item.ImageFile);
-                    var newItem = new Item();
-                    newItem.Title = req.Item.Title;
-                    newItem.Description = req.Item.Description;
-                    newItem.ReservePrice = req.Item.ReservePrice;
-                    newItem.StartingPrice = req.Item.StartingPrice;
-                    newItem.IncreasingAmount = req.Item.IncreasingAmount;
-                    newItem.StartDate = req.Item.StartDate;
-                    newItem.EndDate = req.Item.EndDate;
-                    newItem.Image = addpicture;
-                    await _u.Repository<Item>().AddAsync(newItem);
-
-
-                    foreach (var item in req.Categories)
-                    {
-                        var newcateItem = new CategoryItem();
-                        newcateItem.ItemId = finditem.ItemId;
-                        newcateItem.CategoryId = item.CategoryId;
-                        await _u.Repository<CategoryItem>().AddAsync(newcateItem);
-                    }
-                    await _u.SaveChangesAsync();
-                    return true;
+                    newItem.Image = addpicture; 
                 }
-                else
+
+                _u.Repository<Item>().Update(newItem);
+                await _u.SaveChangesAsync();
+
+
+                var specCategoryItem = new BaseSpecification<CategoryItem>(x => x.ItemId == finditem.ItemId).AddInclude(q => q.Include(ci => ci.Category));
+                var cateItem = await _u.Repository<CategoryItem>().ListAsynccheck(specCategoryItem);
+
+                List<Category> oldList = cateItem.Select(item => item.Category).ToList();
+                List<Category> newList = req.Categories.ToList();
+
+                var comparer = new CategoryComparer();
+
+                var categoriesToAdd = newList.Where(newCategory => !oldList.Any(oldCategory => comparer.Equals(oldCategory, newCategory))).ToList();
+                var categoriesToRemove = oldList.Where(oldCategory => !newList.Any(newCategory => comparer.Equals(oldCategory, newCategory))).ToList();
+
+                foreach (var item in categoriesToAdd)
                 {
-                    return false;
+                    await _u.Repository<CategoryItem>().AddAsync(new CategoryItem {
+                        ItemId = finditem.ItemId,
+                        CategoryId = item.CategoryId
+                    });
                 }
+
+                foreach (var item in categoriesToRemove)
+                {
+                    var spec = new BaseSpecification<CategoryItem>(x => x.CategoryId == item.CategoryId);
+                    var f = await _u.Repository<CategoryItem>().FindOne(spec);
+                    _u.Repository<CategoryItem>().Delete(f);
+                }
+
+                await _u.SaveChangesAsync();
+
+                return true;
             }
             catch (Exception e)
             {
@@ -350,44 +343,47 @@ namespace Application.Service
         }
 
         // place bid
-        public async Task<bool> PlaceABid(PlaceBidRequest req, string username)
+        public async Task<AuctionHistory> PlaceABid(PlaceBidRequest req, User user)
         {
             try
             {
-                var specUser = new BaseSpecification<User>(x => x.Name == username);
-                var user = await _u.Repository<User>().FindOne(specUser);
                 var Item = await _u.Repository<Item>().FindOne(new BaseSpecification<Item>(i => i.ItemId == req.ItemId));
-                var ah = await _u.Repository<AuctionHistory>().FindOne(new BaseSpecification<AuctionHistory>(ah => ah.ItemId == Item.ItemId));
                 
-                if (ah != null && ah.WinnerId != null)    
+                if (Item == null)
                 {
-                    return false;
+                    return null;
                 }
 
-                if (user != null && Item != null)
+                var ah = await _u.Repository<AuctionHistory>()
+                    .FindOne(new BaseSpecification<AuctionHistory>(ah => ah.ItemId == Item.ItemId));
+                
+                if (ah.WinnerId != null)    
                 {
-                    var specBid = new BaseSpecification<Bid>(x => x.ItemId == req.ItemId);
-                    var bid = new Bid();
-                    bid.UserId = user.UserId;
-                    bid.ItemId = req.ItemId;
-                    bid.BidAmount = req.Amount;
-                    await _u.Repository<Bid>().AddAsync(bid);
-
-                    if (req.Amount >= Item.ReservePrice)
-                    {
-                        ah.WinnerId = user.UserId;
-                        _u.Repository<AuctionHistory>().Update(ah);
-                    }
-
-                    await _u.SaveChangesAsync();
-                    return true;
+                    return ah;
                 }
-                else { return false; }
+
+                var specBid = new BaseSpecification<Bid>(x => x.ItemId == req.ItemId);
+                var bid = new Bid();
+                bid.UserId = user.UserId;
+                bid.ItemId = req.ItemId;
+                bid.BidAmount = req.Amount;
+                await _u.Repository<Bid>().AddAsync(bid);
+
+                if (req.Amount >= Item.ReservePrice)
+                {
+                    // TODO: insert notification rows
+                    ah.WinnerId = user.UserId;
+                    _u.Repository<AuctionHistory>().Update(ah);
+
+                }
+
+                await _u.SaveChangesAsync();
+                return ah;
             }
             catch (Exception e)
             {
                 await _u.RollBackChangesAsync();
-                return false;
+                return null;
             }
 
         }
@@ -415,5 +411,20 @@ namespace Application.Service
             }
 
         }
+    }
+}
+
+public class CategoryComparer : IEqualityComparer<Category>
+{
+    public bool Equals(Category x, Category y)
+    {
+        // Implement logic to compare categories, e.g., based on CategoryId
+        return x.CategoryId == y.CategoryId;
+    }
+
+    public int GetHashCode(Category obj)
+    {
+        // Implement logic to generate a hash code for a category
+        return obj.CategoryId.GetHashCode();
     }
 }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Breadcrumb from "@/components/Dashboard/Breadcrumb";
 import { Metadata } from "next";
-import axiosService from "@/axiosService";
+import axiosService from "@/services/axiosService";
 import { useRouter } from "next/navigation";
 
 type SignUpPayload = {

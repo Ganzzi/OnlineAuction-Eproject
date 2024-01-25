@@ -1,6 +1,6 @@
 'use client'
 
-import axiosService from '@/axiosService';
+import axiosService from '@/services/axiosService';
 import { useGlobalState } from '@/context/globalState';
 import { AuctionHistory } from '@/types/models/auctionHistory'
 import { SearchParams } from '@/types/next'

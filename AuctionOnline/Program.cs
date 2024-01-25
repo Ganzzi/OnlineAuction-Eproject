@@ -1,4 +1,5 @@
 ﻿using Application;
+using AuctionOnline.SignalRHub;
 using DomainLayer.Entities;
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -55,6 +56,11 @@ builder.Services.AddCors(opt => opt.AddPolicy(name: "mypolicy",
     ));
 //cloudinary 
 builder.Services.Configure<CloudKey>(builder.Configuration.GetSection("CloudinarySetting"));
+
+// signalR
+builder.Services.AddSingleton<SharedDb>();
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -73,5 +79,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<AuctionHub>("/auctionHub");
 
 app.Run();

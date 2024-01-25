@@ -6,7 +6,7 @@ import Image from "next/image";
 import Breadcrumb from "@/components/Dashboard/Breadcrumb";
 import { Metadata } from "next";
 import { useGlobalState } from "@/context/globalState";
-import axiosService from "@/axiosService";
+import axiosService from "@/services/axiosService";
 import { BRAND } from "@/types/brand";
 import axios from "axios";
 
@@ -51,10 +51,10 @@ const SignIn: React.FC = () => {
       JSON.stringify(payload),
       {
         headers: {
-          "Content-Type": "Application/Json"
+          "Content-Type": "application/json"
         }
       }
-    );
+    );    
 
     if (res.status == 200) {
       const data:  SignInResponse = res.data;

@@ -6,7 +6,8 @@ import { Notification } from '@/types/models/notification';
 import { User } from '@/types/models/user';
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import { auctionHistory1, auctionHistory2, bid1, bid2, item1, item2, user1 } from '@/data/item';
-import axiosService from '@/axiosService';
+import axiosService from '@/services/axiosService';
+import signalRService from '@/services/signalRService';
 
 type GlobalStateProp = {
   user: User,
@@ -62,7 +63,7 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
       setToken(tk);
       setRefreshToken(refreshToken);
       _setAccessToken(tk)
-    } else {      
+    } else {
       removeToken()
       removeRefreshToken()
       _setAccessToken("")
@@ -82,16 +83,43 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
       const res = await axiosService.get("/api/user/Profile");
       const user: User = res.data.user;
 
+      await signalRService.startConnection(user.userId);
+
       setUser(user);
     }
 
-    if(accessToken!=="") {
+    if (accessToken !== "") {
       fetchUserInfo();
     }
 
-    return () => {}
+    return () => {
+      if (accessToken !== "" && user.userId != 0) {
+        signalRService.closeConnection(user.userId);
+      }
+    }
   }, [accessToken])
-  
+
+  useEffect(() => {
+    const handleSomeoneJoinItemRoom = (itemId: number, userId: number, bidAmount: number) => {
+      console.log(`${userId} has joined item ${itemId}`);
+      
+    };
+
+    const handleAuctionEnded = (itemId: number, sellerId: number) => {
+      console.log(itemId + " has ended");
+    };
+
+    // Subscribe to the event when the component mounts
+    signalRService.onSomeoneJoinItemRoom(handleSomeoneJoinItemRoom);
+    signalRService.onAuctionEnded(handleAuctionEnded);
+
+    // // Unsubscribe when the component unmounts
+    return () => {
+      signalRService.offSomeoneJoinItemRoom(handleSomeoneJoinItemRoom);
+      signalRService.offAuctionEnded(handleAuctionEnded);
+    };
+  });
+
   return (
     <GlobalState.Provider value={{
       user,
@@ -108,12 +136,12 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useGlobalState: () => GlobalStateProp = () => {
-  const { 
+  const {
     user,
     setUser,
     accessToken,
     setAccessToken,
-    notifications ,
+    notifications,
     colorMode, setColorMode
   } = useContext(GlobalState);
 
@@ -123,6 +151,6 @@ export const useGlobalState: () => GlobalStateProp = () => {
     accessToken,
     setAccessToken,
     notifications,
-     colorMode, setColorMode
+    colorMode, setColorMode
   };
 };

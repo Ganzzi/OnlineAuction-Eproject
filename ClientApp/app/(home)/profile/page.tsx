@@ -4,7 +4,7 @@ import { useGlobalState } from "@/context/globalState";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { User } from "@/types/models/user";
-import axiosService from "@/axiosService";
+import axiosService from "@/services/axiosService";
 import { useRouter } from "next/navigation";
 import { Bid } from "@/types/models/bid";
 import { AuctionHistory } from "@/types/models/auctionHistory";

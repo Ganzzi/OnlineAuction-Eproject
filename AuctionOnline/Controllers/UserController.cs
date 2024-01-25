@@ -1,10 +1,12 @@
 ﻿using Application.DTO;
 using Application.Interface;
+using AuctionOnline.SignalRHub;
 using DomainLayer.Core;
 using DomainLayer.Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace AuctionOnline.Controllers
 {
@@ -15,11 +17,13 @@ namespace AuctionOnline.Controllers
         private readonly IJwtService _j;
         private readonly IuserService _s;
         private readonly IresetEmailService _e;
-        public UserController(IJwtService j, IuserService s, IresetEmailService e)
+        private readonly IHubContext<AuctionHub> _hubContext;
+        public UserController(IJwtService j, IuserService s, IresetEmailService e, IHubContext<AuctionHub> hubContext)
         {
             _j = j;
             _s = s;
             _e = e;
+            _hubContext = hubContext;
         }
 
         // categorylist 
@@ -94,29 +98,34 @@ namespace AuctionOnline.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> SellItem([FromForm] SellItemReqest req)
         {
-
             var token = HttpContext.Request.Headers["Authorization"];
             var user = await _s.getUser(_j.dataFormToken(token));
 
             req.Item.SellerId = user.UserId;
 
             var sellitem = await _s.sellItem(req);
-            if (sellitem == 1)
+
+            Timer timer = null;
+
+            if (sellitem != null)
             {
+                timer = new Timer(async _ =>
+                {
+                    if (DateTime.UtcNow >= sellitem.EndDate)
+                    {
+                        // TODO: insert notification rows
+                        await _hubContext.Clients.Group($"item_{req.Item.ItemId}")
+                            .SendAsync("AuctionEnded", sellitem.ItemId, sellitem.SellerId);
+                        timer.Dispose(); 
+                    }
+                }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1)); 
+
                 return Ok(new
                 {
                     message = "success actions"
                 });
             }
-            else if (sellitem == 0)
-            {
-                return BadRequest(new
-                {
-                    message = "Title existed please chose another title"
-                });
-            }
-            else
-            {
+            else {
                 return BadRequest(new
                 {
                     message = "Fail Action"
@@ -162,19 +171,38 @@ namespace AuctionOnline.Controllers
         {
             var token = HttpContext.Request.Headers["Authorization"];
             var username = _j.dataFormToken(token);
-            var bidCheck = await _s.PlaceABid(req, username);
-            if (bidCheck == true)
+            var user = await _s.getUser(username);
+
+            var auctionHistory = await _s.PlaceABid(req, user);
+
+            if (auctionHistory != null)
             {
-                return Ok(new
+                if (auctionHistory.WinnerId == null)
                 {
-                    message = "Success Action"
+                    return Ok(new
+                    {
+                        message = "Success Action"
+                    });
+                }
+                if (auctionHistory.WinnerId == user.UserId)
+                {  
+                    await _hubContext.Clients.Group($"item_{auctionHistory.Item.ItemId}")
+                        .SendAsync("AuctionEnded", auctionHistory.Item.ItemId, auctionHistory.Item.SellerId);
+                    return Ok(new
+                    {
+                        message = "Success Action, You are the winner!"
+                    });
+                }
+                return BadRequest(new
+                {
+                    message = "Item's winner has been identified"
                 });
             }
             else
             {
                 return BadRequest(new
                 {
-                    message = "Fail Action"
+                    message = "Item not exist or error"
                 });
             }
         }

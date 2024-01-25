@@ -1,6 +1,6 @@
 'use client'
 
-import axiosService from "@/axiosService";
+import axiosService from "@/services/axiosService";
 import OnlineAuction from "@/components/Dashboard/OnlineAuction";
 import Breadcrumb from "@/components/Home/Breadcrumb";
 import CategoryCard from "@/components/Home/CategoryCard";

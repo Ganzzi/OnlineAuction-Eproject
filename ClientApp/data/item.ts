@@ -7,7 +7,7 @@ import { User } from "@/types/models/user";
 
 // Fake data for User type
 const user1: User = {
-    userId: 1,
+    userId: -1,
     name: 'john_doe',
     email: 'john.doe@example.com',
     password: 'password123',

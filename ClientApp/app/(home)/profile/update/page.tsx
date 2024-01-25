@@ -1,6 +1,6 @@
 'use client'
 
-import axiosService from "@/axiosService";
+import axiosService from "@/services/axiosService";
 import FileUpload from "@/components/common/FileUpload/FileUploadOne";
 import { useGlobalState } from "@/context/globalState";
 import Image from "next/image";
