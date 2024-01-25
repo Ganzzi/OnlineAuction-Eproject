@@ -33,6 +33,10 @@ namespace AuctionOnline.Controllers
             //        message = "Invalid Password"
             //    });
             //}
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var User = await _authService.Login(model);
             if (User == null)
             {
@@ -53,6 +57,10 @@ namespace AuctionOnline.Controllers
         [HttpPost]
         public async Task<IActionResult> SignUp([FromBody] RegisterModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user2 = await _authService.Register(model);
             if (user2 != null)
             {

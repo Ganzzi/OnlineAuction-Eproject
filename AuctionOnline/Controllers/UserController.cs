@@ -107,28 +107,30 @@ namespace AuctionOnline.Controllers
 
             Timer timer = null;
 
-            if (sellitem != null)
+            if (sellitem.Item1 != null)
             {
                 timer = new Timer(async _ =>
                 {
-                    if (DateTime.UtcNow >= sellitem.EndDate)
+                    if (DateTime.UtcNow >= sellitem.Item1.EndDate)
                     {
                         // TODO: insert notification rows
+                        var sendNotification = await _s.AuctionEnd(sellitem.Item1.ItemId);
+
                         await _hubContext.Clients.Group($"item_{req.Item.ItemId}")
-                            .SendAsync("AuctionEnded", sellitem.ItemId, sellitem.SellerId);
+                            .SendAsync("AuctionEnded", sellitem.Item1.ItemId, sellitem.Item1.SellerId);
                         timer.Dispose(); 
                     }
                 }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1)); 
 
                 return Ok(new
                 {
-                    message = "success actions"
+                    message = sellitem.Item2,
                 });
             }
             else {
                 return BadRequest(new
                 {
-                    message = "Fail Action"
+                    message = sellitem.Item2,
                 });
             }
         }
@@ -147,18 +149,18 @@ namespace AuctionOnline.Controllers
             req.Item.SellerId = user.UserId;
 
             var responforUpdateItem = await _s.updateItem(req);
-            if (responforUpdateItem == true)
+            if (responforUpdateItem.Item1 == true)
             {
                 return Ok(new
                 {
-                    message = "Success Action"
+                    message = responforUpdateItem.Item2
                 });
             }
             else
             {
                 return BadRequest(new
                 {
-                    message = "Fail Actions"
+                    message = responforUpdateItem.Item2
                 });
             }
         }
@@ -185,7 +187,11 @@ namespace AuctionOnline.Controllers
                     });
                 }
                 if (auctionHistory.WinnerId == user.UserId)
-                {  
+                {
+
+                    //
+                    var sendNotification = await _s.AuctionEnd(auctionHistory.ItemId);
+
                     await _hubContext.Clients.Group($"item_{auctionHistory.Item.ItemId}")
                         .SendAsync("AuctionEnded", auctionHistory.Item.ItemId, auctionHistory.Item.SellerId);
                     return Ok(new

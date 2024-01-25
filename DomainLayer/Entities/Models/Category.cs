@@ -11,7 +11,9 @@ namespace DomainLayer.Entities.Models
     {
         [Key]
         public int? CategoryId { get; set; }
+        [Required(ErrorMessage = "CategoryName require")]
         public string CategoryName { get; set; }
+        [Required(ErrorMessage = "Description require")]
         public string? Description { get; set; }
         public ICollection<CategoryItem>? CategoryItems { get; set;}
     }

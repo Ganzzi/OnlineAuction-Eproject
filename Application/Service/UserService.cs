@@ -53,7 +53,7 @@ namespace Application.Service
         //UserProfile ****
         public async Task<User> getUser(string username)
         {
-            var spec = new BaseSpecification<User>(x => x.Name == username);
+            var spec = new BaseSpecification<User>(x => x.Name == username).AddInclude(x => x.Include(x => x.Notifications));
             var User = await _u.Repository<User>().FindOne(spec);
             try
             {
@@ -161,16 +161,31 @@ namespace Application.Service
         }
 
         // sell item => img
-        public async Task<Item> sellItem(SellItemReqest req)
+        public async Task<(Item,string)> sellItem(SellItemReqest req)
         {
             try
             {
+                // check valid Price and valid time in req
+                if (req.Item.ReservePrice < req.Item.StartingPrice)
+                {
+                    return (null, "require: ReservePrice > StartingPrice");
+                }
+                if (req.Item.StartDate > req.Item.EndDate)
+                {
+                    return (null, "require: StartDate < EndDate");
+                }
+                if (req.Categories.Count() <= 0)
+                {
+                    return (null, "require: at least 1 category"); ; ;
+                }
+              
+
                 // Check if an item with the same title already exists
                 var existingItem = await _u.Repository<Item>().FindOne(new BaseSpecification<Item>(x => x.Title == req.Item.Title));
                 if (existingItem != null)
                 {
                     // Item with the same title already exists
-                    return null;
+                    return (null,"change title");
                 }
 
                 // Add the item with the associated image
@@ -183,7 +198,7 @@ namespace Application.Service
                 if (addedItem == null || addedItem.ItemId <= 0)
                 {
                     // Handle the case where the item was not added successfully
-                    return null;
+                    return (null,"item not exit");
                 }
 
                 // Create CategoryItem entities for each category and associate them with the added item
@@ -206,13 +221,13 @@ namespace Application.Service
                 await _u.SaveChangesAsync();
 
                 // Return success status
-                return addedItem;
+                return (addedItem,"success");
             }
             catch (Exception ex)
             {
                 // Handle exceptions and roll back changes
                 await _u.RollBackChangesAsync();
-                return null;
+                return (null,"FailAction");
             }
         }
 
@@ -252,13 +267,32 @@ namespace Application.Service
         }
 
         //item update => img
-        public async Task<bool> updateItem(SellItemReqest req)
+        public async Task<(bool,string)> updateItem(SellItemReqest req)
         {
             try
             {
+                string message = "";
                 var checkName = new BaseSpecification<Item>(x => x.ItemId == req.Item.ItemId);
                 var finditem = await _u.Repository<Item>().FindOne(checkName);
 
+                // check valid Price and valid time in req
+             
+                if (req.Item.ReservePrice < req.Item.StartingPrice)
+                {
+                    return (false, "require: ReservePrice > StartingPrice");
+                }
+                if (req.Item.StartDate > req.Item.EndDate)
+                {
+                    return (false, "require: StartDate < EndDate");
+                }
+                if (req.Categories.Count() <= 0)
+                {
+                    return (false, "require: at least 1 category");
+                }
+                if (req.Item.StartDate < finditem.StartDate)
+                {
+                    return (false, "require: new StartDate > old StartDate");
+                }
                 var newItem = new Item();
                 newItem.Title = req.Item.Title;
                 newItem.Description = req.Item.Description;
@@ -269,6 +303,7 @@ namespace Application.Service
                 newItem.EndDate = req.Item.EndDate;
                 newItem.SellerId = req.Item.SellerId;
 
+           
                 if (req.Item.ImageFile != null)
                 {
                     await _p.DeletPhoto(finditem.Image);
@@ -308,12 +343,12 @@ namespace Application.Service
 
                 await _u.SaveChangesAsync();
 
-                return true;
+                return (false, message);
             }
             catch (Exception e)
             {
                 await _u.RollBackChangesAsync();
-                return false;
+                return (false, e.Message);
             }
         }
 
@@ -371,10 +406,9 @@ namespace Application.Service
 
                 if (req.Amount >= Item.ReservePrice)
                 {
-                    // TODO: insert notification rows
-                    ah.WinnerId = user.UserId;
+                    // TODO: insert notification rows                  
+                    ah.WinnerId = user.UserId;                  
                     _u.Repository<AuctionHistory>().Update(ah);
-
                 }
 
                 await _u.SaveChangesAsync();
@@ -410,6 +444,46 @@ namespace Application.Service
                 return (null, 0);
             }
 
+        }
+
+        // notification
+        public async Task<bool> AuctionEnd(int ItemId)
+        {
+            try
+            {
+                // auction history => winner => userid       
+                var specAuct = new BaseSpecification<AuctionHistory>(c => c.ItemId == ItemId).AddInclude(x => x.Include(x => x.Item).Include(x => x.Winner));
+                var Auct = await _u.Repository<AuctionHistory>().FindOne(specAuct);
+
+
+                // seller
+                var sellerNoti = new Notification
+                {
+                    ItemId = ItemId,
+                    UserId = Auct.Item.SellerId,
+                    NotificationContent = "your item has been sold",
+                    NotificationDate = DateTime.Now,
+                };
+                    
+                // winner
+                var winnerNoti = new Notification
+                {
+                    ItemId = ItemId,
+                    UserId = Auct.Winner.UserId,
+                    NotificationContent = "your are the winner",
+                    NotificationDate = DateTime.Now,
+                };
+                await _u.Repository<Notification>().AddAsync(sellerNoti);
+                await _u.Repository<Notification>().AddAsync(winnerNoti);
+                await _u.SaveChangesAsync();
+
+                return true; 
+            }
+            catch (Exception e) { 
+              await  _u.RollBackChangesAsync();
+                return false;
+            }
+           
         }
     }
 }
