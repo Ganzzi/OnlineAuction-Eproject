@@ -10,7 +10,7 @@ const CategoryDetailPage = ({ searchParams }: { searchParams: SearchParams }) =>
           <Pagination meta={resource.meta} />
           <br></br>
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-
+  
             <div className="flex flex-col gap-5.5 p-6.5">
               <div>
                 <label className="mb-3 block text-black dark:text-white">
