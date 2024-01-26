@@ -121,9 +121,36 @@ namespace Application.Service
                 return 0;
             }
 
+        }
 
-
-
+        //
+        public async Task<EmailModel> sendMailForSuccessBuyer(int buyerId)
+        {
+            try
+            {
+                var speccheckEmail = new BaseSpecification<User>(x => x.UserId == buyerId);
+                var checkEmail = await _u.Repository<User>().FindOne(speccheckEmail);
+                var bodyemail = new EmailModel(checkEmail.Email, "success Password", successMail.EmailForByer(checkEmail.Email));
+                return bodyemail;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+        public async Task<EmailModel> sendMailForSuccessSeller(int sellerId)
+        {
+            try
+            {
+                var speccheckEmail = new BaseSpecification<User>(x => x.UserId == sellerId);
+                var checkEmail = await _u.Repository<User>().FindOne(speccheckEmail);
+                var bodyemail = new EmailModel(checkEmail.Email, "success Password", successMail.EmailForByer(checkEmail.Email));
+                return bodyemail;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
     }
 }

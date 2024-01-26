@@ -332,35 +332,6 @@ namespace AuctionOnline.Controllers
             }
         }
 
-        // TODO
-        //checkEmail and send link reset
-        [Route("sendlink")]
-        [HttpPost]
-        public async Task<IActionResult> checkemailandsendlink(string email)
-        {
-            var checkEmail = await _e.CheckEmailAndTokenEmail(email);
-            if (checkEmail == null)
-            {
-                return BadRequest(new
-                {
-                    message = "No Email exit"
-                });
-            }
-            if (_e.sendMail(checkEmail))
-            {
-                return Ok(new
-                {
-                    message = "Success Action"
-                });
-            }
-            else
-            {
-                return BadRequest(new
-                {
-                    message = "Fail to send Reset link"
-                });
-            }
-        }
 
         // TODO
         //reset Email

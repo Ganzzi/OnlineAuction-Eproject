@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,7 +23,8 @@ namespace Application.Service
         }
         public async Task<User> Login(LoginModel model)
         {
-            var spec = new BaseSpecification<User>(x => x.Password == model.Password && x.Email == model.Email);
+            var hashpassword = HashPassWord(model.Password);
+            var spec = new BaseSpecification<User>(x => x.Password == hashpassword && x.Email == model.Email);
             var user = await _unit.Repository<User>().FindOne(spec);
 
             if (user == null)
@@ -43,7 +45,7 @@ namespace Application.Service
                     Password = model.Password,
                     Email = model.Email
                 };
-
+                HashPassWord(newUser.Password);
                 var spec = await _unit.Repository<User>().AddAsync(newUser);
                 if (spec == null)
                 {
@@ -59,5 +61,14 @@ namespace Application.Service
             }
         }
 
+       //hash password
+        public string HashPassWord(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashbyte = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(hashbyte);
+            }
+        }
     }
 }

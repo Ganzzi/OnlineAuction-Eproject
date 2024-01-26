@@ -16,6 +16,7 @@ namespace AuctionOnline.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IJwtService _jwt;
+        private readonly IresetEmailService _e;
         public AuthController(IAuthService authService, IJwtService jwt)
         {
             _authService = authService;
@@ -90,6 +91,35 @@ namespace AuctionOnline.Controllers
         }
 
 
+        // TODO
+        //checkEmail and send link reset
+        [Route("sendlink")]
+        [HttpPost]
+        public async Task<IActionResult> checkemailandsendlink(string email)
+        {
+            var checkEmail = await _e.CheckEmailAndTokenEmail(email);
+            if (checkEmail == null)
+            {
+                return BadRequest(new
+                {
+                    message = "No Email exit"
+                });
+            }
+            if (_e.sendMail(checkEmail))
+            {
+                return Ok(new
+                {
+                    message = "Success Action"
+                });
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    message = "Fail to send Reset link"
+                });
+            }
+        }
         [NonAction]
         public bool IsValidPassword(string password)
         {

@@ -13,5 +13,8 @@ namespace Application.Interface
         Task<EmailModel> CheckEmailAndTokenEmail(string email);
         bool sendMail(EmailModel email);
         Task<int> checkTokenEmailAndSaveNewPassword(ResetPasswordModel model);
+
+        Task<EmailModel> sendMailForSuccessBuyer(int buyerId);
+        Task<EmailModel> sendMailForSuccessSeller(int sellerId);
     }
 }
