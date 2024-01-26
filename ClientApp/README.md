@@ -1,20 +1,20 @@
-# TailAdmin Next.js - Free Next.js Tailwind Admin Dashboard Template
+# BidHub Next.js - Free Next.js Tailwind Admin Dashboard Template
 
-TailAdmin is a free and open-source admin dashboard template built on **Next.js and Tailwind CSS** providing developers with everything they need to create a feature-rich and data-driven: back-end, dashboard, or admin panel solution for any sort of web project.
+BidHub is a free and open-source admin dashboard template built on **Next.js and Tailwind CSS** providing developers with everything they need to create a feature-rich and data-driven: back-end, dashboard, or admin panel solution for any sort of web project.
 
-[![tailwind nextjs admin template](https://github.com/TailAdmin/free-nextjs-admin-dashboard/blob/main/tailadmin-nextjs.jpg)](https://nextjs-demo.tailadmin.com/)
+[![tailwind nextjs admin template](https://github.com/BidHub/free-nextjs-admin-dashboard/blob/main/BidHub-nextjs.jpg)](https://nextjs-demo.BidHub.com/)
 
-With TailAdmin Next.js, you get access to all the necessary dashboard UI components, elements, and pages required to build a high-quality and complete dashboard or admin panel. Whether you're building a dashboard or admin panel for a complex web application or a simple website. 
+With BidHub Next.js, you get access to all the necessary dashboard UI components, elements, and pages required to build a high-quality and complete dashboard or admin panel. Whether you're building a dashboard or admin panel for a complex web application or a simple website. 
 
-TailAdmin utilizes the powerful features of **Next.js 13** and common features of Next.js such as server-side rendering (SSR), static site generation (SSG), and seamless API route integration. Combined with the advancements of **React 18** and the robustness of **TypeScript**, TailAdmin is the perfect solution to help get your project up and running quickly.
+BidHub utilizes the powerful features of **Next.js 13** and common features of Next.js such as server-side rendering (SSR), static site generation (SSG), and seamless API route integration. Combined with the advancements of **React 18** and the robustness of **TypeScript**, BidHub is the perfect solution to help get your project up and running quickly.
 
-### [✨ Visit Website](https://tailadmin.com/)
-### [🚀 PRO Demo](https://nextjs-demo.tailadmin.com/)
-### [🚀 FREE Demo](https://nextjs-free-demo.tailadmin.com/)
+### [✨ Visit Website](https://BidHub.com/)
+### [🚀 PRO Demo](https://nextjs-demo.BidHub.com/)
+### [🚀 FREE Demo](https://nextjs-free-demo.BidHub.com/)
 
-### TailAdmin Next.js PRO vs TailAdmin Next.js FREE Comparison 📊
+### BidHub Next.js PRO vs BidHub Next.js FREE Comparison 📊
 
-#### [TailAdmin Next.js PRO](https://nextjs-demo.tailadmin.com/)
+#### [BidHub Next.js PRO](https://nextjs-demo.BidHub.com/)
 - 4 Unique Dashboards: Analytics, OnlineAuction, Marketing, and CRM (More will be added)
 - 120+ Dashboard UI Components
 - 200+ Total UI Elements
@@ -23,7 +23,7 @@ TailAdmin utilizes the powerful features of **Next.js 13** and common features o
 - Full Figma Design Source - As Shown on Demo
 ___
 
-#### [TailAdmin Next.js FREE](https://free-nextjs-demo.tailadmin.com/)
+#### [BidHub Next.js FREE](https://free-nextjs-demo.BidHub.com/)
 - 1 Unique Dashboard
 - 30+ Dashboard UI Components
 - 50+ Total UI Elements 
@@ -33,15 +33,15 @@ ___
 - Figma Design Source - Free Sample
 ___
 
-### [⬇️ Download Now](https://tailadmin.com/download)
+### [⬇️ Download Now](https://BidHub.com/download)
 
-### [⚡ Get PRO Version](https://tailadmin.com/pricing)
+### [⚡ Get PRO Version](https://BidHub.com/pricing)
 
-### [📄 Documentation/Installation](https://tailadmin.com/docs)
+### [📄 Documentation/Installation](https://BidHub.com/docs)
 
-### [🖌️ TailAdmin Figma Free Sample](https://www.figma.com/community/file/1214477970819985778)
+### [🖌️ BidHub Figma Free Sample](https://www.figma.com/community/file/1214477970819985778)
 
-### [👉 TailAdmin HTML Version](https://github.com/TailAdmin/tailadmin-free-tailwind-dashboard-template)
+### [👉 BidHub HTML Version](https://github.com/BidHub/BidHub-free-tailwind-dashboard-template)
 
 
 ## Installation
@@ -75,14 +75,14 @@ yarn dev
 
 
 ## Free Admin Dashboard Template for Next.js Built-with Tailwind CSS, React 18 and TypeScript
-TailAdmin Next.js is a free dashboard template, which uses Tailwind CSS, is a great starting point for dashboard UI. This template uses the Next.js JavaScript framework and the easy-to-use Tailwind CSS framework. The Tailwind CSS and Next.js Dashboard Template comes with ready-made components like navigation menus, charts, tables, and forms. These components can be easily adjusted and added to any Next.js web application.
+BidHub Next.js is a free dashboard template, which uses Tailwind CSS, is a great starting point for dashboard UI. This template uses the Next.js JavaScript framework and the easy-to-use Tailwind CSS framework. The Tailwind CSS and Next.js Dashboard Template comes with ready-made components like navigation menus, charts, tables, and forms. These components can be easily adjusted and added to any Next.js web application.
 
-TailAdmin for Next.js provides all essential Next.js + Tailwind CSS UI components that can be copied and pasted directly into your dashboard projects. The range of components includes charts, graphs, navbars, tabs, buttons, cards, tables, profiles, forms, modals, app pages, calendars, web app example templates, and more, all coded for Next.js React and styled using Tailwind CSS.
+BidHub for Next.js provides all essential Next.js + Tailwind CSS UI components that can be copied and pasted directly into your dashboard projects. The range of components includes charts, graphs, navbars, tabs, buttons, cards, tables, profiles, forms, modals, app pages, calendars, web app example templates, and more, all coded for Next.js React and styled using Tailwind CSS.
 
-If you're on the hunt for a top-quality Next.js-Tailwind Dashboard, Admin Panel Template, or UI Kit, TailAdmin is the perfect choice for you!
+If you're on the hunt for a top-quality Next.js-Tailwind Dashboard, Admin Panel Template, or UI Kit, BidHub is the perfect choice for you!
 
 ### 📄 License
-TailAdmin Next.js Free is 100% free and open-source; feel free to use it with your personal and commercial projects.
+BidHub Next.js Free is 100% free and open-source; feel free to use it with your personal and commercial projects.
 
 ### 💜 Support
 If you like the template, please star this repository to inspire the team to create more stuff like this and reach more users like you!

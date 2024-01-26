@@ -48,12 +48,9 @@ namespace AuctionOnline.SignalRHub
 
             await Groups.AddToGroupAsync(Context.ConnectionId, $"item_{req.ItemId}");
 
-            // var x = Clients.Group($"item_{req.ItemId}");
-            // await x
-            //     .SendAsync("someonejoinitemroom", req.ItemId, req.UserId, req.BidAmount ?? 0);
-
-            await Clients.All
-                .SendAsync("someonejoinitemroom", req.ItemId, req.UserId, 0);
+            var x = Clients.Group($"item_{req.ItemId}");
+            await x
+                .SendAsync("someonejoinitemroom", req.ItemId, req.UserId, req.BidAmount ?? 0);
         }
 
 

@@ -40,8 +40,7 @@ namespace AuctionOnline.Controllers
             var User = await _authService.Login(model);
             if (User == null)
             {
-
-                return BadRequest();
+                return Unauthorized();
             }
             var token = await _jwt.CreateToken(User);
             var RefreshToken = await  _jwt.createRrefreshtoken(User.UserId);

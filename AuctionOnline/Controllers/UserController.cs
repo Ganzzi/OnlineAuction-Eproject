@@ -124,6 +124,7 @@ namespace AuctionOnline.Controllers
 
                 return Ok(new
                 {
+                    itemId = sellitem.Item1.ItemId,
                     message = sellitem.Item2,
                 });
             }
@@ -153,6 +154,7 @@ namespace AuctionOnline.Controllers
             {
                 return Ok(new
                 {
+                    itemId = req.Item.ItemId,
                     message = responforUpdateItem.Item2
                 });
             }
@@ -176,6 +178,8 @@ namespace AuctionOnline.Controllers
             var user = await _s.getUser(username);
 
             var auctionHistory = await _s.PlaceABid(req, user);
+
+            // TODO: notify
 
             if (auctionHistory != null)
             {
@@ -305,7 +309,6 @@ namespace AuctionOnline.Controllers
                     message = "success"
                 });
             }
-
         }
 
         //update user
@@ -315,6 +318,10 @@ namespace AuctionOnline.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateUser([FromForm] User user)
         {
+            var token = HttpContext.Request.Headers["Authorization"];
+            var foundUser = await _s.getUser(_j.dataFormToken(token));
+            user.UserId = foundUser.UserId;
+
             var userupdate = await _s.UpdateUser(user);
             if (userupdate != null)
             {

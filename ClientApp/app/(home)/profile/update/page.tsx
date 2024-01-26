@@ -27,6 +27,14 @@ const ProfileUpdatingPage: React.FC = () => {
       avatarFile: null
     }
   );
+  const [errors, setErrors] = useState({
+    message: "",
+    name: "",
+    email: "",
+    password: "",
+    retypePassword: "",
+    avatarFile: ""
+  })
 
   const handleInputChange = (field: keyof ProfileUpdatePayload, value: string) => {
     setProfileData((prevData) => ({
@@ -45,6 +53,23 @@ const ProfileUpdatingPage: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (profileData.password !== profileData.retypePassword) {
+      setErrors({
+        ...errors,
+        message: "PLease confirm correct password",
+        retypePassword: "Wrong confirmation password"
+      })
+      return;
+    }
+
+    if (profileData.name === user.name && profileData.email == user.email && !profileData.password && !profileData.retypePassword && !profileData.avatarFile) {
+      setErrors({
+        ...errors,
+        message: "Nothing to update",
+      })
+      return;
+    }
+
     try {
       const formDataToSend = new FormData();
       Object.entries(profileData).forEach(([key, value]) => {
@@ -56,19 +81,14 @@ const ProfileUpdatingPage: React.FC = () => {
       // Append the avatarFile to FormData
       if (profileData.avatarFile) {
         formDataToSend.append(`user.avatarFile`, profileData.avatarFile);
-      }
-
-      console.log(Array.from(formDataToSend));      
+      }   
 
       // Send the POST request to the backend
-      const response = await axiosService.post('/api/user/UpdateUser', formDataToSend, {
+      await axiosService.post('/api/user/UpdateUser', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
       });
-
-      // Handle the response as needed
-      console.log(response.data);
 
     } catch (error) {
       // Handle errors
@@ -84,6 +104,9 @@ const ProfileUpdatingPage: React.FC = () => {
             Personal Information
           </h3>
         </div>
+
+        <p className="text-meta-1 text-center">{errors.message}</p>
+
         <div className="p-7">
           <form onSubmit={handleSubmit}>
             <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">

@@ -86,12 +86,15 @@ namespace Application.Service
         {
             try
             {
-                var Userspec = new BaseSpecification<User>(x => x.Name == model.Name);
+                var Userspec = new BaseSpecification<User>(x => x.UserId == model.UserId);
                 var user = await _u.Repository<User>().FindOne(Userspec);
 
                 if (model.AvatarFile != null)
                 {
-                    var deleteCloudinary = await _p.DeletPhoto(user.Avatar);
+                    if (user.Avatar != null)
+                    {
+                        await _p.DeletPhoto(user.Avatar);   
+                    }
                     var CloudinaryUserAvatar = await _p.addPhoto(model.AvatarFile);
                     user.Name = model.Name;
                     user.Email = model.Email;
@@ -197,6 +200,11 @@ namespace Application.Service
                     return (null,"change title");
                 }
 
+                if (req.Item.ImageFile == null)
+                {
+                    return (null, "require: item image"); ; ;
+                }
+
                 // Add the item with the associated image
                 req.Item.Image = await _p.addPhoto(req.Item.ImageFile);
                 var addedItem = await _u.Repository<Item>().AddAsync(req.Item);
@@ -290,6 +298,10 @@ namespace Application.Service
                 {
                     return (false, "require: ReservePrice > StartingPrice");
                 }
+                if (req.Item.IncreasingAmount < req.Item.StartingPrice * 0.1)
+                {
+                    return (false, "require: IncreasingAmount > 10% StartingPrice");
+                }
                 if (req.Item.StartDate > req.Item.EndDate)
                 {
                     return (false, "require: StartDate < EndDate");
@@ -302,7 +314,7 @@ namespace Application.Service
                 {
                     return (false, "require: new StartDate > old StartDate");
                 }
-                var newItem = new Item();
+                var newItem = finditem;
                 newItem.Title = req.Item.Title;
                 newItem.Description = req.Item.Description;
                 newItem.ReservePrice = req.Item.ReservePrice;
@@ -352,7 +364,7 @@ namespace Application.Service
 
                 await _u.SaveChangesAsync();
 
-                return (false, message);
+                return (true, "Update Item Success");
             }
             catch (Exception e)
             {
@@ -420,6 +432,7 @@ namespace Application.Service
                     _u.Repository<AuctionHistory>().Update(ah);
                 }
 
+                
                 await _u.SaveChangesAsync();
                 return ah;
             }

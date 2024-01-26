@@ -6,7 +6,7 @@ import TableTwo from "@/components/common/Tables/TableTwo";
 import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Tables Page | Next.js E-commerce Dashboard Template",
-  description: "This is Tables page for TailAdmin Next.js",
+  description: "This is Tables page for BidHub Next.js",
   // other metadata
 };
 

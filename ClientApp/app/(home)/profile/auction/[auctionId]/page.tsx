@@ -20,6 +20,10 @@ const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: nu
 
   const [auctionData, setAuctionData] = useState<AuctionHistory>();
   const [ratingAmount, setRatingAmount] = useState<number>(0);
+  const [errors, setErrors] = useState({
+    message: "",
+    ratingAmount: "",
+  })
 
   useEffect(() => {
     const fetchAuctionData = async () => {
@@ -37,26 +41,29 @@ const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: nu
   }, [auctionId]);
 
   const handleRateBuyer = async () => {
-    try {
-      // Create RateBuyerRequest object
-      const rateBuyerRequest: RateBuyerRequest = {
-        ItemId: auctionData?.itemId || 0,
-        RatedUserId: auctionData?.winnerId || 0,
-        RatingAmount: ratingAmount,
-      };
 
-      // Post to /api/user/ratebuyer
-      await axiosService.post('/api/user/ratebuyer', rateBuyerRequest);
+    // Create RateBuyerRequest object
+    const rateBuyerRequest: RateBuyerRequest = {
+      ItemId: auctionData?.itemId || 0,
+      RatedUserId: auctionData?.winnerId || 0,
+      RatingAmount: ratingAmount,
+    };
 
-      // Handle success, e.g., show a success message
-      console.log('Successfully rated the buyer');
-
-      // Optionally, redirect to another page after rating
-      router.push(`/items/${auctionData?.itemId}`);
-    } catch (error) {
-      console.error('Error rating the buyer', error);
-      // Handle error, e.g., show an error message
-    }
+    // Post to /api/user/ratebuyer
+    await axiosService.post('/api/user/ratebuyer', rateBuyerRequest)
+      .then((res) => {
+        if (res.status == 200) {
+          router.push(`/items/${auctionData?.itemId}`);
+        }
+      })
+      .catch((e) => {
+        if (e?.response?.status == 400) {
+          setErrors({
+            message: e?.response?.data?.errors?.message,
+            ratingAmount: e?.response?.data?.errors?.ratingAmount,
+          });
+        }
+      });
   };
 
   return (
@@ -79,6 +86,8 @@ const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: nu
                 </div>
               ) : (
                 <div className="items-center flex flex-col">
+                  <p className='text-meta-3'>{errors.message}</p>
+                  <p className='text-meta-1'>{errors.ratingAmount}</p>
                   <label className="block mb-2">
                     Rating Amount:
                     <input
