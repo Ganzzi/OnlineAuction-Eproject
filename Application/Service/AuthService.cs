@@ -39,13 +39,20 @@ namespace Application.Service
         {
             try
             {
+                var speccheckUserName = new BaseSpecification<User>(x => x.Name == model.UserName);
+                var checkUser = await _unit.Repository<User>().FindOne(speccheckUserName);
+                if (checkUser != null)
+                {
+                    return null; ;
+                }
+                var hashpass = HashPassWord(model.Password);
                 var newUser = new User()
                 {
                     Name = model.UserName,
-                    Password = model.Password,
+                    Password = hashpass,
                     Email = model.Email
                 };
-                HashPassWord(newUser.Password);
+              
                 var spec = await _unit.Repository<User>().AddAsync(newUser);
                 if (spec == null)
                 {

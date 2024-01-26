@@ -415,12 +415,7 @@ namespace Application.Service
                     // TODO: insert notification rows                  
                     ah.WinnerId = user.UserId;                  
                     _u.Repository<AuctionHistory>().Update(ah);
-                    //lay id cua nguoi mua
-                    var createMailbuyer = await _r.sendMailForSuccessBuyer(user.UserId);
-                    _r.sendMail(createMailbuyer); 
-                    // lay id cua nguoi ban
-                    var createMailseller = await _r.sendMailForSuccessSeller(user.UserId);
-                    _r.sendMail(createMailseller);
+               
                 }
                 await _u.SaveChangesAsync();
                 return ah;

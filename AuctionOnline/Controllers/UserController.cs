@@ -194,6 +194,10 @@ namespace AuctionOnline.Controllers
 
                     await _hubContext.Clients.Group($"item_{auctionHistory.Item.ItemId}")
                         .SendAsync("AuctionEnded", auctionHistory.Item.ItemId, auctionHistory.Item.SellerId);
+                    var sellerMail = await _e.sendMailForSuccessBuyer(user.UserId, auctionHistory.Item.SellerId);
+                    _e.sendMail(sellerMail);
+                    var buyerMail = await _e.sendMailForSuccessSeller(auctionHistory.Item.SellerId,user.UserId);
+                    _e.sendMail(buyerMail);
                     return Ok(new
                     {
                         message = "Success Action, You are the winner!"
@@ -291,18 +295,18 @@ namespace AuctionOnline.Controllers
             var token = HttpContext.Request.Headers["Authorization"];
             var username = _j.dataFormToken(token);
             var RateAction = await _s.Ratting(username, req);
-            if (RateAction == false)
+            if (RateAction.Item1 == false)
             {
                 return BadRequest(new
                 {
-                    message = "Fail Action"
+                    message = RateAction.Item2
                 });
             }
             else
             {
                 return Ok(new
                 {
-                    message = "success"
+                    message = RateAction.Item2
                 });
             }
 

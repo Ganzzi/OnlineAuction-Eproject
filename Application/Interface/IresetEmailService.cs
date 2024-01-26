@@ -14,7 +14,7 @@ namespace Application.Interface
         bool sendMail(EmailModel email);
         Task<int> checkTokenEmailAndSaveNewPassword(ResetPasswordModel model);
 
-        Task<EmailModel> sendMailForSuccessBuyer(int buyerId);
-        Task<EmailModel> sendMailForSuccessSeller(int sellerId);
+        Task<EmailModel> sendMailForSuccessBuyer(int buyerId, int sellerId);
+        Task<EmailModel> sendMailForSuccessSeller(int sellerId,int buyerId);
     }
 }

@@ -124,13 +124,16 @@ namespace Application.Service
         }
 
         //
-        public async Task<EmailModel> sendMailForSuccessBuyer(int buyerId)
+        public async Task<EmailModel> sendMailForSuccessBuyer(int buyerId,int sellerId)
         {
             try
             {
                 var speccheckEmail = new BaseSpecification<User>(x => x.UserId == buyerId);
                 var checkEmail = await _u.Repository<User>().FindOne(speccheckEmail);
-                var bodyemail = new EmailModel(checkEmail.Email, "success Password", successMail.EmailForByer(checkEmail.Email));
+
+                var speccheckEmailseller = new BaseSpecification<User>(x => x.UserId == sellerId);
+                var checkEmailseller = await _u.Repository<User>().FindOne(speccheckEmailseller);
+                var bodyemail = new EmailModel(checkEmail.Email, "success trade", successMail.EmailForByer(checkEmail.Email, checkEmailseller.Email));
                 return bodyemail;
             }
             catch (Exception e)
@@ -138,13 +141,16 @@ namespace Application.Service
                 return null;
             }
         }
-        public async Task<EmailModel> sendMailForSuccessSeller(int sellerId)
+        public async Task<EmailModel> sendMailForSuccessSeller(int sellerId,int buyerId)
         {
             try
             {
                 var speccheckEmail = new BaseSpecification<User>(x => x.UserId == sellerId);
                 var checkEmail = await _u.Repository<User>().FindOne(speccheckEmail);
-                var bodyemail = new EmailModel(checkEmail.Email, "success Password", successMail.EmailForByer(checkEmail.Email));
+
+                var speccheckEmailbuyer = new BaseSpecification<User>(x => x.UserId == buyerId);
+                var checkEmailbuyer = await _u.Repository<User>().FindOne(speccheckEmailbuyer);
+                var bodyemail = new EmailModel(checkEmail.Email, "success trade", successMail.EmailForSeller(checkEmailbuyer.Email,checkEmail.Email));
                 return bodyemail;
             }
             catch (Exception e)
