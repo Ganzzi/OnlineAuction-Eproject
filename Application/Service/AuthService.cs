@@ -59,18 +59,5 @@ namespace Application.Service
             }
         }
 
-      
-
-        //public async Task<User> Update(string name, int id)
-        //{
-        //    var user = await _unit.Repository<User>().FindOne(new BaseSpecification<User>(x => x.UserId == id));
-        //    user.Name = name;
-        //    _unit.Repository<User>().Update(user);
-        //    await _unit.SaveChangesAsync();
-        //    return user;
-        //}
-
-     
-
     }
 }
