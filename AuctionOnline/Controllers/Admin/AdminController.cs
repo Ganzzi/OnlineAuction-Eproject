@@ -20,9 +20,10 @@ namespace AuctionOnline.Controllers.Admin
             _a = a;
         }
 
-        [Route("GetListUser")]
+
+        [Route("GetListUserWithRatingAndBidCount")]
         [HttpGet]
-        public async Task<IActionResult> GetListUser(
+        public async Task<IActionResult> GetListUserWithRatingAndBidCount(
             [FromQuery] int page = 1,
             [FromQuery] int take = 10
         )
@@ -111,6 +112,10 @@ namespace AuctionOnline.Controllers.Admin
         [HttpPost]
         public async Task<IActionResult> AddCategory([FromBody] Category category)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var addcate = await _a.CreateCategory(category);
             if (addcate == true)
             {
@@ -133,8 +138,12 @@ namespace AuctionOnline.Controllers.Admin
         [HttpPost]
         public async Task<IActionResult> UpdateCategory(int CategoryId, [FromBody] Category category)
         {
-            category.CategoryId = CategoryId;
 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            category.CategoryId = CategoryId;
             var checkresult = await _a.UpdateCategory(category);
             if (checkresult == true)
             {
