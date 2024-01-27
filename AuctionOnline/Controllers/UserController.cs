@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace AuctionOnline.Controllers
 {
@@ -294,6 +295,10 @@ namespace AuctionOnline.Controllers
         {
             var token = HttpContext.Request.Headers["Authorization"];
             var username = _j.dataFormToken(token);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var RateAction = await _s.Ratting(username, req);
             if (RateAction.Item1 == false)
             {

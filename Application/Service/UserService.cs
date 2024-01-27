@@ -240,10 +240,14 @@ namespace Application.Service
         public async Task<(bool,string)> Ratting(string username, RateBuyerRequest req)
         {
             try
-            {
+            {                 
                 var Userspec = new BaseSpecification<User>(x => x.Name == username);
                 var user = await _u.Repository<User>().FindOne(Userspec);
-            
+                if (user.UserId == req.RatedUserId)
+                {
+                    return (false, "you can't rate your own"); 
+                }
+
                 var itemspec = new BaseSpecification<Item>(x => x.ItemId == req.ItemId);
                 var item = await _u.Repository<Item>().FindOne(itemspec);
                 if (user == null || item == null || user.UserId == item.SellerId)
