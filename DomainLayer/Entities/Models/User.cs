@@ -14,7 +14,7 @@ namespace DomainLayer.Entities.Models
         [Key]
         public int UserId { get; set; }
         public string Name { get; set; }
-        public string Password { get; set; }
+        public string? Password { get; set; }
         public string Email { get; set; }
         public string Role { get; set; } = "User";
         public string? Avatar { get; set; }
@@ -39,5 +39,9 @@ namespace DomainLayer.Entities.Models
 
         [InverseProperty("User")]
         public ICollection<Notification>? Notifications { get; set; }
+
+        //email
+        public string? tokenResetPassword { get; set; }
+        public DateTime? ResetExpire { get; set; }
     }
 }

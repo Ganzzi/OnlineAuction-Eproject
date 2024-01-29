@@ -5,8 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import Breadcrumb from "@/components/Dashboard/Breadcrumb";
 import { Metadata } from "next";
-import axiosService from "@/axiosService";
+import axiosService from "@/services/axiosService";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import https from 'https'
 
 type SignUpPayload = {
   username: string,
@@ -27,6 +29,7 @@ const SignUp: React.FC = () => {
 
   const [payload, setPayload] = useState<SignUpPayload>(initPayload);
   const [errors, setErrors] = useState({
+    message: "",
     username: "",
     email: "",
     password: "",
@@ -36,12 +39,41 @@ const SignUp: React.FC = () => {
   const  handleSignUp = async (e: FormEvent) => {
     e.preventDefault();
 
-
-    const res = await axiosService.post("/api/auth/signup", JSON.stringify(payload));
-
-    if (res.status == 200) {
-        router.push("/auth/signin")
+    if (payload.password !== payload.retypePassword) {
+      setErrors({
+        ...errors,
+        message: "PLease confirm correct password",
+        retypePassword: "Wrong confirmation password"
+      })
+      return;
     }
+
+    await axios.post(
+      "/api/auth/signup", 
+      JSON.stringify(payload), 
+      {
+        httpsAgent: new https.Agent({ rejectUnauthorized: false }), // Ignore SSL certificate validation errors
+      }).then((res) => {
+      if (res.status == 200) {
+        router.push("/auth/signin")
+      }
+    }).catch((e) => {
+      if (e?.response?.status == 400) {
+        setErrors({
+          message: "Please Enter fields correctly",
+          email: e?.response?.data?.errors?.Email ?? "",
+          password: e?.response?.data?.errors?.Password ?? "",
+          username: e?.response?.data?.errors?.UserName ?? "",
+          retypePassword: "",
+        })
+      }else if (e?.response?.status == 401) {
+        setErrors({
+          ...errors,
+          message: "Wrong email or password",
+        })
+      }
+      
+    });  
   }
   return (
     <>
@@ -55,15 +87,17 @@ const SignUp: React.FC = () => {
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <span className="mb-1.5 block font-medium">Start for free</span>
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-                Sign Up to TailAdmin
+                Sign Up to BidHub
               </h2>
+
+              <p className="text-meta-1">{errors?.message}</p>
 
               <form onSubmit={handleSignUp}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Name
                   </label>
-                  <p>{errors?.username}</p>
+              <p className="text-meta-1">{errors?.username}</p>
                   <div className="relative">
                     <input
                       onChange={(e) => setPayload({...payload, username: e.target.value})}
@@ -100,6 +134,7 @@ const SignUp: React.FC = () => {
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Email
                   </label>
+              <p className="text-meta-1">{errors?.email}</p>
                   <div className="relative">
                     <input
                       onChange={(e) => setPayload({...payload, email: e.target.value})}
@@ -132,6 +167,7 @@ const SignUp: React.FC = () => {
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Password
                   </label>
+              <p className="text-meta-1">{errors?.password}</p>
                   <div className="relative">
                     <input
                       onChange={(e) => setPayload({...payload, password: e.target.value})}
@@ -168,6 +204,8 @@ const SignUp: React.FC = () => {
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Re-type Password
                   </label>
+              <p className="text-meta-1">{errors?.retypePassword}</p>
+
                   <div className="relative">
                     <input
                       onChange={(e) => setPayload({...payload, retypePassword: e.target.value})}

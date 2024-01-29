@@ -21,7 +21,7 @@ namespace DomainLayer.Entities.Models
         public Item? Item { get; set; }
         public int ItemId { get; set; }
 
-        public float BidAmout { get; set; }
+        public float BidAmount { get; set; }
         public DateTime BidDate { get; set; }
     }
 }

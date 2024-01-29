@@ -24,7 +24,7 @@ namespace DomainLayer.Entities.Models
         public string Image { get; set; }
 
         [NotMapped]
-        public IFormFile ImageFile { get; set; }
+        public IFormFile? ImageFile { get; set; }
 
         [ForeignKey("SellerId")]
         public User? Seller { get; set; }

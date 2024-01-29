@@ -6,15 +6,24 @@ import DropdownUser from "../../Dashboard/Header/DropdownUser";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { useGlobalState } from "@/context/globalState";
 
 const Header = () => {
   const pathname = usePathname();
-
+  
   return (
-    <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
+    <header className="sticky top-0 z-999 flex w-full bg-body drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
       <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
-        <div className='space-x-10 flex flex-row items-center justify-start'>
-          <Link href={'/'} className={`${!pathname.startsWith("/items") && !pathname.startsWith("/profile") ? "text-meta-7": ""}`}>Logo</Link>
+        <div className='space-x-10 flex flex-row items-center justify-start text-white'>
+          <Link href={'/'} className={`${!pathname.startsWith("/items") && !pathname.startsWith("/profile") ? "text-meta-7": ""}`}>
+            <Image
+              className=""
+              src={"/images/logo/logo.svg"}
+              alt="Logo"
+              width={176}
+              height={32}
+            />
+          </Link>
           <Link href={'/items'} className={`${pathname.startsWith("/items") ? "text-meta-7": ""}`}>Market</Link>
           <Search />
         </div>

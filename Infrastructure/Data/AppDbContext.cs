@@ -34,24 +34,27 @@ namespace Infrastructure.Data
                     UserId = 1,
                     Name = "batman",
                     Password = "123",
-                    Email = "batman123",
+                    Email = "batman123@gmail.com",
                     Role = "User",
+                    Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
                 },
                 new User
                 {
                     UserId = 2,
                     Name = "ironman",
                     Password = "123",
-                    Email = "ironman123",
+                    Email = "ironman123@gmail.com",
                     Role = "User",
+                    Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
                 },
                 new User
                 {
                     UserId = 3,
                     Name = "admin",
                     Password = "123",
-                    Email = "admin123",
+                    Email = "admin123@gmail.com",
                     Role = "Admin",
+                    Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
                 }
             );
 
@@ -61,7 +64,7 @@ namespace Infrastructure.Data
                     BidId = 1,
                     UserId = 1,
                     ItemId = 1,
-                    BidAmout = 100,
+                    BidAmount = 100,
                     BidDate = DateTime.Now
                 },
                 new Bid
@@ -69,7 +72,7 @@ namespace Infrastructure.Data
                     BidId = 2,
                     UserId = 2,
                     ItemId = 2,
-                    BidAmout = 200,
+                    BidAmount = 200,
                     BidDate = DateTime.Now
                 }
             );
@@ -83,7 +86,7 @@ namespace Infrastructure.Data
                           StartingPrice = 1000,
                           IncreasingAmount = 100,
                           SellerId = 1,
-                          Image = "url_to_image_1"
+                          Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
                       },
                       new Item
                       {
@@ -93,7 +96,7 @@ namespace Infrastructure.Data
                           StartingPrice = 2000,
                           IncreasingAmount = 100,
                           SellerId = 1,
-                          Image = "url_to_image_2"
+                          Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
                       }
                   );
 
@@ -112,6 +115,23 @@ namespace Infrastructure.Data
                 }
             );
 
+            modelBuilder.Entity<AuctionHistory>().HasData(
+                      new AuctionHistory
+                      {
+                          AuctionHistoryId = 1,
+                          ItemId = 1,
+                          EndDate = new DateTime(),
+                          WinningBid = 199
+                        },
+                      new AuctionHistory
+                      {
+                          AuctionHistoryId = 2,
+                          ItemId = 2,
+                          EndDate = new DateTime(),
+                          WinningBid = 199
+                        }
+                  );
+
             modelBuilder.Entity<Rating>().HasData(
                 new Rating
                 {
@@ -127,7 +147,7 @@ namespace Infrastructure.Data
                     RatingId = 2,
                     ItemId = 2,
                     RaterId = 2,
-                    RatedUserId = 2,
+                    RatedUserId = 1,
                     Rate = 4.0f,
                     RatingDate = DateTime.Now
                 }
@@ -167,7 +187,18 @@ namespace Infrastructure.Data
     .WithOne(i => i.Seller)
     .HasForeignKey(i => i.SellerId)
     .OnDelete(DeleteBehavior.Restrict);
-
+            // Configure the relationship between Rating and User(Rater)
+            modelBuilder.Entity<User>()
+                .HasMany(x => x.Ratings)
+                .WithOne(x => x.Rater)
+                .HasForeignKey(c => c.RaterId)
+                .OnDelete(DeleteBehavior.Restrict);
+            // Configure the relationship between Rating and User(RateUser)
+            modelBuilder.Entity<User>()
+              .HasMany(x => x.BeingRateds)
+              .WithOne(x => x.RatedUser)
+              .HasForeignKey(c => c.RatedUserId)
+              .OnDelete(DeleteBehavior.Restrict);
         }
 
     }
@@ -177,8 +208,8 @@ namespace Infrastructure.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
             optionsBuilder.UseSqlServer(
-                    "Server=localhost;Database=tempdb;User ID=sas;Password=1;TrustServerCertificate=true;"
-                );
+                        "Server=localhost;Database=AuctionOnline;User ID=sa;Password=StrongPassword123@;TrustServerCertificate=true;"
+                    );
 
             return new AppDbContext(optionsBuilder.Options);
         }

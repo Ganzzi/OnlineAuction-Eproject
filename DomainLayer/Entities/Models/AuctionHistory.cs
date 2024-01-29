@@ -21,9 +21,9 @@ namespace DomainLayer.Entities.Models
         [InverseProperty("AuctionHistories")]
         [ForeignKey("WinnerId")]
         public User? Winner { get; set; }
-        public int WinnerId { get; set; }
+        public int? WinnerId { get; set; }
         public DateTime EndDate { get; set; }
-        public float WinningBid { get; set; }
+        public float? WinningBid { get; set; }
    
     }
 }

@@ -3,7 +3,7 @@ import Breadcrumb from "@/components/Dashboard/Breadcrumb";
 import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Buttons Page | Next.js E-commerce Dashboard Template",
-  description: "This is Buttons page for TailAdmin Next.js",
+  description: "This is Buttons page for BidHub Next.js",
   // other metadata
 };
 

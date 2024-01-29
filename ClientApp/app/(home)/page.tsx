@@ -1,6 +1,6 @@
 'use client'
 
-import axiosService from "@/axiosService";
+import axiosService from "@/services/axiosService";
 import OnlineAuction from "@/components/Dashboard/OnlineAuction";
 import Breadcrumb from "@/components/Home/Breadcrumb";
 import CategoryCard from "@/components/Home/CategoryCard";
@@ -9,6 +9,8 @@ import { Category } from "@/types/models/category";
 import axios from "axios";
 import { Metadata } from "next";
 import { useEffect, useState } from "react";
+import https from 'https'
+import http from 'http'
 
 export default function Home() {
   const [categoryData, setCategoryData] = useState<Category[]>([]);
@@ -16,7 +18,9 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axiosService.get("/api/user/CategoriesWithTenItems");
+        const res = await axiosService.get("/api/user/CategoriesWithTenItems", {
+          httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+        });
         const data: Category[] = res.data;
         setCategoryData(data);
       } catch (error) {

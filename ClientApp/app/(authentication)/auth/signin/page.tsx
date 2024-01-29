@@ -6,9 +6,10 @@ import Image from "next/image";
 import Breadcrumb from "@/components/Dashboard/Breadcrumb";
 import { Metadata } from "next";
 import { useGlobalState } from "@/context/globalState";
-import axiosService from "@/axiosService";
+import axiosService from "@/services/axiosService";
 import { BRAND } from "@/types/brand";
 import axios from "axios";
+import https from "https";
 
 type SignInPayload = {
     email: string,
@@ -30,6 +31,7 @@ const SignIn: React.FC = () => {
 
   const [payload, setPayload] = useState<SignInPayload>(initPayload);
   const [errors, setErrors] = useState({
+    message: "",
     email: "",
     password: ""
   })
@@ -37,34 +39,43 @@ const SignIn: React.FC = () => {
   const  handleSignIn = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!payload.email) {
-      setErrors({...errors, email: "email must not be blank"})
-      return
-    }
-    if (!payload.password) {
-      setErrors({...errors, password: "password must not be blank"})
-      return
-    }
-
-    const res = await axios.post(
+    await axios.post(
       "https://localhost:7073/api/auth/signin", 
       JSON.stringify(payload),
       {
         headers: {
-          "Content-Type": "Application/Json"
-        }
+          "Content-Type": "application/json"
+        },
+          httpsAgent: new https.Agent({ rejectUnauthorized: false }), // Ignore SSL certificate validation errors
       }
-    );
+    ).then((res) => {
+      if (res.status == 200) {
+        const data:  SignInResponse = res.data;
+        setAccessToken(data.accessToken, data.refreshToken)
+      }
+    }).catch((e) => {
+      if (e?.response?.status == 400) {
+        console.log(e?.response?.data?.errors);
+        
+        setErrors({
+          message: "Please Enter fields correctly",
+          email: e?.response?.data?.errors?.Email ?? "",
+          password: e?.response?.data?.errors?.Password ?? ""
+        })
+      }else if (e?.response?.status == 401) {
+        setErrors({
+          ...errors,
+          message: "Wrong email or password",
+        })
+      }
+      
+    });    
 
-    if (res.status == 200) {
-      const data:  SignInResponse = res.data;
-      setAccessToken(data.accessToken, data.refreshToken)
-    }
+
   }
 
   return (
     <>
-      <Breadcrumb pageName="Sign In" />
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
           <LeftSide />
@@ -73,15 +84,17 @@ const SignIn: React.FC = () => {
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <span className="mb-1.5 block font-medium">Start for free</span>
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-                Sign In to TailAdmin
+                Sign In to BidHub
               </h2>
+
+              <p className="text-meta-1">{errors?.message}</p>
 
               <form onSubmit={(e) => handleSignIn(e)}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Email
                   </label>
-                  <p>{errors?.email}</p>
+                  <p className="text-meta-1">{errors?.email}</p>
                   <div className="relative">
                     <input
                       onChange={(e) => setPayload({...payload, email: e.target.value})}
@@ -112,8 +125,9 @@ const SignIn: React.FC = () => {
 
                 <div className="mb-6">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Re-type Password
+                    Password
                   </label>
+                  <p className="text-meta-1">{errors?.password}</p>
                   <div className="relative">
                     <input
                       onChange={(e) => setPayload({...payload, password: e.target.value})}
@@ -230,8 +244,7 @@ const LeftSide: React.FC = () => {
               </Link>
 
               <p className="2xl:px-20">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit
-                suspendisse.
+                Connect and explore the world
               </p>
 
               <span className="mt-15 inline-block">

@@ -33,11 +33,14 @@ namespace AuctionOnline.Controllers
             //        message = "Invalid Password"
             //    });
             //}
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var User = await _authService.Login(model);
             if (User == null)
             {
-
-                return BadRequest();
+                return Unauthorized();
             }
             var token = await _jwt.CreateToken(User);
             var RefreshToken = await  _jwt.createRrefreshtoken(User.UserId);
@@ -53,6 +56,10 @@ namespace AuctionOnline.Controllers
         [HttpPost]
         public async Task<IActionResult> SignUp([FromBody] RegisterModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user2 = await _authService.Register(model);
             if (user2 != null)
             {

@@ -28,7 +28,8 @@ export default function HomeLayout({
   useEffect(() => {
     if(accessToken!==""&&user.role !== "Admin") {
         router.push("/")
-    }
+    } 
+    // else if (accessToken === '') router.push('/auth/signin')
   }, [accessToken])
 
   return (
