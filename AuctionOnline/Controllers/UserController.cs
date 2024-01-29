@@ -117,7 +117,12 @@ namespace AuctionOnline.Controllers
                         var sendNotification = await _s.AuctionEnd(sellitem.Item1.ItemId);
 
                         await _hubContext.Clients.Group($"item_{req.Item.ItemId}")
-                            .SendAsync("AuctionEnded", sellitem.Item1.ItemId, sellitem.Item1.SellerId);
+                            .SendAsync(
+                                "AuctionEnded", 
+                                sellitem.Item1.ItemId, 
+                                sellitem.Item1.Title, 
+                                sellitem.Item1.SellerId, 
+                                -1);
                         timer.Dispose(); 
                     }
                 }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1)); 
@@ -180,24 +185,29 @@ namespace AuctionOnline.Controllers
             var auctionHistory = await _s.PlaceABid(req, user);
 
             // TODO: notify
+            await _s.NotifyParticipants(req.ItemId, $"{user.UserId} has place a new bid on {req.ItemId}");
 
-            if (auctionHistory != null)
+            if (auctionHistory.Item1 != null)
             {
-                if (auctionHistory.WinnerId == null)
+                if (auctionHistory.Item1.WinnerId == null && auctionHistory.Item2 == true)
                 {
                     return Ok(new
                     {
                         message = "Success Action"
                     });
                 }
-                if (auctionHistory.WinnerId == user.UserId)
+                if (auctionHistory.Item1.WinnerId == user.UserId && auctionHistory.Item2 == true)
                 {
-
                     //
-                    var sendNotification = await _s.AuctionEnd(auctionHistory.ItemId);
+                    var sendNotification = await _s.AuctionEnd(auctionHistory.Item1.ItemId);
 
-                    await _hubContext.Clients.Group($"item_{auctionHistory.Item.ItemId}")
-                        .SendAsync("AuctionEnded", auctionHistory.Item.ItemId, auctionHistory.Item.SellerId);
+                    await _hubContext.Clients.Group($"item_{auctionHistory.Item1.Item.ItemId}")
+                        .SendAsync(
+                            "AuctionEnded", 
+                            auctionHistory.Item1.Item.ItemId, 
+                            auctionHistory.Item1.Item.Title, 
+                            auctionHistory.Item1.Item.SellerId, 
+                            auctionHistory.Item1.WinnerId);
                     return Ok(new
                     {
                         message = "Success Action, You are the winner!"
@@ -217,6 +227,13 @@ namespace AuctionOnline.Controllers
             }
         }
 
+        [Route("Test/{itemId}")]
+        [HttpGet]
+        public async Task<IActionResult> Test(int itemId)
+        {
+            var users = await _s.GetItemPaticipants(itemId);
+            return Ok(users);
+        }
         // get profile
         // TODO: get user basic (name, email, role, id,...) info base on token
         [Route("Profile")]

@@ -18,8 +18,11 @@ namespace Application.Interface
         Task<bool> Ratting(string username, RateBuyerRequest req);
         Task<(bool,string)> updateItem(SellItemReqest req);
         Task<AuctionHistory> GetAcutionHistory(string username, int id);
-        Task<AuctionHistory> PlaceABid(PlaceBidRequest req, User user);
+        Task<(AuctionHistory, bool)> PlaceABid(PlaceBidRequest req, User user);
         Task<(User, int)> getProfileDetail(string username);
         Task<bool> AuctionEnd(int ItemId);
+
+        Task<IList<User>> GetItemPaticipants(int itemId);
+        Task NotifyParticipants(int ItemId, string Content);
     }
 }

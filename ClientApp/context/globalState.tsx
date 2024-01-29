@@ -100,25 +100,63 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
   }, [accessToken])
 
   useEffect(() => {
-    const handleSomeoneJoinItemRoom = (itemId: number, userId: number, bidAmount: number) => {
-      console.log(`${userId} has joined item ${itemId}`);
-      
+    const handleSomeoneJoinItemRoom = (itemId: number, itemTitle: string, userId: number, username: string, bidAmount: number) => {
+      const newNotification: Notification = {
+        notificationContent: `${userId == user.userId ? "you" : username} has placed a new bid on ${itemTitle} amount ${bidAmount}`,
+        notificationDate: new Date().toDateString(),
+        notificationId: -1,
+        userId,
+        itemId
+      };
+    
+      // Check if the notification already exists in the array
+      const isNotificationExists = user.notifications?.some(
+        (notification) => notification.notificationId === -1
+      );
+  
+      // Update the user state only if the notification doesn't exist
+      if (!isNotificationExists) {
+        setUser((prevUser) => ({
+          ...prevUser,
+          notifications: [newNotification,...(prevUser.notifications || [])], // Use non-null assertion operator (!)
+        }));
+      }
     };
-
-    const handleAuctionEnded = (itemId: number, sellerId: number) => {
-      console.log(itemId + " has ended");
+  
+    const handleAuctionEnded = (itemId: number, itemTitle: string, sellerId: number, winnerId: number) => {
+      const newNotification: Notification = {
+        notificationContent: `${itemTitle} has end. ${user.userId == winnerId && "You are the winner"}`,
+        notificationDate: new Date().toDateString(),
+        notificationId: -2,
+        userId: user.userId,
+        itemId
+      };
+    
+      // Check if the notification already exists in the array
+      const isNotificationExists = user.notifications?.some(
+        (notification) => notification.notificationId === -2
+      );
+  
+      // Update the user state only if the notification doesn't exist
+      if (!isNotificationExists) {
+        setUser((prevUser) => ({
+          ...prevUser,
+          notifications: [newNotification, ...(prevUser.notifications || [])], // Use non-null assertion operator (!)
+        }));
+      }
     };
-
+  
     // Subscribe to the event when the component mounts
     signalRService.onSomeoneJoinItemRoom(handleSomeoneJoinItemRoom);
     signalRService.onAuctionEnded(handleAuctionEnded);
-
+  
     // // Unsubscribe when the component unmounts
     return () => {
       signalRService.offSomeoneJoinItemRoom(handleSomeoneJoinItemRoom);
       signalRService.offAuctionEnded(handleAuctionEnded);
     };
-  });
+  }); // Add user.notifications to the dependency array
+  
 
   return (
     <GlobalState.Provider value={{

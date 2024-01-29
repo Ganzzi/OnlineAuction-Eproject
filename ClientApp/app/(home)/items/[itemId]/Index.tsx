@@ -38,8 +38,9 @@ const Index = ({ itemData }: { itemData: Item }) => {
 
     setItemStatus(calculateItemStatus(itemData));
 
+    
     setWinner(itemData?.auctionHistory?.winner ?? null);
-   
+    
   }, [itemData]);
   
   const handlePlaceBid = async () => {
@@ -64,7 +65,7 @@ const Index = ({ itemData }: { itemData: Item }) => {
       console.log(e?.response);
       if (e?.response?.status == 400) {
         setResMessage({
-          content: e?.response?.data?.errors?.message,
+          content: e?.response?.data?.message,
           color: "meta-1"
         })        
       }
@@ -84,7 +85,7 @@ const Index = ({ itemData }: { itemData: Item }) => {
             <p className="text-lg font-semibold mb-4">Price: ${itemData.startingPrice}</p>
             <p className="text-lg font-semibold mb-4">Increasing Amount: ${itemData.increasingAmount}</p>
             <p className="text-lg font-semibold mb-4">Status: {itemStatus}</p>
-            {winner && <p className="text-lg font-semibold mb-4">Winner: {winner.name}</p>}
+            {winner != null && <p className="text-lg font-semibold mb-4">Winner: {winner.name}</p>}
 
             {/* Display other item details as needed */}
           </>
@@ -113,12 +114,14 @@ const Index = ({ itemData }: { itemData: Item }) => {
             <input
               type="number"
               id="bidAmount"
+              disabled={winner!=null}
               value={bidAmount}
               onChange={(e) => setBidAmount(e.target.value)}
               className="mt-1 p-2 border rounded w-full"
             />
             <button
               onClick={handlePlaceBid}
+              disabled={winner!=null}
               className="mt-2 px-4 py-2 bg-meta-5 hover:bg-meta-3 text-white rounded hover:bg-blue-600"
             >
               Place Bid

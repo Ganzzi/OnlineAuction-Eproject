@@ -153,7 +153,14 @@ namespace Application.Service
             try
             {
                 var itemspec = new BaseSpecification<Item>(x => x.ItemId == id)
-                    .AddInclude(x => x.Include(x => x.Bids).Include(x => x.AuctionHistory).Include(x => x.CategoryItems).ThenInclude(ci => ci.Category).Include(x => x.Seller));
+                    .AddInclude(x => x
+                    .Include(x => x.Bids)
+                    .Include(x => x.AuctionHistory)
+                        .ThenInclude(ah => ah.Winner)
+                    .Include(x => x.CategoryItems)
+                        .ThenInclude(ci => ci.Category)
+                    .Include(x => x.Seller));
+                    
                 var item = await _u.Repository<Item>().FindOne(itemspec);
                 if (item != null)
                 {
@@ -399,7 +406,7 @@ namespace Application.Service
         }
 
         // place bid
-        public async Task<AuctionHistory> PlaceABid(PlaceBidRequest req, User user)
+        public async Task<(AuctionHistory, bool)> PlaceABid(PlaceBidRequest req, User user)
         {
             try
             {
@@ -407,7 +414,7 @@ namespace Application.Service
                 
                 if (Item == null)
                 {
-                    return null;
+                    return (null, false);
                 }
 
                 var ah = await _u.Repository<AuctionHistory>()
@@ -415,7 +422,7 @@ namespace Application.Service
                 
                 if (ah.WinnerId != null)    
                 {
-                    return ah;
+                    return (ah, false);
                 }
 
                 var specBid = new BaseSpecification<Bid>(x => x.ItemId == req.ItemId);
@@ -434,14 +441,44 @@ namespace Application.Service
 
                 
                 await _u.SaveChangesAsync();
-                return ah;
+                return (ah, true);
             }
             catch (Exception e)
             {
                 await _u.RollBackChangesAsync();
-                return null;
+                return (null, false);
             }
 
+        }
+
+        public async Task NotifyParticipants(int ItemId, string Content) {
+            var participants = await GetItemPaticipants(ItemId);
+            foreach (var item in participants)
+            {
+                await _u.Repository<Notification>().AddAsync(new Notification() {
+                    ItemId = ItemId,
+                    UserId = item.UserId,
+                    NotificationContent = Content,
+                    NotificationDate = DateTime.Now
+                });
+            }
+            await _u.SaveChangesAsync();
+        }
+
+        public async Task<IList<User>> GetItemPaticipants(int itemId)
+        {
+            var bidSpec = new BaseSpecification<Bid>(x => x.ItemId == itemId)
+                .AddInclude(q => q.Include(b => b.User));
+
+            var bids = await _u.Repository<Bid>().ListAsynccheck(bidSpec);
+
+            var distinctUserIds = bids.Select(b => b.UserId).Distinct();
+
+            var distinctUsers = await _u.Repository<User>().ListAsynccheck(
+                new BaseSpecification<User>(u => distinctUserIds.Contains(u.UserId))
+            );
+
+            return distinctUsers.ToList();
         }
 
         //Profile details
@@ -487,12 +524,27 @@ namespace Application.Service
                     NotificationDate = DateTime.Now,
                 };
                     
+                var participants = await GetItemPaticipants(ItemId);
+                foreach (var item in participants)
+                {
+                    if (item.UserId != Auct.Winner.UserId)
+                    {   
+                        await _u.Repository<Notification>().AddAsync(new Notification() {
+                            ItemId = ItemId,
+                            UserId = item.UserId,
+                            NotificationContent = $"{Auct.Item.Title} has end",
+                            NotificationDate = DateTime.Now
+                        });
+                    }
+                }
+                await _u.SaveChangesAsync();                
+
                 // winner
                 var winnerNoti = new Notification
                 {
                     ItemId = ItemId,
                     UserId = Auct.Winner.UserId,
-                    NotificationContent = "your are the winner",
+                    NotificationContent = $"{Auct.Item.Title} has end. you are the winner",
                     NotificationDate = DateTime.Now,
                 };
                 await _u.Repository<Notification>().AddAsync(sellerNoti);

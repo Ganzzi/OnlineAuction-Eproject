@@ -50,7 +50,7 @@ namespace AuctionOnline.SignalRHub
 
             var x = Clients.Group($"item_{req.ItemId}");
             await x
-                .SendAsync("someonejoinitemroom", req.ItemId, req.UserId, req.BidAmount ?? 0);
+                .SendAsync("SomeoneJoinItemRoom", req.ItemId, req.ItemTitle, req.UserId, req.Username, req.BidAmount ?? 0);
         }
 
 
