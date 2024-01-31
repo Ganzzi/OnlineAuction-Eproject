@@ -6,20 +6,31 @@ import { useState, useEffect } from "react";
 import Loader from "@/components/common/Loader";
 
 import Header from "@/components/Home/Header";
-import { GlobalStateProvider } from "@/context/globalState";
+import { GlobalStateProvider, useGlobalState } from "@/context/globalState";
 import Footer from "@/components/Home/Footer";
+import { useRouter } from "next/navigation";
 
 export default function HomeLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const {user, isLoggedIn} = useGlobalState();
+  const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
+    setTimeout(() => setLoading(false), 2000);
   }, []);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      if (user.userId != 0 && user.role === "Admin") {
+        router.push("/dashboard")
+      }
+    }
+  }, [user.userId])
 
   return (
     <div className="dark:bg-boxdark-2 dark:text-bodydark">

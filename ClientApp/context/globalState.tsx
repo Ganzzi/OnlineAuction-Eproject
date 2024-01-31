@@ -18,7 +18,8 @@ type GlobalStateProp = {
     refreshToken?: string) => void,
   notifications: Notification[],
   colorMode: string,
-  setColorMode: (color: string) => void
+  setColorMode: (color: string) => void,
+  isLoggedIn: boolean
 }
 
 const initState: GlobalStateProp = {
@@ -44,7 +45,8 @@ const initState: GlobalStateProp = {
   setColorMode: function (tk: string | null): void {
     throw new Error('Function not implemented.');
   },
-  colorMode: ''
+  colorMode: '',
+  isLoggedIn: false
 }
 export const GlobalState = createContext<GlobalStateProp>(initState);
 
@@ -57,16 +59,19 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
   const [accessToken, _setAccessToken] = useState<string>(getToken)
   const [notifications, setNotifications] = useState<Array<Notification>>(initState.notifications)
   const [colorMode, _setColorMode] = useState(getColorMode)
+  const [isLoggedIn, setIsLoggedIn] = useState(getToken !== '');
 
   const setAccessToken: (tk: string | null, refreshToken?: string) => void = (tk: string | null, refreshToken?: string) => {
     if (tk != null && refreshToken) {
       setToken(tk);
       setRefreshToken(refreshToken);
       _setAccessToken(tk)
+      setIsLoggedIn(!isLoggedIn)
     } else {
       removeToken()
       removeRefreshToken()
       _setAccessToken("")
+      setIsLoggedIn(!isLoggedIn)
     }
   }
 
@@ -160,6 +165,7 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <GlobalState.Provider value={{
+      isLoggedIn,
       user,
       setUser,
       accessToken,
@@ -175,6 +181,7 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
 
 export const useGlobalState: () => GlobalStateProp = () => {
   const {
+    isLoggedIn,
     user,
     setUser,
     accessToken,
@@ -189,6 +196,7 @@ export const useGlobalState: () => GlobalStateProp = () => {
     accessToken,
     setAccessToken,
     notifications,
-    colorMode, setColorMode
+    colorMode, setColorMode,
+    isLoggedIn
   };
 };

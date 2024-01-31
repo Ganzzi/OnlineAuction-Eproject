@@ -21,7 +21,7 @@ type SellItemPayload = {
 }
 
 const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => {
-  const { user } = useGlobalState();
+  const { user, isLoggedIn } = useGlobalState();
   const router = useRouter();
 
   const initialFormData: SellItemPayload = {
@@ -87,6 +87,10 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!isLoggedIn) {
+      router.push("/auth/signin")
+    }
 
     try {
       const formDataToSend = new FormData();

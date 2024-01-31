@@ -15,7 +15,7 @@ type RateBuyerRequest = {
 }
 
 const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: number } }) => {
-  const { user } = useGlobalState();
+  const { user, isLoggedIn } = useGlobalState();
   const router = useRouter();
 
   const [auctionData, setAuctionData] = useState<AuctionHistory>();
@@ -26,6 +26,10 @@ const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: nu
   })
 
   useEffect(() => {
+    if (!isLoggedIn) {
+      router.push("/auth/signin")
+    }
+
     const fetchAuctionData = async () => {
       try {
         const res = await axiosService.get(`/api/user/AuctionHistoryDetail?AuctionHistoryId=${auctionId}`);
@@ -41,7 +45,6 @@ const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: nu
   }, [auctionId]);
 
   const handleRateBuyer = async () => {
-
     // Create RateBuyerRequest object
     const rateBuyerRequest: RateBuyerRequest = {
       ItemId: auctionData?.itemId || 0,

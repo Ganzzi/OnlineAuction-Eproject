@@ -17,7 +17,7 @@ type ProfileUpdatePayload = {
 
 const ProfileUpdatingPage: React.FC = () => {
   const router = useRouter();
-  const {user} = useGlobalState();
+  const {user, isLoggedIn} = useGlobalState();
   const [profileData, setProfileData] = useState<ProfileUpdatePayload>(
     {
       name: user.name,
@@ -52,6 +52,10 @@ const ProfileUpdatingPage: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!isLoggedIn) {
+      router.push("/auth/signin")
+    }
 
     if (profileData.password !== profileData.retypePassword) {
       setErrors({

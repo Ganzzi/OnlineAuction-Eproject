@@ -9,13 +9,14 @@ import { FormEvent, useState } from "react";
 import { useGlobalState } from "@/context/globalState";
 
 const Header = () => {
+  const { user } = useGlobalState();
   const pathname = usePathname();
-  
+
   return (
     <header className="sticky top-0 z-999 flex w-full bg-body drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
       <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
         <div className='space-x-10 flex flex-row items-center justify-start text-white'>
-          <Link href={'/'} className={`${!pathname.startsWith("/items") && !pathname.startsWith("/profile") ? "text-meta-7": ""}`}>
+          <Link href={'/'} className={`${!pathname.startsWith("/items") && !pathname.startsWith("/profile") ? "text-meta-7" : ""}`}>
             <Image
               className=""
               src={"/images/logo/logo.svg"}
@@ -24,7 +25,7 @@ const Header = () => {
               height={32}
             />
           </Link>
-          <Link href={'/items'} className={`${pathname.startsWith("/items") ? "text-meta-7": ""}`}>Market</Link>
+          <Link href={'/items'} className={`${pathname.startsWith("/items") ? "text-meta-7" : ""}`}>Market</Link>
           <Search />
         </div>
 
@@ -35,12 +36,20 @@ const Header = () => {
             {/* <!-- Dark Mode Toggler --> */}
 
             {/* <!-- Notification Menu Area --> */}
-            <DropdownNotification />
+            {user.userId != 0 && (<DropdownNotification />)}
             {/* <!-- Notification Menu Area --> */}
           </ul>
 
           {/* <!-- User Area --> */}
-          <DropdownUser />
+          {user.userId != 0 ? (
+            <DropdownUser />
+          ) : (
+            <div className="flex flex-row items-center space-x-3">
+              <Link href={'/auth/signin'} className={`hover:text-meta-5`}>Signin</Link >
+              <p>/</p>
+              <Link href={'/auth/signup'} className={`hover:text-meta-5`}>SignUp</Link >
+            </div>
+          )}
           {/* <!-- User Area --> */}
         </div>
       </div>
@@ -58,7 +67,7 @@ const Search = () => {
     if (searchQuery.trim()) {
       // Call the onSubmit callback with the search query
       router.push(`/items?search=${encodeURIComponent(searchQuery)}`);
-      
+
       // Reset the form
       setSearchQuery('');
 

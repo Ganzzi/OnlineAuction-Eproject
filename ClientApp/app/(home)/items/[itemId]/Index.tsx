@@ -13,7 +13,7 @@ import signalRService from '@/services/signalRService';
 
 const Index = ({ itemData }: { itemData: Item }) => {
   const router = useRouter();
-  const { user, accessToken } = useGlobalState(); // replace with your authentication context
+  const { user, accessToken, isLoggedIn } = useGlobalState(); // replace with your authentication context
 
   const [bidAmount, setBidAmount] = useState('');
   const [itemStatus, setItemStatus] = useState<string>(''); // 'started', 'not started', 'ended'
@@ -45,7 +45,7 @@ const Index = ({ itemData }: { itemData: Item }) => {
   
   const handlePlaceBid = async () => {
 
-    if (accessToken === "") {
+    if (!isLoggedIn) {
       router.push("/auth/signin")
     }
     
