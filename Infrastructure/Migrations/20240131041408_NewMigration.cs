@@ -3,14 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace Infrastructure.Migrations
 {
-    /// <inheritdoc />
     public partial class NewMigration : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -20,7 +16,7 @@ namespace Infrastructure.Migrations
                     CategoryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -36,7 +32,7 @@ namespace Infrastructure.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Avatar = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -110,7 +106,7 @@ namespace Infrastructure.Migrations
                     ItemId = table.Column<int>(type: "int", nullable: false),
                     WinnerId = table.Column<int>(type: "int", nullable: true),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    WinningBid = table.Column<float>(type: "real", nullable: false),
+                    WinningBid = table.Column<float>(type: "real", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastModified = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -277,11 +273,12 @@ namespace Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "ItemTable",
                 columns: new[] { "ItemId", "Created", "Description", "EndDate", "Image", "IncreasingAmount", "LastModified", "ReservePrice", "SellerId", "StartDate", "StartingPrice", "Title" },
-                values: new object[,]
-                {
-                    { 1, null, "Description for Item 1", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1000f, "Item 1" },
-                    { 2, null, "Description for Item 2", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2000f, "Item 2" }
-                });
+                values: new object[] { 1, null, "Description for Item 1", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1000f, "Item 1" });
+
+            migrationBuilder.InsertData(
+                table: "ItemTable",
+                columns: new[] { "ItemId", "Created", "Description", "EndDate", "Image", "IncreasingAmount", "LastModified", "ReservePrice", "SellerId", "StartDate", "StartingPrice", "Title" },
+                values: new object[] { 2, null, "Description for Item 2", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2000f, "Item 2" });
 
             migrationBuilder.InsertData(
                 table: "AuctionHistory",
@@ -297,8 +294,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "BidId", "BidAmount", "BidDate", "Created", "ItemId", "LastModified", "UserId" },
                 values: new object[,]
                 {
-                    { 1, 100f, new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1157), null, 1, null, 1 },
-                    { 2, 200f, new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1192), null, 2, null, 2 }
+                    { 1, 100f, new DateTime(2024, 1, 31, 11, 14, 7, 873, DateTimeKind.Local).AddTicks(1779), null, 1, null, 1 },
+                    { 2, 200f, new DateTime(2024, 1, 31, 11, 14, 7, 873, DateTimeKind.Local).AddTicks(1802), null, 2, null, 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -315,8 +312,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "RatingId", "Created", "ItemId", "LastModified", "Rate", "RatedUserId", "RaterId", "RatingDate" },
                 values: new object[,]
                 {
-                    { 1, null, 1, null, 4.5f, 2, 1, new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1340) },
-                    { 2, null, 2, null, 4f, 1, 2, new DateTime(2024, 1, 23, 11, 2, 27, 734, DateTimeKind.Local).AddTicks(1348) }
+                    { 1, null, 1, null, 4.5f, 2, 1, new DateTime(2024, 1, 31, 11, 14, 7, 873, DateTimeKind.Local).AddTicks(1880) },
+                    { 2, null, 2, null, 4f, 1, 2, new DateTime(2024, 1, 31, 11, 14, 7, 873, DateTimeKind.Local).AddTicks(1883) }
                 });
 
             migrationBuilder.CreateIndex(
@@ -368,8 +365,7 @@ namespace Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Rating_ItemId",
                 table: "Rating",
-                column: "ItemId",
-                unique: true);
+                column: "ItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rating_RatedUserId",
@@ -389,7 +385,6 @@ namespace Infrastructure.Migrations
                 filter: "[UserId] IS NOT NULL");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

@@ -2,6 +2,7 @@
 using Infrastructure.Data;
 using Infrastructure.Repos;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Xml.Linq;
@@ -15,7 +16,7 @@ namespace Infrastructure
             service.AddDbContext<AppDbContext>(o =>
             {
                 o.UseSqlServer(
-                    config.GetConnectionString("DBConnectionString"),
+                    config.GetConnectionString("DefaultConnection"),
                     x => x.MigrationsAssembly("Infrastructure")
                 );
             });

@@ -1,7 +1,6 @@
 ﻿using Application.DTO;
 using Application.Interface;
 using Application.Service;
-using Azure.Core;
 using DomainLayer.Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

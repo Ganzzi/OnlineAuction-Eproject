@@ -29,3 +29,9 @@ packages/
 
 ## Ignore Visual Studio project file
 *.vs.project
+
+appsettings.json
+
+appsettings.Production.json
+
+appsettings.Development.json

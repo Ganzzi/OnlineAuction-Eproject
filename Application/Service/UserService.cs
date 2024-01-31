@@ -31,7 +31,7 @@ namespace Application.Service
             {
                 var value = await _redisService.GetCachedData<Category[]>("list_category");
 
-                if (value.IsNullOrEmpty())
+                if (value == null)
                 {
                     var categoryspec = new BaseSpecification<Category>();
                         //  .AddInclude(x => x.Include(x => x.CategoryItems).ThenInclude(x => x.Item));
