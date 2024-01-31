@@ -49,13 +49,13 @@ const Index = ({ itemData }: { itemData: Item }) => {
       router.push("/auth/signin")
     }
     
-    await signalRService.joinItemRoom(user.userId, itemData.itemId, parseInt(bidAmount, 10));
-
+    
     await axiosService.post("/api/user/placeBid", {
       itemId: itemData.itemId,
       amount: bidAmount
-    }).then((res) => {
+    }).then(async (res) => {
       if (res.status == 200) {
+        await signalRService.joinItemRoom(user.userId, itemData.itemId, parseInt(bidAmount, 10));
         setResMessage({
           content: res.data?.message,
           color: "meta-4"
@@ -94,7 +94,7 @@ const Index = ({ itemData }: { itemData: Item }) => {
 
       <div className="md:w-1/2">
         {/* Bid Form */}
-        {user && isItemSeller &&  itemStatus === 'not started'  && (
+        {user && isItemSeller &&  itemStatus !== 'ended'  && (
           <div className="mb-8">
             <button
               onClick={() => router.push(`/items/form?itemId=${itemData.itemId}`)}

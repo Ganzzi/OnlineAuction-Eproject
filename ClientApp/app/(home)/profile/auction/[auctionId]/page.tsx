@@ -35,6 +35,8 @@ const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: nu
         const res = await axiosService.get(`/api/user/AuctionHistoryDetail?AuctionHistoryId=${auctionId}`);
         const data: AuctionHistory = res.data;
 
+        console.log(data);
+        
         setAuctionData(data);
       } catch (error) {
         console.error('Error fetching auction data', error);

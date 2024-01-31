@@ -1,51 +1,119 @@
+'use client'
+
 import Breadcrumb from "@/components/Dashboard/Breadcrumb";
 import { Resource, newResource } from "@/types/resource";
 import { SearchParams } from "@/types/next";
 import Pagination from "@/components/common/Pagination/Pagination";
-const CategoryDetailPage = ({ searchParams }: { searchParams: SearchParams }) => {
-  const resource = newResource([], 93, searchParams?.page ? parseInt(searchParams.page.toString(), 10) : 1, 10);
-  
+import ItemList from "@/components/Dashboard/categories/ItemList";
+import { Item } from "@/types/models/item";
+import { Category } from "@/types/models/category";
+import { useEffect, useState } from "react";
+import axiosService from "@/services/axiosService";
+import CategoryForm from "@/components/Dashboard/categories/CategoryForm";
+import { usePathname, useRouter } from "next/navigation";
+import CategoryFilter from "@/components/Dashboard/categories/CategoryFilter";
+
+export type CategoryData = {
+  item: Item,
+  belong: boolean
+}
+
+interface CategoryDetailPageProps {
+  searchParams: SearchParams;
+  params: { categoryId: number };
+}
+
+const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({ searchParams, params: { categoryId } }) => {
+  const [category, setCategory] = useState<Category | null>(null);
+  const [resource, setResource] = useState<Resource<CategoryData>>(
+    newResource([], 10, searchParams?.page ? parseInt(searchParams.page.toString(), 10) : 1, 10)
+  )
+  const router = useRouter();
+  const pathname = usePathname();
+  const [search, setSearch] = useState<string>(searchParams?.search as string || '');
+  const [belongToCategory, setBelongToCategory] = useState<string | null>(searchParams?.belongToCategory as string || null);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set('search', search);
+        if (belongToCategory !== null) {
+          newSearchParams.set('belongToCategory', belongToCategory);
+        } else {
+          newSearchParams.delete('belongToCategory');
+        }
+
+        router.push(`${pathname}?${newSearchParams}`);
+
+        const res = await axiosService.get(`/api/Admin/CategoryDetailWithListCategoryItems/${categoryId}`, {
+          params: {
+            search,
+            belongToCategory,
+            page: resource.meta.current_page,
+          },
+        });
+
+        console.log(res.data);
+        
+
+        const cate: Category = res.data.category;
+        const items: CategoryData[] = res.data.items;
+        const count = res.data.count;
+
+        setCategory(cate);
+        setResource(newResource(items, count, searchParams?.page ? parseInt(searchParams.page.toString(), 10) : 1, 10));
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [categoryId, search, belongToCategory]);
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+  };
+
+  const handleSelectChange = (value: string) => {
+    setBelongToCategory(value);
+  };
+
   return (
     <>
-      <Breadcrumb pageName="Category  Edit" />
-      <Pagination meta={resource.meta} />
-      <br></br>
-      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+      <Breadcrumb pageName="Category Edit" />
+      <br />
 
-        <div className="flex flex-col gap-5.5 p-6.5">
-          <div>
-            <label className="mb-3 block text-black dark:text-white">
-              Name
-            </label>
-            <input
-              type="text"
-              placeholder="Name"
-              className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+      {/* CategoryForm component */}
+      {category && <CategoryForm category={category} />}
+
+      <hr />
+      <br />
+
+      {category && (
+        <>
+          <div className="flex flex-row items-center justify-center space-x-5">
+            {/* CategoryFilter component */}
+            <CategoryFilter
+              search={search}
+              belongToCategory={belongToCategory || ''}
+              onSearchChange={handleSearchChange}
+              onSelectChange={handleSelectChange}
             />
-          </div>
-        </div>
-        <div className="flex flex-col gap-5.5 p-6.5">
-          <div>
-            <label className="mb-3 block text-black dark:text-white">
-              Description
-            </label>
-            <input
-              type="text"
-              placeholder="Description"
-              className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-            />
+
+            {/* Pagination component */}
+            <Pagination meta={resource.meta} />
           </div>
 
-        </div>
-        <div className="flex flex-col gap-5.5 p-6.5">
-          <div>
-            <a className="inline-flex items-center justify-center rounded-md bg-meta-3 py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-5" href="#">Submit</a>
-          </div>
-        </div>
-      </div>
-
+          {/* ItemList component */}
+          <ItemList items={resource.data} categoryId={categoryId} />
+        </>
+      )}
     </>
   );
 };
+
+
 
 export default CategoryDetailPage;

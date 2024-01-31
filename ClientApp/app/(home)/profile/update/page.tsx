@@ -92,6 +92,8 @@ const ProfileUpdatingPage: React.FC = () => {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
+      }).then(() => {
+        router.push("/profile")
       });
 
     } catch (error) {

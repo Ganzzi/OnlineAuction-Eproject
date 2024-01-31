@@ -5,7 +5,7 @@ import Breadcrumb from "@/components/Dashboard/Breadcrumb";
 import { Resource, newResource } from "@/types/resource";
 import { SearchParams } from "@/types/next";
 import Pagination from "@/components/common/Pagination/Pagination";
-import CategoryItemList, { CategoryResponse } from "@/components/Dashboard/categories/CategoryItemList";
+import CategoryList, { CategoryResponse } from "@/components/Dashboard/categories/CategoryList";
 import { useEffect, useState } from "react";
 import axiosService from "@/services/axiosService";
 
@@ -34,7 +34,7 @@ const CategoriesPage = ({ searchParams }: { searchParams: SearchParams }) => {
       <Breadcrumb pageName="Categories" />
       {/* <Pagination meta={resource.meta} /> */}
       <br /><br />
-      <CategoryItemList data={data}/>
+      <CategoryList data={data}/>
        
     </>
   );

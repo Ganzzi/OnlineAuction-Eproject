@@ -1,63 +1,79 @@
-import Breadcrumb from "@/components/Dashboard/Breadcrumb";
-import Link from "next/link";
+'use client'
 
-const ItemDetailPage = () => {
+import Breadcrumb from "@/components/Dashboard/Breadcrumb";
+import CategoryList from "@/components/Dashboard/items/CategoryList";
+import axiosService from "@/services/axiosService";
+import { Category } from "@/types/models/category";
+import { Item } from "@/types/models/item";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+export type CategoryData = {
+  category: Category,
+  belong:  boolean
+}
+
+type DataResponse  = {
+  item: Item,
+  categories: CategoryData[]
+}
+
+const ItemDetailPage = ({ params: { itemId } }: { params: { itemId: number } }) => {
+  const [data, setData] = useState<DataResponse | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axiosService.get(`/api/Admin/ItemDetailWithListCategoryItems/${itemId}`);
+        const _data: DataResponse = res.data;
+        setData(_data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [itemId]);
+
   return (
     <>
       <Breadcrumb pageName="ItemDetail" />
-      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-              <h3 className="font-medium text-black dark:text-white">
-               Edit item
-              </h3>
-            </div>
 
-            <div className="flex flex-col gap-5.5 p-6.5">
-              <div>
-                <label className="mb-3 block text-black dark:text-white">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  placeholder="Name"
-                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                />
-              </div>
+      {data && (
+        <div className="max-w-2xl mx-auto p-4 space-y-4">
+        {/* Render item's base info */}
+        <div className="mb-8">
+          <div className="flex flex-row items-center justify-start">
+
+          <div>
+            <h2 className="text-2xl font-bold mb-2">{data.item.title}</h2>
+            <p className="text-gray-500">{data.item.description}</p>
+          </div>
+
+          <img src={data.item.image} className="w-20 h-20 object-cover rounded-md" alt="Item" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div>
+              <p>Starting Price: ${data.item.startingPrice}</p>
+              <p>Increasing Amount: ${data.item.increasingAmount}</p>
             </div>
-            <div className="flex flex-col gap-5.5 p-6.5">
-              <div>
-                <label className="mb-3 block text-black dark:text-white">
-                Description
-                </label>
-                <input
-                  type="text"
-                  placeholder="Description"
-                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                />
-              </div>
-              
-            </div>
-            <div className="flex flex-col gap-5.5 p-6.5">
-              <div>
-                <label className="mb-3 block text-black dark:text-white">
-                Image
-                </label>
-                <input
-                  type="text"
-                  placeholder="Description"
-                  className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                />
-              </div>
-              
-            </div>
-            <div className="flex flex-col gap-5.5 p-6.5">
-              <div>
-              <a className="inline-flex items-center justify-center rounded-md bg-meta-3 py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-5" href="#">Submit</a>
-              </div>
+            <div>
+              <p>Start Date: {new Date(data.item.startDate).toDateString()}</p>
+              <p>End Date: {new Date(data.item.endDate).toDateString()}</p>
             </div>
           </div>
+        </div>
+
+        {/* Item Image */}
+
+        {/* Show list of categories */}
+        <CategoryList categories={data.categories} itemId={itemId}/>
+      </div>
+      )}
     </>
   );
 };
+
 
 export default ItemDetailPage;
