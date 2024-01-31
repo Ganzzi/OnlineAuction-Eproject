@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import Loader from "@/components/common/Loader";
 import { useGlobalState } from "@/context/globalState";
