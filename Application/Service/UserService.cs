@@ -35,7 +35,8 @@ namespace Application.Service
                 {
                     var cateItemSpec = new BaseSpecification<CategoryItem>
                         (ci => ci.CategoryId == item.CategoryId)
-                        .AddInclude(q => q.Include(ci => ci.Item).ThenInclude(i => i.Bids))
+                        .AddInclude(q => q.Include(ci => ci.Item).ThenInclude(i => i.Bids)
+                        .Include(ci => ci.Item).ThenInclude(i => i.AuctionHistory).ThenInclude(ah => ah.Winner).Include(ci => ci.Item).ThenInclude(i => i.Seller))
                         .ApplyPaging(0, 10)
                         .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
                         item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
@@ -132,7 +133,9 @@ namespace Application.Service
                 var count = await _u.Repository<Item>().CountAsync(iSpec);
                  iSpec = iSpec
                             .ApplyPaging(skip, take)
-                            .AddInclude(x => x.Include(x => x.Bids))
+                            .AddInclude(x => x.Include(x => x.Bids)
+                            .Include(i => i.Seller)
+                            .Include(i => i.AuctionHistory).ThenInclude(ah => ah.Winner))
                             .ApplyOrderBy(x => order == "date" ? x.StartDate : x.Title);
                 
                 var listItem = await _u.Repository<Item>().ListAsynccheck(iSpec);
@@ -210,7 +213,7 @@ namespace Application.Service
                 if (existingItem != null)
                 {
                     // Item with the same title already exists
-                    return (null,"change title");
+                    return (null,"title already exist in another item");
                 }
 
                 if (req.Item.ImageFile == null)
@@ -283,6 +286,18 @@ namespace Application.Service
                     Ratting.ItemId = req.ItemId;
                     Ratting.Rate = req.RatingAmount;
                     await _u.Repository<Rating>().AddAsync(Ratting);
+                    await _u.Repository<Notification>().AddAsync(new Notification(){
+                        UserId = req.RatedUserId,
+                        NotificationContent = $"You has been rated {req.RatingAmount} star by {user.UserId}",
+                        ItemId = req.ItemId
+                    });
+                    await _u.Repository<Notification>().AddAsync(new Notification(){
+                        UserId = user.UserId,
+                        NotificationContent = $"You has rated {req.RatedUserId} {req.RatingAmount} star",
+                        ItemId = req.ItemId
+                    });
+
+                    // TODO: signal r notify seller and winner
 
                     await _u.SaveChangesAsync();
                     return true;
@@ -419,6 +434,11 @@ namespace Application.Service
                 var Item = await _u.Repository<Item>().FindOne(new BaseSpecification<Item>(i => i.ItemId == req.ItemId));
                 
                 if (Item == null)
+                {
+                    return (null, false);
+                }
+
+                if (Item.SellerId == user.UserId)
                 {
                     return (null, false);
                 }
