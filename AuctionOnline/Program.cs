@@ -22,12 +22,6 @@ builder.Services.AddInfrastructureServices(appSettings);
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-// builder.Services.AddControllers().AddJsonOptions(x =>
-// {
-//     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-// });
-
-
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -44,7 +38,7 @@ builder.Services.AddAuthentication(x =>
         //Điều khiển việc xác thực SecurityKey đã ký securityToken. Nếu giá trị này là true, SecurityKey sẽ được kiểm tra
         ValidateIssuerSigningKey = true,
 
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("my21charSuperSecretKeyForMy21charSuperSecretKey")),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings["IssuerSigningKey"])),
         //Điều khiển việc xác thực giá trị audience trong token. Nếu giá trị này là false, giá trị audience sẽ không được kiểm tra
         ValidateAudience = false,
         //Điều khiển việc xác thực giá trị issuer trong token. Nếu giá trị này là false, giá trị issuer sẽ không được kiểm tra
@@ -61,7 +55,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(opt => opt.AddPolicy(name: "mypolicy",
         policy =>
         {
-            policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:3000");
+            policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(appSettings["ClientUrl"] ?? "*");
         }
     ));
 //cloudinary 

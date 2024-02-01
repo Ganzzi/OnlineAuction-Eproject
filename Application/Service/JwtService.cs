@@ -2,34 +2,31 @@
 using DomainLayer.Core;
 using DomainLayer.Entities.Models;
 using DomainLayer.SpecificationPattern;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net.WebSockets;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Service
 {
     public class JwtService : IJwtService
     {
         private readonly IUnitOfWork _u;
+        private readonly IConfiguration _config;
 
-        public JwtService(IUnitOfWork u)
+        public JwtService(IUnitOfWork u, IConfiguration config)
         {
             _u = u;
+            _config = config;
         }
         public async Task<string> CreateToken(User user)
         {
             // JwtSecurityTokenHandler => cho phép thao tác với token(tạo - gọi method - xác thực)
             var jwtHandeler = new JwtSecurityTokenHandler();
             // tạo key
-            var key = Encoding.ASCII.GetBytes("my21charSuperSecretKeyForMy21charSuperSecretKey");
+            var key = Encoding.ASCII.GetBytes(_config["IssuerSigningKey"]);
             // tạo playload chứa name và role
             var spec = new BaseSpecification<User>(x => x.Name == user.Name);
             var userRole = await _u.Repository<User>().FindOne(spec);
