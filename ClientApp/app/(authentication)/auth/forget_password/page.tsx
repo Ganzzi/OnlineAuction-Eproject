@@ -27,6 +27,15 @@ const SignIn: React.FC = () => {
   const  handleSendMail = async (e: FormEvent) => {
     e.preventDefault();
 
+    if (payload == '') {
+      setErrors({
+        message:  "",
+        email: "PLease enter correct email",
+      })
+
+      return;
+    }
+
     await axios.post(
       "https://localhost:7073/api/user/checkemailandsendlink?email="+payload,
       {
@@ -37,12 +46,15 @@ const SignIn: React.FC = () => {
       }
     ).then((res) => {
       if (res.status == 200) {
-        
+        setErrors({
+          message: "Check your email",
+          email: ""
+        })
       }
     }).catch((e) => {
       if (e?.response?.status == 400) {
         setErrors({
-          message:  e?.response?.data?.message,
+          message:  "",
           email: e?.response?.data?.errors?.Email ?? "",
         })
       }
@@ -64,7 +76,7 @@ const SignIn: React.FC = () => {
                 Sign In to BidHub
               </h2>
 
-              <p className="text-meta-1">{errors?.message}</p>
+              <p className="text-meta-3 text-center">{errors?.message}</p>
 
               <form onSubmit={(e) => handleSendMail(e)}>
                 <div className="mb-4">

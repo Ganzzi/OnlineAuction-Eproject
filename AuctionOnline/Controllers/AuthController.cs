@@ -38,8 +38,8 @@ namespace AuctionOnline.Controllers
                 return BadRequest(ModelState);
             }
 
-            var hashpassword = _authService.HashPassWord(model.Password);
-            model.Password = hashpassword;
+            // var hashpassword = _authService.HashPassWord(model.Password);
+            // model.Password = hashpassword;
             var User = await _authService.Login(model);
             if (User == null)
             {

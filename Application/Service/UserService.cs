@@ -461,7 +461,7 @@ namespace Application.Service
 
                 if (Item.SellerId == user.UserId)
                 {
-                    return (null, false);
+                    return (null, "can't place your own item");
                 }
 
                 var ah = await _u.Repository<AuctionHistory>()

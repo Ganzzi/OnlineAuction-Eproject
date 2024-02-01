@@ -118,7 +118,7 @@ const Header = (props: {
           </ul>
 
           {/* <!-- User Area --> */}
-          <DropdownUser />
+          <DropdownUser admin={true}/>
           {/* <!-- User Area --> */}
         </div>
       </div>

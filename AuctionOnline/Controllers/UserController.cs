@@ -209,9 +209,9 @@ namespace AuctionOnline.Controllers
                             auctionHistory.Item1.Item.SellerId, 
                             auctionHistory.Item1.WinnerId);
 
-                    var sellerMail = await _e.sendMailForSuccessBuyer(user.UserId, auctionHistory.Item.SellerId);
+                    var sellerMail = await _e.sendMailForSuccessBuyer(user.UserId, auctionHistory.Item1.Item.SellerId);
                     _e.sendMail(sellerMail);
-                    var buyerMail = await _e.sendMailForSuccessSeller(auctionHistory.Item.SellerId,user.UserId);
+                    var buyerMail = await _e.sendMailForSuccessSeller(auctionHistory.Item1.Item.SellerId,user.UserId);
                     _e.sendMail(buyerMail);
                     return Ok(new
                     {

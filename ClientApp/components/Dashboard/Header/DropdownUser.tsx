@@ -4,7 +4,11 @@ import Image from "next/image";
 import { useGlobalState } from "@/context/globalState";
 import { useRouter } from "next/navigation";
 
-const DropdownUser = () => {
+interface Props {
+  admin?: boolean
+}
+
+const DropdownUser = ({admin}: Props) => {
   const {user, setAccessToken} = useGlobalState();
   const router = useRouter()
 
@@ -95,6 +99,8 @@ const DropdownUser = () => {
         }`}
       >
         <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
+          {!admin && (
+            <>
           <li>
             <Link
               href="/profile"
@@ -145,6 +151,8 @@ const DropdownUser = () => {
               Account Settings
             </Link>
           </li>
+          </>
+          )}
         </ul>
           <button 
           onClick={handleLogout}

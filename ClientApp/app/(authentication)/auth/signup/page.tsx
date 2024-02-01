@@ -49,9 +49,12 @@ const SignUp: React.FC = () => {
     }
 
     await axios.post(
-      "/api/auth/signup",
+      "https://localhost:7073/api/auth/signup",
       JSON.stringify(payload),
       {
+        headers: {
+          "Content-Type": "application/json"
+        },
         httpsAgent: new https.Agent({ rejectUnauthorized: false }), // Ignore SSL certificate validation errors
       }).then((res) => {
         if (res.status == 200) {
