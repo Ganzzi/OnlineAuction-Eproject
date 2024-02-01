@@ -25,17 +25,20 @@ namespace AuctionOnline.Controllers
         [HttpPost]
         public async Task<IActionResult> SignIn(LoginModel model)
         {
-            //if (!IsValidPassword(model.Password))
-            //{
-            //    return BadRequest(new
-            //    {
-            //        message = "Invalid Password"
-            //    });
-            //}
+            if (!IsValidPassword(model.Password))
+            {
+                return BadRequest(new
+                {
+                    message = "Invalid Password"
+                });
+            }
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            var hashpassword = _authService.HashPassWord(model.Password);
+            model.Password = hashpassword;
             var User = await _authService.Login(model);
             if (User == null)
             {
@@ -51,14 +54,23 @@ namespace AuctionOnline.Controllers
             }) ;
         }
 
-        [Route("SignUp")]
+        [Route("signup")]
         [HttpPost]
         public async Task<IActionResult> SignUp([FromBody] RegisterModel model)
         {
+            if (!IsValidPassword(model.Password))
+            {
+                return BadRequest(new
+                {
+                    message = "Invalid Password"
+                });
+            }
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            var hashpassword = _authService.HashPassWord(model.Password);
+            model.Password = hashpassword;
             var user2 = await _authService.Register(model);
             if (user2 != null)
             {

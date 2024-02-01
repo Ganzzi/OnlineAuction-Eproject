@@ -3,10 +3,14 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Infrastructure.Migrations
 {
-    public partial class NewMigration : Migration
+    /// <inheritdoc />
+    public partial class V0 : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -256,8 +260,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "CategoryId", "CategoryName", "Created", "Description", "LastModified" },
                 values: new object[,]
                 {
-                    { 1, "Category 1", null, "Description for Category 1", null },
-                    { 2, "Category 2", null, "Description for Category 2", null }
+                    { 1, "Sports", null, "Get the latest scoop on your favorite sports teams and players, plus expert analysis and commentary on the biggest games and events", null },
+                    { 2, "Health", null, "Stay healthy and informed with our comprehensive coverage of health and wellness", null }
                 });
 
             migrationBuilder.InsertData(
@@ -265,20 +269,19 @@ namespace Infrastructure.Migrations
                 columns: new[] { "UserId", "Avatar", "Created", "Email", "LastModified", "Name", "Password", "ResetExpire", "Role", "tokenResetPassword" },
                 values: new object[,]
                 {
-                    { 1, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "batman123@gmail.com", null, "batman", "123", null, "User", null },
-                    { 2, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "ironman123@gmail.com", null, "ironman", "123", null, "User", null },
-                    { 3, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "admin123@gmail.com", null, "admin", "123", null, "Admin", null }
+                    { 1, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "batman123@gmail.com", null, "batman", "b6d66b8e89f46d29fc7480552e5cd34747c0c7a3017364329e9299c3f1df01d3", null, "User", null },
+                    { 2, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "ironman123@gmail.com", null, "ironman", "9a44c472f319b374d598c106619b6b02a7c9577bc7826e8061f288b72a388c0e", null, "User", null },
+                    { 3, "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", null, "admin123@gmail.com", null, "admin", "60fe74406e7f353ed979f350f2fbb6a2e8690a5fa7d1b0c32983d1d8b3f95f67", null, "Admin", null }
                 });
 
             migrationBuilder.InsertData(
                 table: "ItemTable",
                 columns: new[] { "ItemId", "Created", "Description", "EndDate", "Image", "IncreasingAmount", "LastModified", "ReservePrice", "SellerId", "StartDate", "StartingPrice", "Title" },
-                values: new object[] { 1, null, "Description for Item 1", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1000f, "Item 1" });
-
-            migrationBuilder.InsertData(
-                table: "ItemTable",
-                columns: new[] { "ItemId", "Created", "Description", "EndDate", "Image", "IncreasingAmount", "LastModified", "ReservePrice", "SellerId", "StartDate", "StartingPrice", "Title" },
-                values: new object[] { 2, null, "Description for Item 2", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2000f, "Item 2" });
+                values: new object[,]
+                {
+                    { 1, null, "Description for Item 1", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 1000f, "Item 1" },
+                    { 2, null, "Description for Item 2", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 100f, null, null, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2000f, "Item 2" }
+                });
 
             migrationBuilder.InsertData(
                 table: "AuctionHistory",
@@ -294,8 +297,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "BidId", "BidAmount", "BidDate", "Created", "ItemId", "LastModified", "UserId" },
                 values: new object[,]
                 {
-                    { 1, 100f, new DateTime(2024, 1, 31, 11, 14, 7, 873, DateTimeKind.Local).AddTicks(1779), null, 1, null, 1 },
-                    { 2, 200f, new DateTime(2024, 1, 31, 11, 14, 7, 873, DateTimeKind.Local).AddTicks(1802), null, 2, null, 2 }
+                    { 1, 100f, new DateTime(2024, 1, 31, 22, 51, 51, 110, DateTimeKind.Local).AddTicks(9615), null, 1, null, 1 },
+                    { 2, 200f, new DateTime(2024, 1, 31, 22, 51, 51, 110, DateTimeKind.Local).AddTicks(9626), null, 2, null, 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -312,8 +315,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "RatingId", "Created", "ItemId", "LastModified", "Rate", "RatedUserId", "RaterId", "RatingDate" },
                 values: new object[,]
                 {
-                    { 1, null, 1, null, 4.5f, 2, 1, new DateTime(2024, 1, 31, 11, 14, 7, 873, DateTimeKind.Local).AddTicks(1880) },
-                    { 2, null, 2, null, 4f, 1, 2, new DateTime(2024, 1, 31, 11, 14, 7, 873, DateTimeKind.Local).AddTicks(1883) }
+                    { 1, null, 1, null, 4.5f, 2, 1, new DateTime(2024, 1, 31, 22, 51, 51, 110, DateTimeKind.Local).AddTicks(9676) },
+                    { 2, null, 2, null, 4f, 1, 2, new DateTime(2024, 1, 31, 22, 51, 51, 110, DateTimeKind.Local).AddTicks(9678) }
                 });
 
             migrationBuilder.CreateIndex(
@@ -365,7 +368,8 @@ namespace Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Rating_ItemId",
                 table: "Rating",
-                column: "ItemId");
+                column: "ItemId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rating_RatedUserId",
@@ -385,6 +389,7 @@ namespace Infrastructure.Migrations
                 filter: "[UserId] IS NOT NULL");
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

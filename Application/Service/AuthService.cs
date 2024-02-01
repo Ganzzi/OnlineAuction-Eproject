@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -59,5 +60,13 @@ namespace Application.Service
             }
         }
 
+        public string HashPassWord(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashbyte = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return BitConverter.ToString(hashbyte);
+            }
+        }
     }
 }
