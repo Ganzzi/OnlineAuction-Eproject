@@ -26,11 +26,13 @@ namespace Application.Service
         private readonly IConfiguration _config;
         private readonly AppDbContext _data;
         private readonly IUnitOfWork _u;
-        public ResetEmailService(IConfiguration config, IUnitOfWork u, AppDbContext data)
+        private readonly IAuthService authService;
+        public ResetEmailService(IConfiguration config, IUnitOfWork u, AppDbContext data, IAuthService _authService)
         {
             _config = config;
             _u = u;
             _data = data;
+            authService = _authService;
         }
 
         public bool sendMail(EmailModel email)
@@ -111,7 +113,7 @@ namespace Application.Service
                 {
                     return -1;
                 }
-                user.Password = model.PasswordReset.ToString();
+                user.Password = authService.HashPassWord(model.PasswordReset.ToString());
                 _data.Attach(user);
                 _data.Entry(user).State = EntityState.Modified;
                 await _u.SaveChangesAsync();
@@ -120,6 +122,43 @@ namespace Application.Service
             catch (Exception e)
             {
                 return 0;
+            }
+
+        }
+
+        //
+        public async Task<EmailModel> sendMailForSuccessBuyer(int buyerId,int sellerId)
+        {
+            try
+            {
+                var speccheckEmail = new BaseSpecification<User>(x => x.UserId == buyerId);
+                var checkEmail = await _u.Repository<User>().FindOne(speccheckEmail);
+
+                var speccheckEmailseller = new BaseSpecification<User>(x => x.UserId == sellerId);
+                var checkEmailseller = await _u.Repository<User>().FindOne(speccheckEmailseller);
+                var bodyemail = new EmailModel(checkEmail.Email, "success trade", successMail.EmailForByer(checkEmail.Email, checkEmailseller.Email));
+                return bodyemail;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+        public async Task<EmailModel> sendMailForSuccessSeller(int sellerId,int buyerId)
+        {
+            try
+            {
+                var speccheckEmail = new BaseSpecification<User>(x => x.UserId == sellerId);
+                var checkEmail = await _u.Repository<User>().FindOne(speccheckEmail);
+
+                var speccheckEmailbuyer = new BaseSpecification<User>(x => x.UserId == buyerId);
+                var checkEmailbuyer = await _u.Repository<User>().FindOne(speccheckEmailbuyer);
+                var bodyemail = new EmailModel(checkEmail.Email, "success trade", successMail.EmailForSeller(checkEmailbuyer.Email,checkEmail.Email));
+                return bodyemail;
+            }
+            catch (Exception e)
+            {
+                return null;
             }
         }
     }

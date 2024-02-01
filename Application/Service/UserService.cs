@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,10 +17,14 @@ namespace Application.Service
     {
         private readonly IUnitOfWork _u;
         private readonly IphotoService _p;
-        public UserService(IUnitOfWork u, IphotoService p)
+        private readonly IAuthService _a;
+        private readonly IresetEmailService _r;
+        public UserService(IUnitOfWork u, IphotoService p, IAuthService a,IresetEmailService r)
         {
             _u = u;
             _p = p;
+            _a = a;
+            _r = r;
         }
 
         // categorylist 
@@ -89,7 +94,7 @@ namespace Application.Service
                 {
                     return (null, "Email Already in use");
                 }
-
+                var hashpassword = _a.HashPassWord(model.Password);
                 if (model.AvatarFile != null)
                 {
                     if (user.Avatar != null)
@@ -106,7 +111,7 @@ namespace Application.Service
                     //user.Name = model.Name;
                     user.Email = model.Email;
                 }
-                if (model.Password != null) user.Password = model.Password;
+                if (model.Password != null) user.Password = hashpassword;
                 
                 _u.Repository<User>().Update(user);
                 await _u.SaveChangesAsync();
@@ -265,17 +270,22 @@ namespace Application.Service
         }
 
         // Rating
-        public async Task<bool> Ratting(string username, RateBuyerRequest req)
+        public async Task<(bool,string)> Ratting(string username, RateBuyerRequest req)
         {
             try
-            {
+            {                 
                 var Userspec = new BaseSpecification<User>(x => x.Name == username);
                 var user = await _u.Repository<User>().FindOne(Userspec);
+                if (user.UserId == req.RatedUserId)
+                {
+                    return (false, "you can't rate your own"); 
+                }
+
                 var itemspec = new BaseSpecification<Item>(x => x.ItemId == req.ItemId);
                 var item = await _u.Repository<Item>().FindOne(itemspec);
-                if (user == null || item == null)
+                if (user == null || item == null || user.UserId == item.SellerId)
                 {
-                    return false;
+                    return (false,"cant rate for yourself");
                 }
                 else
                 {
@@ -300,13 +310,13 @@ namespace Application.Service
                     // TODO: signal r notify seller and winner
 
                     await _u.SaveChangesAsync();
-                    return true;
+                    return (true,"success");
                 }
             }
             catch (Exception e)
             {
                 await _u.RollBackChangesAsync();
-                return false;
+                return (false,"Fail actions");
             }
 
         }
@@ -463,6 +473,7 @@ namespace Application.Service
                     // TODO: insert notification rows                  
                     ah.WinnerId = user.UserId;                  
                     _u.Repository<AuctionHistory>().Update(ah);
+               
                 }
 
                 
@@ -582,9 +593,10 @@ namespace Application.Service
             catch (Exception e) { 
               await  _u.RollBackChangesAsync();
                 return false;
-            }
-           
+            }           
         }
+
+  
     }
 }
 

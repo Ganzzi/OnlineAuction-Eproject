@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace AuctionOnline.Controllers
 {
@@ -134,7 +135,7 @@ namespace AuctionOnline.Controllers
                 });
             }
             else {
-                return Accepted(new
+                return BadRequest(new
                 {
                     message = sellitem.Item2,
                 });
@@ -207,6 +208,11 @@ namespace AuctionOnline.Controllers
                             auctionHistory.Item1.Item.Title, 
                             auctionHistory.Item1.Item.SellerId, 
                             auctionHistory.Item1.WinnerId);
+
+                    var sellerMail = await _e.sendMailForSuccessBuyer(user.UserId, auctionHistory.Item.SellerId);
+                    _e.sendMail(sellerMail);
+                    var buyerMail = await _e.sendMailForSuccessSeller(auctionHistory.Item.SellerId,user.UserId);
+                    _e.sendMail(buyerMail);
                     return Ok(new
                     {
                         message = "Success Action, You are the winner!"
@@ -226,13 +232,6 @@ namespace AuctionOnline.Controllers
             }
         }
 
-        [Route("Test/{itemId}")]
-        [HttpGet]
-        public async Task<IActionResult> Test(int itemId)
-        {
-            var users = await _s.GetItemPaticipants(itemId);
-            return Ok(users);
-        }
         // get profile
         // TODO: get user basic (name, email, role, id,...) info base on token
         [Route("Profile")]
@@ -310,19 +309,23 @@ namespace AuctionOnline.Controllers
         {
             var token = HttpContext.Request.Headers["Authorization"];
             var username = _j.dataFormToken(token);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var RateAction = await _s.Ratting(username, req);
-            if (RateAction == false)
+            if (RateAction.Item1 == false)
             {
                 return BadRequest(new
                 {
-                    message = "Fail Action"
+                    message = RateAction.Item2
                 });
             }
             else
             {
                 return Ok(new
                 {
-                    message = "success"
+                    message = RateAction.Item2
                 });
             }
         }
