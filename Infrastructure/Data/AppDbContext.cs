@@ -211,7 +211,7 @@ namespace Infrastructure.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
             optionsBuilder.UseSqlServer(
-                       "Server=LINH;Database=AcutionDB;User ID=sa;Password=1234567;TrustServerCertificate=true;"
+                       "Server=localhost;Database=AuctionOnline;User ID=sa;Password=StrongPassword123@;TrustServerCertificate=true;"
                     );
 
             return new AppDbContext(optionsBuilder.Options);

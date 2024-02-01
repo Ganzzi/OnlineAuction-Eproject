@@ -33,12 +33,14 @@ namespace AuctionOnline.Controllers.Admin
 
             return Ok(new
             {
-                userData = listUser.Select(x => new
+                userData = listUser.Item2.Select(x => new
                 {
                     user = x.Key,
-                    avgRating = x.Value.Item1,
-                    bidCount = x.Value.Item2
-                }).ToArray()
+                    ratings = x.Value.Item1,
+                    avgRate =  x.Value.Item2,
+                    bidCount = x.Value.Item3
+                }).ToArray(),
+                count = listUser.Item1,
             });
         }
 
@@ -88,13 +90,16 @@ namespace AuctionOnline.Controllers.Admin
             [FromQuery] bool? belongtocategory = null
         )
         {
-            var Item = await _a.CategorylistItem(CategoryId, page, take, search, belongtocategory);
+            var Item = await _a.CategorylistItem(CategoryId, page, take, search ?? "", belongtocategory);
             if (Item.Item1 != null)
             {
                 return Ok(new
                 {
-                    Item = Item.Item1,
-                    CategoryItems = Item.Item2,
+                    Category = Item.Item1,
+                    Items = Item.Item2.Select(x => new {
+                        Item = x.Item1,
+                        belong = x.Item2
+                    }).ToList(),
                     Count = Item.Item3
                 });
             }
@@ -195,7 +200,7 @@ namespace AuctionOnline.Controllers.Admin
                     listItem = listItem.Item1.Select(x => new
                     {
                         Item = x.Key,
-                        AvgRate = x.Value.Item1,
+                        Categories = x.Value.Item1,
                         bidCount = x.Value.Item2,
                     }),
                     Countpage = listItem.Item2
@@ -215,21 +220,38 @@ namespace AuctionOnline.Controllers.Admin
         public async Task<IActionResult> ItemDetailWithListCategoryItems(int ItemId)
         {
             var Item = await _a.GetOneItemAndListCategoryItem(ItemId);
+
             if (Item.Item1 != null)
             {
+                var categories = Item.Item2.Select(categoryTuple => new
+                {
+                    Category = categoryTuple.Item1,
+                    Belong = categoryTuple.Item2 // Replace with the actual property name of the boolean value
+                }).ToList();
+
                 return Ok(new
                 {
                     Item = Item.Item1,
-                    CategoryItems = Item.Item2,
+                    Categories = categories,
                 });
             }
-            else
-            {
-                return NotFound(new
-                {
-                    message = "Fail Actions"
-                });
-            }
+
+            return NotFound();
+            // if (Item.Item1 != null)
+            // {
+            //     return Ok(new
+            //     {
+            //         Item = Item.Item1,
+            //         CategoryItems = Item.Item2,
+            //     });
+            // }
+            // else
+            // {
+            //     return NotFound(new
+            //     {
+            //         message = "Fail Actions"
+            //     });
+            // }
         }
     }
 

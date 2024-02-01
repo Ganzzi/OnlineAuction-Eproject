@@ -39,7 +39,7 @@ export const getListCategories: () => Promise<Category[]> = async () => {
   const url = new URL('https://localhost:7073/api/User/CategoriesWithTenItems')
 
   const response = await axios.get(url.toString(), {
-    httpsAgent: new https.Agent({ rejectUnauthorized: false }), // Ignore SSL certificate validation errors
+    httpsAgent: new https.Agent({ rejectUnauthorized: false }),
   });
 
   const categoriesData: Category[] = response.data;

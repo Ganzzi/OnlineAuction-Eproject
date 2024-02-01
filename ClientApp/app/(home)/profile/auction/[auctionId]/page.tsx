@@ -19,7 +19,7 @@ const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: nu
   const router = useRouter();
 
   const [auctionData, setAuctionData] = useState<AuctionHistory>();
-  const [ratingAmount, setRatingAmount] = useState<number>(0);
+  const [ ratingAmount, setRatingAmount] = useState<number>(0);
   const [errors, setErrors] = useState({
     message: "",
     ratingAmount: "",
@@ -35,6 +35,8 @@ const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: nu
         const res = await axiosService.get(`/api/user/AuctionHistoryDetail?AuctionHistoryId=${auctionId}`);
         const data: AuctionHistory = res.data;
 
+        console.log(data);
+        
         setAuctionData(data);
       } catch (error) {
         console.error('Error fetching auction data', error);
@@ -45,6 +47,14 @@ const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: nu
   }, [auctionId]);
 
   const handleRateBuyer = async () => {
+    if (ratingAmount < 1 || ratingAmount > 5) {
+      setErrors({
+        message: "",
+        ratingAmount: "please rate correctly from 1-5"
+      })
+      return
+    }
+    
     // Create RateBuyerRequest object
     const rateBuyerRequest: RateBuyerRequest = {
       ItemId: auctionData?.itemId || 0,
@@ -97,7 +107,13 @@ const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: nu
                       disabled={auctionData.winner == null ? true : false}
                       type="number"
                       value={ratingAmount}
-                      onChange={(e) => setRatingAmount(parseInt(e.target.value, 10))}
+                      onChange={(e) => {
+                        setRatingAmount(parseInt(e.target.value, 10))
+                        setErrors({
+                          message: "",
+                          ratingAmount: ''
+                        })
+                      }}
                       className="border border-gray-300 px-2 py-1 rounded-md focus:outline-none focus:border-blue-500"
                     />
                   </label>

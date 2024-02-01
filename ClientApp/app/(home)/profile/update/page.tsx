@@ -6,6 +6,7 @@ import { useGlobalState } from "@/context/globalState";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { User } from "@/types/models/user";
 
 type ProfileUpdatePayload = {
   name: string;
@@ -15,17 +16,21 @@ type ProfileUpdatePayload = {
   avatarFile: File | null;
 };
 
+const initUser = (user: User) => {
+  return {
+    name: user.name,
+    password: "",
+    retypePassword: "",
+    email: user.email ?? "",
+    avatarFile: null
+  }
+}
+
 const ProfileUpdatingPage: React.FC = () => {
   const router = useRouter();
-  const {user, isLoggedIn} = useGlobalState();
+  const { user, isLoggedIn } = useGlobalState();
   const [profileData, setProfileData] = useState<ProfileUpdatePayload>(
-    {
-      name: user.name,
-      password: "",
-      retypePassword: "",
-      email: user.email ?? "",
-      avatarFile: null
-    }
+    initUser(user)
   );
   const [errors, setErrors] = useState({
     message: "",
@@ -50,9 +55,101 @@ const ProfileUpdatingPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  // const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault();
 
+  //   if (!isLoggedIn) {
+  //     router.push("/auth/signin")
+  //   }
+
+  //   if (profileData.password !== profileData.retypePassword) {
+  //     setErrors({
+  //       ...errors,
+  //       message: "PLease confirm correct password",
+  //       retypePassword: "Wrong confirmation password"
+  //     })
+  //     return;
+  //   }
+
+  //   if (profileData.email == user.email && !profileData.password && !profileData.retypePassword && !profileData.avatarFile) {
+  //     setErrors({
+  //       ...errors,
+  //       message: "Nothing to update",
+  //     })
+  //     return;
+  //   }
+
+  //   try {
+  //     const formDataToSend = new FormData();
+  //     Object.entries(profileData).forEach(([key, value]) => {
+  //       if (value !== null && value !== undefined) {
+  //         formDataToSend.append(`user.${key}`, value.toString());
+  //       }
+  //     });
+
+  //     // Append the avatarFile to FormData
+  //     if (profileData.avatarFile) {
+  //       formDataToSend.append(`user.avatarFile`, profileData.avatarFile);
+  //     }   
+
+  //     // Send the POST request to the backend
+  //     await axiosService.post('/api/user/UpdateUser', formDataToSend, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //       }
+  //     }).then(() => {
+  //       router.push("/profile")
+  //     });
+
+  //   } catch (error) {
+  //     // Handle errors
+  //     console.error('Error during form submission', error);
+  //   }
+  // };
+
+  const handleEmailUpdate = async () => {
+    if (!isLoggedIn) {
+      router.push("/auth/signin")
+    }
+
+    if (profileData.email == user.email) {
+      setErrors({
+        ...errors,
+        message: "Nothing to update",
+        email: 'email not changed'
+      })
+      return;
+    }
+
+    try {
+      const formDataToSend = new FormData();
+
+      Object.entries(initUser(user)).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          if (key == "email") {
+            formDataToSend.append(`user.${key}`, profileData['email']);
+          } else {
+            formDataToSend.append(`user.${key}`, value.toString());
+          }
+        }
+      });
+
+      // Send the POST request to the backend
+      await axiosService.post('/api/user/UpdateUser', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      }).then(() => {
+        router.push("/profile")
+      });
+
+    } catch (error) {
+      // Handle errors
+      console.error('Error during form submission', error);
+    }
+  };
+
+  const handlePasswordUpdate = async () => {
     if (!isLoggedIn) {
       router.push("/auth/signin")
     }
@@ -66,17 +163,69 @@ const ProfileUpdatingPage: React.FC = () => {
       return;
     }
 
-    if (profileData.name === user.name && profileData.email == user.email && !profileData.password && !profileData.retypePassword && !profileData.avatarFile) {
+    if (!profileData.password) {
       setErrors({
         ...errors,
-        message: "Nothing to update",
+        message: "Please enter correct fields",
+        password: 'PLease enter this'
+      })
+      return;
+    }
+    if (!profileData.retypePassword) {
+      setErrors({
+        ...errors,
+        message: "Please enter correct fields",
+        retypePassword: 'PLease enter this'
       })
       return;
     }
 
     try {
       const formDataToSend = new FormData();
-      Object.entries(profileData).forEach(([key, value]) => {
+      Object.entries(initUser(user)).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          if (key == "password") {
+            formDataToSend.append(`user.${key}`, profileData['password']);
+          } else if (key == "retypePassword") {
+            formDataToSend.append(`user.${key}`, profileData['retypePassword']);
+          } else {
+            formDataToSend.append(`user.${key}`, value.toString());
+          }
+        }
+      });
+
+      // Send the POST request to the backend
+      await axiosService.post('/api/user/UpdateUser', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      }).then(() => {
+        router.push("/profile")
+      });
+
+    } catch (error) {
+      // Handle errors
+      console.error('Error during form submission', error);
+    }
+  };
+
+  const handleImageUpdate = async () => {
+    if (!isLoggedIn) {
+      router.push("/auth/signin")
+    }
+
+    if (!profileData.avatarFile) {
+      setErrors({
+        ...errors,
+        message: "Nothing to update",
+        avatarFile: 'please choose an image'
+      })
+      return;
+    }
+
+    try {
+      const formDataToSend = new FormData();
+      Object.entries(initUser(user)).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
           formDataToSend.append(`user.${key}`, value.toString());
         }
@@ -85,13 +234,15 @@ const ProfileUpdatingPage: React.FC = () => {
       // Append the avatarFile to FormData
       if (profileData.avatarFile) {
         formDataToSend.append(`user.avatarFile`, profileData.avatarFile);
-      }   
+      }
 
       // Send the POST request to the backend
       await axiosService.post('/api/user/UpdateUser', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }
+      }).then(() => {
+        router.push("/profile")
       });
 
     } catch (error) {
@@ -109,12 +260,14 @@ const ProfileUpdatingPage: React.FC = () => {
           </h3>
         </div>
 
-        <p className="text-meta-1 text-center">{errors.message}</p>
+        <p className="text-meta-1 text-center text-3xl">{errors.message}</p>
 
         <div className="p-7">
-          <form onSubmit={handleSubmit}>
+          <form
+          // onSubmit={handleSubmit}
+          >
             <div className="mb-5.5 flex flex-col gap-5.5 sm:flex-row">
-              <div className="w-full sm:w-1/2">
+              {/* <div className="w-full sm:w-1/2">
                 <label
                   className="mb-3 block text-sm font-medium text-black dark:text-white"
                   htmlFor="fullName"
@@ -157,9 +310,9 @@ const ProfileUpdatingPage: React.FC = () => {
                     onChange={(e) => handleInputChange("name", e.target.value)}
                   />
                 </div>
-              </div>
+              </div> */}
 
-              <div className="w-full sm:w-1/2">
+              <div className="w-full">
                 <label
                   className="mb-3 block text-sm font-medium text-black dark:text-white"
                   htmlFor="Email"
@@ -167,87 +320,115 @@ const ProfileUpdatingPage: React.FC = () => {
                   Email
                 </label>
                 <div className="relative">
-                <span className="absolute left-4.5 top-4">
-                  <svg
-                    className="fill-current"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <g opacity="0.8">
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M3.33301 4.16667C2.87658 4.16667 2.49967 4.54357 2.49967 5V15C2.49967 15.4564 2.87658 15.8333 3.33301 15.8333H16.6663C17.1228 15.8333 17.4997 15.4564 17.4997 15V5C17.4997 4.54357 17.1228 4.16667 16.6663 4.16667H3.33301ZM0.833008 5C0.833008 3.6231 1.9561 2.5 3.33301 2.5H16.6663C18.0432 2.5 19.1663 3.6231 19.1663 5V15C19.1663 16.3769 18.0432 17.5 16.6663 17.5H3.33301C1.9561 17.5 0.833008 16.3769 0.833008 15V5Z"
-                        fill=""
-                      />
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M0.983719 4.52215C1.24765 4.1451 1.76726 4.05341 2.1443 4.31734L9.99975 9.81615L17.8552 4.31734C18.2322 4.05341 18.7518 4.1451 19.0158 4.52215C19.2797 4.89919 19.188 5.4188 18.811 5.68272L10.4776 11.5161C10.1907 11.7169 9.80879 11.7169 9.52186 11.5161L1.18853 5.68272C0.811486 5.4188 0.719791 4.89919 0.983719 4.52215Z"
-                        fill=""
-                      />
-                    </g>
-                  </svg>
-                </span>
+                  <span className="absolute left-4.5 top-4">
+                    <svg
+                      className="fill-current"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g opacity="0.8">
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M3.33301 4.16667C2.87658 4.16667 2.49967 4.54357 2.49967 5V15C2.49967 15.4564 2.87658 15.8333 3.33301 15.8333H16.6663C17.1228 15.8333 17.4997 15.4564 17.4997 15V5C17.4997 4.54357 17.1228 4.16667 16.6663 4.16667H3.33301ZM0.833008 5C0.833008 3.6231 1.9561 2.5 3.33301 2.5H16.6663C18.0432 2.5 19.1663 3.6231 19.1663 5V15C19.1663 16.3769 18.0432 17.5 16.6663 17.5H3.33301C1.9561 17.5 0.833008 16.3769 0.833008 15V5Z"
+                          fill=""
+                        />
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M0.983719 4.52215C1.24765 4.1451 1.76726 4.05341 2.1443 4.31734L9.99975 9.81615L17.8552 4.31734C18.2322 4.05341 18.7518 4.1451 19.0158 4.52215C19.2797 4.89919 19.188 5.4188 18.811 5.68272L10.4776 11.5161C10.1907 11.7169 9.80879 11.7169 9.52186 11.5161L1.18853 5.68272C0.811486 5.4188 0.719791 4.89919 0.983719 4.52215Z"
+                          fill=""
+                        />
+                      </g>
+                    </svg>
+                  </span>
+                  <input
+                    className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                    type="email"
+                    name="Email"
+                    id="Email"
+                    placeholder="Enter your email"
+                    value={profileData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                  />
+                   <p className="text-meta-1 text-center">{errors.email}</p>
+                </div>
+                <div className="flex items-center justify-center mt-3">
+
+                  <button
+                    className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
+                    type="button"
+                    onClick={handleEmailUpdate}
+                    >
+                    Update Email
+                  </button>
+                    </div>
+              </div>
+            </div>
+
+            <div>
+
+              <div className="mb-5.5">
+                <label
+                  className="mb-3 block text-sm font-medium text-black dark:text-white"
+                  htmlFor="password"
+                >
+                  Password
+                </label>
                 <input
-                  className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                  type="email"
-                  name="Email"
-                  id="Email"
-                  placeholder="Enter your email"
-                  value={profileData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                  type="text"
+                  name="password"
+                  id="password"
+                  placeholder="password"
+                  value={profileData.password}
+                  onChange={(e) => handleInputChange("password", e.target.value)}
+                />
+
+              </div>
+              <p className="text-meta-1 text-center">{errors.password}</p>
+
+              <div className="mb-5.5">
+                <label
+                  className="mb-3 block text-sm font-medium text-black dark:text-white"
+                  htmlFor="retypePassword"
+                >
+                  Retype Password
+                </label>
+                <input
+                  className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                  type="text"
+                  name="retypePassword"
+                  id="retypePassword"
+                  placeholder="retype password"
+                  value={profileData.retypePassword}
+                  onChange={(e) => handleInputChange("retypePassword", e.target.value)}
                 />
               </div>
-              </div>
-            </div>
+              <p className="text-meta-1 text-center">{errors.retypePassword}</p>
 
-            <div className="mb-5.5">
-              <label
-                className="mb-3 block text-sm font-medium text-black dark:text-white"
-                htmlFor="password"
-              >
-                Password
-              </label>
-              <input
-                className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                type="text"
-                name="password"
-                id="password"
-                placeholder="password"
-                value={profileData.password}
-                onChange={(e) => handleInputChange("password", e.target.value)}
-                />
-            </div>
+              <div className="flex items-center justify-center mt-3">
 
-            <div className="mb-5.5">
-              <label
-                className="mb-3 block text-sm font-medium text-black dark:text-white"
-                htmlFor="retypePassword"
-              >
-                Retype Password
-              </label>
-              <input
-                className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                type="text"
-                name="retypePassword"
-                id="retypePassword"
-                placeholder="retype password"
-                value={profileData.retypePassword}
-                onChange={(e) => handleInputChange("retypePassword", e.target.value)}
-                />
+              <button
+                className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
+                type="button"
+                onClick={handlePasswordUpdate}
+                >
+                Update Password
+              </button>
+                </div>
             </div>
 
             <div>
               <label
-                    className="mb-3 block text-sm font-medium text-black dark:text-white"
-                    htmlFor="fullName"
-                  >
-                    Your photo
-                  </label>
+                className="mb-3 block text-sm font-medium text-black dark:text-white"
+                htmlFor="fullName"
+              >
+                Your photo
+              </label>
 
               <div className="mb-4 flex items-center gap-3">
                 <div className="h-14 w-14 rounded-full">
@@ -272,11 +453,23 @@ const ProfileUpdatingPage: React.FC = () => {
                   </span>
                 </div>
               </div>
-            </div>
 
             <FileUpload onFileChange={handleFileChange} />
+            <p className="text-meta-1 text-center">{errors.avatarFile}</p>
 
-            <div className="flex justify-end gap-4.5">
+            <div className="flex flex-col items-center justify-center mt-3">
+              {profileData?.avatarFile && profileData?.avatarFile?.name}
+              <button
+                className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
+                type="button"
+                onClick={handleImageUpdate}
+              >
+                Update Image
+              </button>
+            </div>
+            </div>
+
+            {/* <div className="flex justify-end gap-4.5">
               <button
                 className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                 type="reset"
@@ -290,7 +483,7 @@ const ProfileUpdatingPage: React.FC = () => {
               >
                 Save
               </button>
-            </div>
+            </div> */}
 
 
           </form>

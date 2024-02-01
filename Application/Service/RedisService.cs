@@ -65,7 +65,7 @@ namespace Application.Interface
             return new JsonSerializerOptions
             {
                 ReferenceHandler = ReferenceHandler.Preserve,
-                MaxDepth = 64 // Set the maximum depth as needed
+                MaxDepth = 32 // Set the maximum depth as needed
             };
         }
 

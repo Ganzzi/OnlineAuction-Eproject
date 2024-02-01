@@ -19,9 +19,14 @@ builder.Services.AddAppService(appSettings);
 builder.Services.AddInfrastructureServices(appSettings);
 
 // Add services to the container.
-builder.Services.AddControllers();
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
+// builder.Services.AddControllers().AddJsonOptions(x =>
+// {
+//     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+// });
+
 
 builder.Services.AddAuthentication(x =>
 {

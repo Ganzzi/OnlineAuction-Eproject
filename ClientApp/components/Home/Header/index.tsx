@@ -19,7 +19,7 @@ const Header = () => {
           <Link href={'/'} className={`${!pathname.startsWith("/items") && !pathname.startsWith("/profile") ? "text-meta-7" : ""}`}>
             <Image
               className=""
-              src={"/images/logo/logo.svg"}
+              src={"/images/logo/newlogo.png"}
               alt="Logo"
               width={176}
               height={32}
