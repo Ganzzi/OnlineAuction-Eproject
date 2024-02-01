@@ -12,17 +12,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240131041408_NewMigration")]
-    partial class NewMigration
+    [Migration("20240131155151_V0")]
+    partial class V0
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("DomainLayer.Entities.Models.AuctionHistory", b =>
                 {
@@ -30,7 +31,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuctionHistoryId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuctionHistoryId"));
 
                     b.Property<DateTime?>("Created")
                         .HasColumnType("datetime2");
@@ -82,7 +83,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BidId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BidId"));
 
                     b.Property<float>("BidAmount")
                         .HasColumnType("real");
@@ -115,7 +116,7 @@ namespace Infrastructure.Migrations
                         {
                             BidId = 1,
                             BidAmount = 100f,
-                            BidDate = new DateTime(2024, 1, 31, 11, 14, 7, 873, DateTimeKind.Local).AddTicks(1779),
+                            BidDate = new DateTime(2024, 1, 31, 22, 51, 51, 110, DateTimeKind.Local).AddTicks(9615),
                             ItemId = 1,
                             UserId = 1
                         },
@@ -123,7 +124,7 @@ namespace Infrastructure.Migrations
                         {
                             BidId = 2,
                             BidAmount = 200f,
-                            BidDate = new DateTime(2024, 1, 31, 11, 14, 7, 873, DateTimeKind.Local).AddTicks(1802),
+                            BidDate = new DateTime(2024, 1, 31, 22, 51, 51, 110, DateTimeKind.Local).AddTicks(9626),
                             ItemId = 2,
                             UserId = 2
                         });
@@ -135,7 +136,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("CategoryId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("CategoryId"));
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
@@ -159,14 +160,14 @@ namespace Infrastructure.Migrations
                         new
                         {
                             CategoryId = 1,
-                            CategoryName = "Category 1",
-                            Description = "Description for Category 1"
+                            CategoryName = "Sports",
+                            Description = "Get the latest scoop on your favorite sports teams and players, plus expert analysis and commentary on the biggest games and events"
                         },
                         new
                         {
                             CategoryId = 2,
-                            CategoryName = "Category 2",
-                            Description = "Description for Category 2"
+                            CategoryName = "Health",
+                            Description = "Stay healthy and informed with our comprehensive coverage of health and wellness"
                         });
                 });
 
@@ -176,7 +177,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
@@ -219,7 +220,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ItemId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ItemId"));
 
                     b.Property<DateTime?>("Created")
                         .HasColumnType("datetime2");
@@ -296,7 +297,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
 
                     b.Property<DateTime?>("Created")
                         .HasColumnType("datetime2");
@@ -332,7 +333,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RatingId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RatingId"));
 
                     b.Property<DateTime?>("Created")
                         .HasColumnType("datetime2");
@@ -357,7 +358,8 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("RatingId");
 
-                    b.HasIndex("ItemId");
+                    b.HasIndex("ItemId")
+                        .IsUnique();
 
                     b.HasIndex("RatedUserId");
 
@@ -373,7 +375,7 @@ namespace Infrastructure.Migrations
                             Rate = 4.5f,
                             RatedUserId = 2,
                             RaterId = 1,
-                            RatingDate = new DateTime(2024, 1, 31, 11, 14, 7, 873, DateTimeKind.Local).AddTicks(1880)
+                            RatingDate = new DateTime(2024, 1, 31, 22, 51, 51, 110, DateTimeKind.Local).AddTicks(9676)
                         },
                         new
                         {
@@ -382,7 +384,7 @@ namespace Infrastructure.Migrations
                             Rate = 4f,
                             RatedUserId = 1,
                             RaterId = 2,
-                            RatingDate = new DateTime(2024, 1, 31, 11, 14, 7, 873, DateTimeKind.Local).AddTicks(1883)
+                            RatingDate = new DateTime(2024, 1, 31, 22, 51, 51, 110, DateTimeKind.Local).AddTicks(9678)
                         });
                 });
 
@@ -392,7 +394,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RefreshTokeId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RefreshTokeId"));
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
@@ -425,7 +427,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<string>("Avatar")
                         .HasColumnType("nvarchar(max)");
@@ -468,7 +470,7 @@ namespace Infrastructure.Migrations
                             Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             Email = "batman123@gmail.com",
                             Name = "batman",
-                            Password = "123",
+                            Password = "b6d66b8e89f46d29fc7480552e5cd34747c0c7a3017364329e9299c3f1df01d3",
                             Role = "User"
                         },
                         new
@@ -477,7 +479,7 @@ namespace Infrastructure.Migrations
                             Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             Email = "ironman123@gmail.com",
                             Name = "ironman",
-                            Password = "123",
+                            Password = "9a44c472f319b374d598c106619b6b02a7c9577bc7826e8061f288b72a388c0e",
                             Role = "User"
                         },
                         new
@@ -486,7 +488,7 @@ namespace Infrastructure.Migrations
                             Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             Email = "admin123@gmail.com",
                             Name = "admin",
-                            Password = "123",
+                            Password = "60fe74406e7f353ed979f350f2fbb6a2e8690a5fa7d1b0c32983d1d8b3f95f67",
                             Role = "Admin"
                         });
                 });
@@ -578,8 +580,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("DomainLayer.Entities.Models.Rating", b =>
                 {
                     b.HasOne("DomainLayer.Entities.Models.Item", "Item")
-                        .WithMany("Rating")
-                        .HasForeignKey("ItemId")
+                        .WithOne("Rating")
+                        .HasForeignKey("DomainLayer.Entities.Models.Rating", "ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

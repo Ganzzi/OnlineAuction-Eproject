@@ -68,7 +68,6 @@ namespace Application.Service
             }
         }
 
-       //hash password
         public string HashPassWord(string password)
         {
             using (var sha256 = SHA256.Create())

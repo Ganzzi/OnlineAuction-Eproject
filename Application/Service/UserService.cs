@@ -17,6 +17,7 @@ namespace Application.Service
     {
         private readonly IUnitOfWork _u;
         private readonly IphotoService _p;
+
         private readonly IAuthService _a;
         private readonly IresetEmailService _r;
         public UserService(IUnitOfWork u, IphotoService p, IAuthService a,IresetEmailService r)
@@ -437,15 +438,25 @@ namespace Application.Service
         }
 
         // place bid
-        public async Task<(AuctionHistory, bool)> PlaceABid(PlaceBidRequest req, User user)
+        public async Task<(AuctionHistory, string)> PlaceABid(PlaceBidRequest req, User user)
         {
             try
             {
+                var speclistBid = new BaseSpecification<Bid>(x => x.ItemId == req.ItemId).AddInclude(x => x.Include(x => x.Item));
+                var listBid = await _u.Repository<Bid>().ListAsynccheck(speclistBid);
+                var maxbid  = listBid.OrderByDescending(x => x.BidAmount).FirstOrDefault();
                 var Item = await _u.Repository<Item>().FindOne(new BaseSpecification<Item>(i => i.ItemId == req.ItemId));
-                
+              
+                if (req.Amount < (maxbid.BidAmount +  maxbid.Item.IncreasingAmount))
+                {
+                    return (null,"Not valid Price");
+                }
+
+    
                 if (Item == null)
                 {
-                    return (null, false);
+                    //false
+                    return (null, "Item not exit");
                 }
 
                 if (Item.SellerId == user.UserId)
@@ -458,7 +469,8 @@ namespace Application.Service
                 
                 if (ah.WinnerId != null)    
                 {
-                    return (ah, false);
+                    //false
+                    return (ah, "The winner has been decided");
                 }
 
                 var specBid = new BaseSpecification<Bid>(x => x.ItemId == req.ItemId);
@@ -478,12 +490,14 @@ namespace Application.Service
 
                 
                 await _u.SaveChangesAsync();
-                return (ah, true);
+                //true
+                return (ah, "success Action");
             }
             catch (Exception e)
             {
                 await _u.RollBackChangesAsync();
-                return (null, false);
+                //false
+                return (null, "Fail Action");
             }
 
         }

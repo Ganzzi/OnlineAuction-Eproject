@@ -189,14 +189,14 @@ namespace AuctionOnline.Controllers
 
             if (auctionHistory.Item1 != null)
             {
-                if (auctionHistory.Item1.WinnerId == null && auctionHistory.Item2 == true)
+                if (auctionHistory.Item1.WinnerId == null)
                 {
                     return Ok(new
                     {
-                        message = "Success Action"
+                        message = auctionHistory.Item2
                     });
                 }
-                if (auctionHistory.Item1.WinnerId == user.UserId && auctionHistory.Item2 == true)
+                if (auctionHistory.Item1.WinnerId == user.UserId)
                 {
                     //
                     var sendNotification = await _s.AuctionEnd(auctionHistory.Item1.ItemId);
@@ -215,19 +215,19 @@ namespace AuctionOnline.Controllers
                     _e.sendMail(buyerMail);
                     return Ok(new
                     {
-                        message = "Success Action, You are the winner!"
+                        message = auctionHistory.Item2
                     });
                 }
                 return BadRequest(new
                 {
-                    message = "Item's winner has been identified"
+                    message = auctionHistory.Item2
                 });
             }
             else
             {
                 return BadRequest(new
                 {
-                    message = "Item not exist or error"
+                    message = auctionHistory.Item2
                 });
             }
         }

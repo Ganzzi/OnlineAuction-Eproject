@@ -31,7 +31,7 @@ namespace DomainLayer.Entities.Models
         public int SellerId { get; set; }
 
         [InverseProperty("Item")]
-        public ICollection<Rating>? Rating {get; set;}
+        public Rating? Rating {get; set;}
         
         public ICollection<Bid>? Bids { get; set; }
 
