@@ -26,11 +26,13 @@ namespace Application.Service
         private readonly IConfiguration _config;
         private readonly AppDbContext _data;
         private readonly IUnitOfWork _u;
-        public ResetEmailService(IConfiguration config, IUnitOfWork u, AppDbContext data)
+        private readonly IAuthService authService;
+        public ResetEmailService(IConfiguration config, IUnitOfWork u, AppDbContext data, IAuthService _authService)
         {
             _config = config;
             _u = u;
             _data = data;
+            authService = _authService;
         }
 
         public bool sendMail(EmailModel email)
@@ -73,16 +75,17 @@ namespace Application.Service
         {
             try
             {
-                var specUserEmail = new BaseSpecification<User>(x => x.Email == email);
-                var UserEmail = await _u.Repository<User>().FindOne(specUserEmail);
-                if (UserEmail == null)
+                var spec = new BaseSpecification<User>(x => x.Email.Equals(email));
+                var user = await _u.Repository<User>().FindOne(spec);
+            
+                if (user == null)
                 {
                     return null;
                 }
                 var tokenByte = RandomNumberGenerator.GetBytes(64);
                 var emailToken = Convert.ToBase64String(tokenByte);
-                UserEmail.tokenResetPassword = emailToken;
-                UserEmail.ResetExpire = DateTime.Now.AddMinutes(15);
+                user.tokenResetPassword = emailToken;
+                user.ResetExpire = DateTime.Now.AddMinutes(15);
                 await _u.SaveChangesAsync();
                 var bodyemail = new EmailModel(email, "Reset Password", EmailBody.EmailStringBody(email, emailToken));
                 return bodyemail;
@@ -106,11 +109,11 @@ namespace Application.Service
                 var newToken = model.EmailToken.Replace(" ", "+");
                 var specUser = new BaseSpecification<User>(x => x.Email == model.Email);
                 var user = await _u.Repository<User>().FindOne(specUser);
-                if (newToken != model.EmailToken || user.ResetExpire < DateTime.Now)
+                if (newToken != user.tokenResetPassword || user.ResetExpire < DateTime.Now)
                 {
                     return -1;
                 }
-                user.Password = model.PasswordReset.ToString();
+                user.Password = authService.HashPassWord(model.PasswordReset.ToString());
                 _data.Attach(user);
                 _data.Entry(user).State = EntityState.Modified;
                 await _u.SaveChangesAsync();

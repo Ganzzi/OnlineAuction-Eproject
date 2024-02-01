@@ -1,7 +1,6 @@
 ﻿using Application.DTO;
 using Application.Interface;
 using Application.Service;
-using Azure.Core;
 using DomainLayer.Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -41,8 +40,7 @@ namespace AuctionOnline.Controllers
             var User = await _authService.Login(model);
             if (User == null)
             {
-
-                return BadRequest();
+                return Unauthorized();
             }
             var token = await _jwt.CreateToken(User);
             var RefreshToken = await  _jwt.createRrefreshtoken(User.UserId);

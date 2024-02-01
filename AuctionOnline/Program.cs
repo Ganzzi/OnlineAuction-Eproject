@@ -1,22 +1,32 @@
 ﻿using Application;
 using AuctionOnline.SignalRHub;
 using DomainLayer.Entities;
-using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var appSettings = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .Build();
 
-builder.Services.AddControllers();
+builder.Services.AddAppService(appSettings);  
+builder.Services.AddInfrastructureServices(appSettings);
+
+// Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-//Add configServcie 
-builder.Services.AddAppService(builder.Configuration);  
-builder.Services.AddInfrastructureServices(builder.Configuration);
+
+// builder.Services.AddControllers().AddJsonOptions(x =>
+// {
+//     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+// });
+
 
 builder.Services.AddAuthentication(x =>
 {

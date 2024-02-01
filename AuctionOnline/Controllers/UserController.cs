@@ -118,13 +118,19 @@ namespace AuctionOnline.Controllers
                         var sendNotification = await _s.AuctionEnd(sellitem.Item1.ItemId);
 
                         await _hubContext.Clients.Group($"item_{req.Item.ItemId}")
-                            .SendAsync("AuctionEnded", sellitem.Item1.ItemId, sellitem.Item1.SellerId);
+                            .SendAsync(
+                                "AuctionEnded", 
+                                sellitem.Item1.ItemId, 
+                                sellitem.Item1.Title, 
+                                sellitem.Item1.SellerId, 
+                                -1);
                         timer.Dispose(); 
                     }
                 }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1)); 
 
                 return Ok(new
                 {
+                    itemId = sellitem.Item1.ItemId,
                     message = sellitem.Item2,
                 });
             }
@@ -154,6 +160,7 @@ namespace AuctionOnline.Controllers
             {
                 return Ok(new
                 {
+                    itemId = req.Item.ItemId,
                     message = responforUpdateItem.Item2
                 });
             }
@@ -178,23 +185,30 @@ namespace AuctionOnline.Controllers
 
             var auctionHistory = await _s.PlaceABid(req, user);
 
-            if (auctionHistory != null)
+            await _s.NotifyParticipants(req.ItemId, $"{user.UserId} has place a new bid on {req.ItemId}");
+
+            if (auctionHistory.Item1 != null)
             {
-                if (auctionHistory.WinnerId == null)
+                if (auctionHistory.Item1.WinnerId == null && auctionHistory.Item2 == true)
                 {
                     return Ok(new
                     {
                         message = "Success Action"
                     });
                 }
-                if (auctionHistory.WinnerId == user.UserId)
+                if (auctionHistory.Item1.WinnerId == user.UserId && auctionHistory.Item2 == true)
                 {
-
                     //
-                    var sendNotification = await _s.AuctionEnd(auctionHistory.ItemId);
+                    var sendNotification = await _s.AuctionEnd(auctionHistory.Item1.ItemId);
 
-                    await _hubContext.Clients.Group($"item_{auctionHistory.Item.ItemId}")
-                        .SendAsync("AuctionEnded", auctionHistory.Item.ItemId, auctionHistory.Item.SellerId);
+                    await _hubContext.Clients.Group($"item_{auctionHistory.Item1.Item.ItemId}")
+                        .SendAsync(
+                            "AuctionEnded", 
+                            auctionHistory.Item1.Item.ItemId, 
+                            auctionHistory.Item1.Item.Title, 
+                            auctionHistory.Item1.Item.SellerId, 
+                            auctionHistory.Item1.WinnerId);
+
                     var sellerMail = await _e.sendMailForSuccessBuyer(user.UserId, auctionHistory.Item.SellerId);
                     _e.sendMail(sellerMail);
                     var buyerMail = await _e.sendMailForSuccessSeller(auctionHistory.Item.SellerId,user.UserId);
@@ -314,7 +328,6 @@ namespace AuctionOnline.Controllers
                     message = RateAction.Item2
                 });
             }
-
         }
 
         //update user
@@ -324,27 +337,60 @@ namespace AuctionOnline.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateUser([FromForm] User user)
         {
+            var token = HttpContext.Request.Headers["Authorization"];
+            var foundUser = await _s.getUser(_j.dataFormToken(token));
+            user.UserId = foundUser.UserId;
+
             var userupdate = await _s.UpdateUser(user);
-            if (userupdate != null)
+            if (userupdate.Item1 != null)
             {
                 return Ok(new
                 {
-                    message = "success update"
+                    message = userupdate.Item2
                 });
             }
             else
             {
                 return BadRequest(new
                 {
-                    message = "Fail Actions"
+                    message = userupdate.Item2
                 });
             }
         }
 
+        // TODO
+        //checkEmail and send link reset
+        [Route("checkemailandsendlink")]
+        [HttpPost]
+        public async Task<IActionResult> checkemailandsendlink(string email)
+        {
+            var checkEmail = await _e.CheckEmailAndTokenEmail(email);
+            if (checkEmail == null)
+            {
+                return BadRequest(new
+                {
+                    message = "No Email exit"
+                });
+            }
+            if (_e.sendMail(checkEmail))
+            {
+                return Ok(new
+                {
+                    message = "Success Action"
+                });
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    message = "Fail to send Reset link"
+                });
+            }
+        }
 
         // TODO
         //reset Email
-        [Route("resetpassword")]
+        [Route("ResetPassword")]
         [HttpPost]
         public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
         {

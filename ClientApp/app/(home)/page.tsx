@@ -7,8 +7,8 @@ import CategoryCard from "@/components/Home/CategoryCard";
 import { category1, category2, categoryItem1, categoryItem2 } from "@/data/item";
 import { Category } from "@/types/models/category";
 import axios from "axios";
-import { Metadata } from "next";
 import { useEffect, useState } from "react";
+import https from 'https'
 
 export default function Home() {
   const [categoryData, setCategoryData] = useState<Category[]>([]);
@@ -16,7 +16,9 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axiosService.get("/api/user/CategoriesWithTenItems");
+        const res = await axios.get("https://localhost:7073/api/user/CategoriesWithTenItems", {
+          httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+        });
         const data: Category[] = res.data;
         setCategoryData(data);
       } catch (error) {

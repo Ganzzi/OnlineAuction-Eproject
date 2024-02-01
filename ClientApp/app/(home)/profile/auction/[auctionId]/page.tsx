@@ -15,18 +15,28 @@ type RateBuyerRequest = {
 }
 
 const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: number } }) => {
-  const { user } = useGlobalState();
+  const { user, isLoggedIn } = useGlobalState();
   const router = useRouter();
 
   const [auctionData, setAuctionData] = useState<AuctionHistory>();
-  const [ratingAmount, setRatingAmount] = useState<number>(0);
+  const [ ratingAmount, setRatingAmount] = useState<number>(0);
+  const [errors, setErrors] = useState({
+    message: "",
+    ratingAmount: "",
+  })
 
   useEffect(() => {
+    if (!isLoggedIn) {
+      router.push("/auth/signin")
+    }
+
     const fetchAuctionData = async () => {
       try {
         const res = await axiosService.get(`/api/user/AuctionHistoryDetail?AuctionHistoryId=${auctionId}`);
         const data: AuctionHistory = res.data;
 
+        console.log(data);
+        
         setAuctionData(data);
       } catch (error) {
         console.error('Error fetching auction data', error);
@@ -37,26 +47,36 @@ const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: nu
   }, [auctionId]);
 
   const handleRateBuyer = async () => {
-    try {
-      // Create RateBuyerRequest object
-      const rateBuyerRequest: RateBuyerRequest = {
-        ItemId: auctionData?.itemId || 0,
-        RatedUserId: auctionData?.winnerId || 0,
-        RatingAmount: ratingAmount,
-      };
-
-      // Post to /api/user/ratebuyer
-      await axiosService.post('/api/user/ratebuyer', rateBuyerRequest);
-
-      // Handle success, e.g., show a success message
-      console.log('Successfully rated the buyer');
-
-      // Optionally, redirect to another page after rating
-      router.push(`/items/${auctionData?.itemId}`);
-    } catch (error) {
-      console.error('Error rating the buyer', error);
-      // Handle error, e.g., show an error message
+    if (ratingAmount < 1 || ratingAmount > 5) {
+      setErrors({
+        message: "",
+        ratingAmount: "please rate correctly from 1-5"
+      })
+      return
     }
+    
+    // Create RateBuyerRequest object
+    const rateBuyerRequest: RateBuyerRequest = {
+      ItemId: auctionData?.itemId || 0,
+      RatedUserId: auctionData?.winnerId || 0,
+      RatingAmount: ratingAmount,
+    };
+
+    // Post to /api/user/ratebuyer
+    await axiosService.post('/api/user/ratebuyer', rateBuyerRequest)
+      .then((res) => {
+        if (res.status == 200) {
+          router.push(`/items/${auctionData?.itemId}`);
+        }
+      })
+      .catch((e) => {
+        if (e?.response?.status == 400) {
+          setErrors({
+            message: e?.response?.data?.errors?.message,
+            ratingAmount: e?.response?.data?.errors?.ratingAmount,
+          });
+        }
+      });
   };
 
   return (
@@ -79,13 +99,21 @@ const AuctionHistoryPage = ({ params: { auctionId } }: { params: { auctionId: nu
                 </div>
               ) : (
                 <div className="items-center flex flex-col">
+                  <p className='text-meta-3'>{errors.message}</p>
+                  <p className='text-meta-1'>{errors.ratingAmount}</p>
                   <label className="block mb-2">
                     Rating Amount:
                     <input
                       disabled={auctionData.winner == null ? true : false}
                       type="number"
                       value={ratingAmount}
-                      onChange={(e) => setRatingAmount(parseInt(e.target.value, 10))}
+                      onChange={(e) => {
+                        setRatingAmount(parseInt(e.target.value, 10))
+                        setErrors({
+                          message: "",
+                          ratingAmount: ''
+                        })
+                      }}
                       className="border border-gray-300 px-2 py-1 rounded-md focus:outline-none focus:border-blue-500"
                     />
                   </label>

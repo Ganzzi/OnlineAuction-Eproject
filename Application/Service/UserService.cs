@@ -3,6 +3,7 @@ using DomainLayer.Core;
 using DomainLayer.Entities.Models;
 using DomainLayer.SpecificationPattern;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,8 +32,7 @@ namespace Application.Service
         {
             try
             {
-                var categoryspec = new BaseSpecification<Category>()
-                ;
+                var categoryspec = new BaseSpecification<Category>();
                     //  .AddInclude(x => x.Include(x => x.CategoryItems).ThenInclude(x => x.Item));
                 var liscategory = await _u.Repository<Category>().ListAsynccheck(categoryspec);
 
@@ -40,13 +40,15 @@ namespace Application.Service
                 {
                     var cateItemSpec = new BaseSpecification<CategoryItem>
                         (ci => ci.CategoryId == item.CategoryId)
-                        .AddInclude(q => q.Include(ci => ci.Item))
+                        .AddInclude(q => q.Include(ci => ci.Item).ThenInclude(i => i.Bids)
+                        .Include(ci => ci.Item).ThenInclude(i => i.AuctionHistory).ThenInclude(ah => ah.Winner).Include(ci => ci.Item).ThenInclude(i => i.Seller))
                         .ApplyPaging(0, 10)
                         .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
                         item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
                 }
 
                 return liscategory;
+
             }
             catch (Exception e)
             {
@@ -78,36 +80,47 @@ namespace Application.Service
         }
 
         // update User => img
-        public async Task<User> UpdateUser(User model)
+        public async Task<(User, string)> UpdateUser(User model)
         {
             try
             {
-                var Userspec = new BaseSpecification<User>(x => x.Name == model.Name);
+                var Userspec = new BaseSpecification<User>(x => x.UserId == model.UserId);
                 var user = await _u.Repository<User>().FindOne(Userspec);
+
+                var user_with_email_exist_spec = new BaseSpecification<User>(x => x.Email.Equals(model.Email));
+                var user_with_email_exist = await _u.Repository<User>().FindOne(user_with_email_exist_spec);
+
+                if (user_with_email_exist != null)
+                {
+                    return (null, "Email Already in use");
+                }
                 var hashpassword = _a.HashPassWord(model.Password);
                 if (model.AvatarFile != null)
                 {
-                    var deleteCloudinary = await _p.DeletPhoto(user.Avatar);
+                    if (user.Avatar != null)
+                    {
+                        await _p.DeletPhoto(user.Avatar);   
+                    }
                     var CloudinaryUserAvatar = await _p.addPhoto(model.AvatarFile);
-                    user.Name = model.Name;
+                    // user.Name = model.Name;
                     user.Email = model.Email;
                     user.Avatar = CloudinaryUserAvatar;
                 }
                 else 
                 {
-                    user.Name = model.Name;
+                    //user.Name = model.Name;
                     user.Email = model.Email;
                 }
                 if (model.Password != null) user.Password = hashpassword;
                 
                 _u.Repository<User>().Update(user);
                 await _u.SaveChangesAsync();
-                return user;
+                return (user, "update success");
             }
             catch (Exception e)
             {
                 await _u.RollBackChangesAsync();
-                return null;
+                return (null, "update fail");
             }
 
         }
@@ -125,7 +138,9 @@ namespace Application.Service
                 var count = await _u.Repository<Item>().CountAsync(iSpec);
                  iSpec = iSpec
                             .ApplyPaging(skip, take)
-                            .AddInclude(x => x.Include(x => x.Bids))
+                            .AddInclude(x => x.Include(x => x.Bids)
+                            .Include(i => i.Seller)
+                            .Include(i => i.AuctionHistory).ThenInclude(ah => ah.Winner))
                             .ApplyOrderBy(x => order == "date" ? x.StartDate : x.Title);
                 
                 var listItem = await _u.Repository<Item>().ListAsynccheck(iSpec);
@@ -146,7 +161,14 @@ namespace Application.Service
             try
             {
                 var itemspec = new BaseSpecification<Item>(x => x.ItemId == id)
-                    .AddInclude(x => x.Include(x => x.Bids).Include(x => x.AuctionHistory).Include(x => x.CategoryItems).ThenInclude(ci => ci.Category).Include(x => x.Seller));
+                    .AddInclude(x => x
+                    .Include(x => x.Bids)
+                    .Include(x => x.AuctionHistory)
+                        .ThenInclude(ah => ah.Winner)
+                    .Include(x => x.CategoryItems)
+                        .ThenInclude(ci => ci.Category)
+                    .Include(x => x.Seller));
+                    
                 var item = await _u.Repository<Item>().FindOne(itemspec);
                 if (item != null)
                 {
@@ -175,6 +197,12 @@ namespace Application.Service
                 {
                     return (null, "require: ReservePrice > StartingPrice");
                 }
+                if (req.Item.StartingPrice != 0 && req.Item.IncreasingAmount < req.Item.StartingPrice * 0.1)
+                {
+                    return (null, "require: IncreasingAmount > 10% StartingPrice");
+                } else if (req.Item.StartingPrice == 0 && req.Item.IncreasingAmount < 10) {
+                    return (null, "require: IncreasingAmount > $10 when StartingPrice is zero");
+                }
                 if (req.Item.StartDate > req.Item.EndDate)
                 {
                     return (null, "require: StartDate < EndDate");
@@ -190,7 +218,12 @@ namespace Application.Service
                 if (existingItem != null)
                 {
                     // Item with the same title already exists
-                    return (null,"change title");
+                    return (null,"title already exist in another item");
+                }
+
+                if (req.Item.ImageFile == null)
+                {
+                    return (null, "require: item image"); ; ;
                 }
 
                 // Add the item with the associated image
@@ -263,6 +296,18 @@ namespace Application.Service
                     Ratting.ItemId = req.ItemId;
                     Ratting.Rate = req.RatingAmount;
                     await _u.Repository<Rating>().AddAsync(Ratting);
+                    await _u.Repository<Notification>().AddAsync(new Notification(){
+                        UserId = req.RatedUserId,
+                        NotificationContent = $"You has been rated {req.RatingAmount} star by {user.UserId}",
+                        ItemId = req.ItemId
+                    });
+                    await _u.Repository<Notification>().AddAsync(new Notification(){
+                        UserId = user.UserId,
+                        NotificationContent = $"You has rated {req.RatedUserId} {req.RatingAmount} star",
+                        ItemId = req.ItemId
+                    });
+
+                    // TODO: signal r notify seller and winner
 
                     await _u.SaveChangesAsync();
                     return (true,"success");
@@ -291,6 +336,10 @@ namespace Application.Service
                 {
                     return (false, "require: ReservePrice > StartingPrice");
                 }
+                if (req.Item.IncreasingAmount < req.Item.StartingPrice * 0.1)
+                {
+                    return (false, "require: IncreasingAmount > 10% StartingPrice");
+                }
                 if (req.Item.StartDate > req.Item.EndDate)
                 {
                     return (false, "require: StartDate < EndDate");
@@ -303,7 +352,7 @@ namespace Application.Service
                 {
                     return (false, "require: new StartDate > old StartDate");
                 }
-                var newItem = new Item();
+                var newItem = finditem;
                 newItem.Title = req.Item.Title;
                 newItem.Description = req.Item.Description;
                 newItem.ReservePrice = req.Item.ReservePrice;
@@ -353,7 +402,7 @@ namespace Application.Service
 
                 await _u.SaveChangesAsync();
 
-                return (false, message);
+                return (true, "Update Item Success");
             }
             catch (Exception e)
             {
@@ -388,7 +437,7 @@ namespace Application.Service
         }
 
         // place bid
-        public async Task<AuctionHistory> PlaceABid(PlaceBidRequest req, User user)
+        public async Task<(AuctionHistory, bool)> PlaceABid(PlaceBidRequest req, User user)
         {
             try
             {
@@ -396,7 +445,12 @@ namespace Application.Service
                 
                 if (Item == null)
                 {
-                    return null;
+                    return (null, false);
+                }
+
+                if (Item.SellerId == user.UserId)
+                {
+                    return (null, false);
                 }
 
                 var ah = await _u.Repository<AuctionHistory>()
@@ -404,7 +458,7 @@ namespace Application.Service
                 
                 if (ah.WinnerId != null)    
                 {
-                    return ah;
+                    return (ah, false);
                 }
 
                 var specBid = new BaseSpecification<Bid>(x => x.ItemId == req.ItemId);
@@ -421,15 +475,47 @@ namespace Application.Service
                     _u.Repository<AuctionHistory>().Update(ah);
                
                 }
+
+                
                 await _u.SaveChangesAsync();
-                return ah;
+                return (ah, true);
             }
             catch (Exception e)
             {
                 await _u.RollBackChangesAsync();
-                return null;
+                return (null, false);
             }
 
+        }
+
+        public async Task NotifyParticipants(int ItemId, string Content) {
+            var participants = await GetItemPaticipants(ItemId);
+            foreach (var item in participants)
+            {
+                await _u.Repository<Notification>().AddAsync(new Notification() {
+                    ItemId = ItemId,
+                    UserId = item.UserId,
+                    NotificationContent = Content,
+                    NotificationDate = DateTime.Now
+                });
+            }
+            await _u.SaveChangesAsync();
+        }
+
+        public async Task<IList<User>> GetItemPaticipants(int itemId)
+        {
+            var bidSpec = new BaseSpecification<Bid>(x => x.ItemId == itemId)
+                .AddInclude(q => q.Include(b => b.User));
+
+            var bids = await _u.Repository<Bid>().ListAsynccheck(bidSpec);
+
+            var distinctUserIds = bids.Select(b => b.UserId).Distinct();
+
+            var distinctUsers = await _u.Repository<User>().ListAsynccheck(
+                new BaseSpecification<User>(u => distinctUserIds.Contains(u.UserId))
+            );
+
+            return distinctUsers.ToList();
         }
 
         //Profile details
@@ -475,12 +561,27 @@ namespace Application.Service
                     NotificationDate = DateTime.Now,
                 };
                     
+                var participants = await GetItemPaticipants(ItemId);
+                foreach (var item in participants)
+                {
+                    if (item.UserId != Auct.Winner.UserId)
+                    {   
+                        await _u.Repository<Notification>().AddAsync(new Notification() {
+                            ItemId = ItemId,
+                            UserId = item.UserId,
+                            NotificationContent = $"{Auct.Item.Title} has end",
+                            NotificationDate = DateTime.Now
+                        });
+                    }
+                }
+                await _u.SaveChangesAsync();                
+
                 // winner
                 var winnerNoti = new Notification
                 {
                     ItemId = ItemId,
                     UserId = Auct.Winner.UserId,
-                    NotificationContent = "your are the winner",
+                    NotificationContent = $"{Auct.Item.Title} has end. you are the winner",
                     NotificationDate = DateTime.Now,
                 };
                 await _u.Repository<Notification>().AddAsync(sellerNoti);

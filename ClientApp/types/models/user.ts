@@ -1,6 +1,7 @@
 import { AuctionHistory } from "./auctionHistory"
 import { Bid } from "./bid"
 import { Item } from "./item"
+import { Notification } from "./notification"
 import { Rating } from "./rating"
 
 export type User = {
@@ -20,5 +21,5 @@ export type User = {
     beingRateds?: Rating[],
     averageBeingRated?: number,
     auctionHistories?: AuctionHistory[]
-    notifications?: Notification
+    notifications?: Notification[]
 }

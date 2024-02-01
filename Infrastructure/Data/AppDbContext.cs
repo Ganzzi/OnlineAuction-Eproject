@@ -11,10 +11,7 @@ namespace Infrastructure.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-        {
-
-        }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
         public DbSet<User> Usertable { get; set; }
         public DbSet<Bid> BidTable { get; set; }
         public DbSet<AuctionHistory> AuctionHistory { get; set; }
@@ -200,8 +197,11 @@ namespace Infrastructure.Data
               .HasForeignKey(c => c.RatedUserId)
               .OnDelete(DeleteBehavior.Restrict);
         }
-
     }
+
+    /// <summary>
+    /// For development only (migrations and database update)
+    /// </summary>
     public class BloggingContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     {
         public AppDbContext CreateDbContext(string[] args)

@@ -12,7 +12,7 @@ namespace Application.Interface
         //
         Task<List<(User, int, int, int)>> ListAllUser(int take, int page);
         //
-        Task<IDictionary<User, (int, int)>> ListAllUserWithRatingAndBidCount(int take,int page);
+        Task<(int, IDictionary<User, (int,int, int)>)> ListAllUserWithRatingAndBidCount(int take,int page);
         Task<IDictionary<Category, int>> ListAllCategoryAndCountItem();
         Task<bool> LockOrUnlock(int userId);
         Task<bool> CreateCategory(Category category);
@@ -20,8 +20,8 @@ namespace Application.Interface
         
         Task<Item> takeOneItem(int id);
         Task<bool> addOrDeleteItemForCate(int CategoryId, int ItemId);
-        Task<(Category, IList<CategoryItem>, int)> CategorylistItem(int id, int page, int take, string searchName, bool? belongtocategory);
+        Task<(Category, IList<(Item,  bool)>, int)> CategorylistItem(int id, int page, int take, string searchName, bool? belongtocategory);
         Task<(IDictionary<Item, (int, int)>, int)> getListItemhaveCount(int page, int take);
-        Task<(Item, IList<CategoryItem>)> GetOneItemAndListCategoryItem(int id);
+        Task<(Item, IList<(Category,  bool)>)> GetOneItemAndListCategoryItem(int id);
     }
 }

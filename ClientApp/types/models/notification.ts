@@ -3,8 +3,8 @@ import { User } from "./user"
 
 export type Notification = {
     notificationId: number,
-    notificationContent: number,
-    notificationDate: Date,
+    notificationContent: string,
+    notificationDate: string,
 
     userId: number,
     user?: User,

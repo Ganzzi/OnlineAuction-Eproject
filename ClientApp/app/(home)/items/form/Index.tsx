@@ -7,6 +7,7 @@ import { Category } from "@/types/models/category"
 import { Item } from "@/types/models/item"
 import { useEffect, useState } from "react"
 import { MultiSelect, Option } from "react-multi-select-component"
+import { useRouter } from "next/navigation"
 
 type PageProps = {
   item?: Item,
@@ -19,8 +20,10 @@ type SellItemPayload = {
   categories: Category[]
 }
 
-const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => {  
-  const {user} = useGlobalState();
+const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => {
+  const { user, isLoggedIn } = useGlobalState();
+  const router = useRouter();
+
   const initialFormData: SellItemPayload = {
     item: {
       itemId: 0,
@@ -44,24 +47,35 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
 
   const [formData, setFormData] = useState<SellItemPayload>(initialFormData);
   const [selectedCategories, setSelectedCategories] = useState<Option[]>([]);
+  const [resMessage, setResMessage] = useState({
+    title: "",
+    description: "",
+    categories: "",
+    content: "",
+    color: ""
+  });
 
   useEffect(() => {
     if (item) {
       setFormData((prevFormData) => ({
         ...prevFormData,
-        item: item,
+        item: {
+          ...prevFormData.item,
+          ...item,
+          startingPrice: prevFormData.item.startingPrice !== 0 ? prevFormData.item.startingPrice : item.startingPrice,
+          increasingAmount: prevFormData.item.increasingAmount !== 0 ? prevFormData.item.increasingAmount : item.increasingAmount,
+        },
       }));
     } if (existedCategories) {
       setSelectedCategories(existedCategories.map(cate => ({
         value: cate.categoryId,
-        label: cate.categoryName
+        label: cate.categoryName,
+        key: cate.description
       })))
     }
   }, [])
 
   const handleFileChange = (file: File) => {
-    console.log('get a file: '+ file.name);
-    
     setFormData((prevFormData) => ({
       ...prevFormData,
       item: {
@@ -73,10 +87,14 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
+    if (!isLoggedIn) {
+      router.push("/auth/signin")
+    }
+
     try {
       const formDataToSend = new FormData();
-  
+
       // Append item fields to FormData
       Object.entries(formData.item).forEach(([key, value]) => {
         // Check for undefined values before appending to FormData
@@ -84,7 +102,7 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
           formDataToSend.append(`item.${key}`, value.toString());
         }
       });
-  
+
       // Append imageFile to FormData
       if (formData.item.imageFile) {
         formDataToSend.append('item.ImageFile', formData.item.imageFile);
@@ -93,26 +111,52 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
       selectedCategories.forEach((category, index) => {
         formDataToSend.append(`categories[${index}].categoryId`, category.value.toString());
         formDataToSend.append(`categories[${index}].categoryName`, category.label);
+        formDataToSend.append(`categories[${index}].Description`, category?.key ?? "");
       });
 
-      console.log(Array.from(formDataToSend));
-  
-      const res = await axiosService.post(`/api/user/${item == undefined ? "sellItem" : "updateItem"}`, formDataToSend, {
+      await axiosService.post(`/api/user/${item == undefined ? "sellItem" : "updateItem"}`, formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-      });
+      }).then((res) => {
+        if (res.status == 200) {
+          setResMessage({
+            ...resMessage,
+            content: res.data?.message,
+            color: "meta-4"
+          })
+
+          router.push("/items/" + res.data?.itemId);
+        }
+      }).catch((e) => {
+        if (e?.response?.status === 400) {
+          const errors = e?.response?.data?.errors;
+          
+          setResMessage({
+            content: e?.response?.data?.message,
+            title: errors?.['Item.Title'] ? errors['Item.Title'][0] : '',
+            description: errors?.['Item.Description'] ? errors['Item.Description'][0] : '',
+            categories: errors?.Categories ? errors.Categories[0] : '',
+            color: "meta-1",
+          });
+        }
+
+
+      })
     } catch (error) {
       console.error('Error during form submission', error);
     }
   };
-  
-  
+
+
 
   return (
     <form onSubmit={handleSubmit}>
+      <p className={`text-${resMessage.color} text-center`}>{resMessage.content}</p>
       <div>
         <label className="mb-3 block text-black dark:text-white">Title</label>
+        <p className={`text-${resMessage.color}`}>{resMessage.title}</p>
+
         <input
           type="text"
           placeholder="Title"
@@ -124,6 +168,7 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
 
       <div>
         <label className="mb-3 block text-black dark:text-white">Description</label>
+        <p className={`text-${resMessage.color}`}>{resMessage.description}</p>
         <input
           type="text"
           placeholder="Description"
@@ -134,7 +179,13 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
       </div>
       <div>
         <label className="mb-3 block text-black dark:text-white">File</label>
+        <p className="text-center text-meta-3">File choosen: {formData.item.imageFile?.name ?? "No file choosen"}</p>
+        <div className="flex flex-row items-center">
+          {item?.image && (
+            <img src={item.image} className="w-36 h-36" alt="" />
+          )}
         <FileUpload onFileChange={handleFileChange} />
+        </div>
       </div>
 
       <div>
@@ -172,11 +223,14 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
 
       <div>
         <label className="mb-3 block text-black dark:text-white">Categories</label>
+        <p className={`text-meta-1`}>{resMessage.categories}</p>
+
         <MultiSelect
           options={categories.map(cate => {
             return {
               label: cate.categoryName,
               value: cate.categoryId,
+              key: cate.description
             }
           })}
           value={selectedCategories}
@@ -189,8 +243,8 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
         <label className="mb-3 block text-black dark:text-white">Start Date</label>
         <input
           type="date"
-          value={formData.item.startDate}
-          onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, startDate: e.target.value }, }))}
+          value={formData.item.startDate.substring(0, 10)} // Extracting the date part
+          onChange={(e) => setFormData((prev) => ({ ...prev, item: { ...prev.item, startDate: e.target.value }, }))}
           className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
         />
       </div>
@@ -199,16 +253,17 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
         <label className="mb-3 block text-black dark:text-white">End Date</label>
         <input
           type="date"
-          value={formData.item.endDate}
-          onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, endDate: e.target.value }, }))}
+          value={formData.item.endDate.substring(0, 10)} // Extracting the date part
+          onChange={(e) => setFormData((prev) => ({ ...prev, item: { ...prev.item, endDate: e.target.value }, }))}
           className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
         />
       </div>
 
+
       {/* Add more fields as needed */}
 
       <button type="submit" className="mt-4 bg-primary text-white py-3 px-6 rounded-lg">
-        Create Item
+        {!item ? "Create Item" : "Update Item"}
       </button>
     </form>
   );

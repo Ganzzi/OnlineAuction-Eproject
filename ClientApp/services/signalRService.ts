@@ -2,10 +2,10 @@ import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signal
 
 type SignalRService = {
     hubConnection: HubConnection | null;
-    onAuctionEnded: (callback: (itemId: number, sellerId: number) => void) => void;
-    offAuctionEnded: (callback: (itemId: number, sellerId: number) => void) => void;
-    onSomeoneJoinItemRoom: (callback: (itemId: number, userId: number, bidAmount: number) => void) => void;
-    offSomeoneJoinItemRoom: (callback: (itemId: number, userId: number, bidAmount: number) => void) => void;
+    onAuctionEnded: (callback: (itemId: number, itemTitle: string, sellerId: number, winnerId: number) => void) => void;
+    offAuctionEnded: (callback: (itemId: number, itemTitle: string, sellerId: number, winnerId: number) => void) => void;
+    onSomeoneJoinItemRoom: (callback: (itemId: number, itemTitle: string, userId: number, username: string, bidAmount: number) => void) => void;
+    offSomeoneJoinItemRoom: (callback: (itemId: number, itemTitle: string, userId: number, username: string, bidAmount: number) => void) => void;
   
     startConnection: (userId: number) => Promise<void>;
     closeConnection: (userId: number) => Promise<void>;
@@ -14,24 +14,24 @@ type SignalRService = {
 
 const signalRService: SignalRService = {
   hubConnection: null,
-  onAuctionEnded: (callback: (itemId: number, sellerId: number) => void) => {
+  onAuctionEnded: (callback: (itemId: number, itemTitle: string, sellerId: number, winnerId: number) => void) => {
     if (signalRService.hubConnection && signalRService.hubConnection.state === 'Connected') {
       signalRService.hubConnection.on('AuctionEnded', callback);
     }
   },
-  offAuctionEnded: (callback: (itemId: number, sellerId: number) => void) => {
+  offAuctionEnded: (callback: (itemId: number, itemTitle: string, sellerId: number, winnerId: number) => void) => {
     if (signalRService.hubConnection && signalRService.hubConnection.state === 'Connected') {
       signalRService.hubConnection.off('AuctionEnded', callback);
     }
   },
-  onSomeoneJoinItemRoom: (callback: (itemId: number, userId: number, bidAmount: number) => void) => {
+  onSomeoneJoinItemRoom: (callback: (itemId: number, itemTitle: string, userId: number, username: string, bidAmount: number) => void) => {
     if (signalRService.hubConnection && signalRService.hubConnection.state === 'Connected') { 
-      signalRService.hubConnection.on('someonejoinitemroom', callback);
+      signalRService.hubConnection.on('SomeoneJoinItemRoom', callback);
     }
   },
-  offSomeoneJoinItemRoom: (callback: (itemId: number, userId: number, bidAmount: number) => void) => {
+  offSomeoneJoinItemRoom: (callback: (itemId: number, itemTitle: string, userId: number, username: string, bidAmount: number) => void) => {
     if (signalRService.hubConnection && signalRService.hubConnection.state === 'Connected') {
-        signalRService.hubConnection.off('someonejoinitemroom', callback);
+        signalRService.hubConnection.off('SomeoneJoinItemRoom', callback);
     }
 },
 

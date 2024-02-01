@@ -7,11 +7,11 @@ import { User } from "@/types/models/user";
 
 // Fake data for User type
 const user1: User = {
-    userId: -1,
-    name: 'john_doe',
-    email: 'john.doe@example.com',
-    password: 'password123',
-    role: 'user',
+    userId: 0,
+    name: '',
+    email: '',
+    password: '',
+    role: 'Disable',
     avatar : "/images/user/user-06.png"
 };
 
@@ -55,9 +55,9 @@ const item1: Item = {
 
 
 const auctionHistory1: AuctionHistory = {
-    autionHistoryId: 201,
+    auctionHistoryId: 201,
     winningBid: 1300,
-    endDate: new Date('2024-03-01T12:00:00Z'),
+    endDate: new Date('2024-03-01T12:00:00Z').toDateString(),
     winnerId: user1.userId,
     winner: user1,
     itemId: item1.itemId,
@@ -65,9 +65,9 @@ const auctionHistory1: AuctionHistory = {
 };
   
 const auctionHistory2: AuctionHistory = {
-    autionHistoryId: 202,
+    auctionHistoryId: 202,
     winningBid: 900,
-    endDate: new Date('2024-03-02T14:30:00Z'),
+    endDate: new Date('2024-03-02T14:30:00Z').toDateString(),
     winnerId: user2.userId,
     winner: user2,
     itemId: item2.itemId,

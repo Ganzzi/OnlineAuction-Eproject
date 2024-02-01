@@ -11,15 +11,18 @@ namespace Application.Interface
     {
         Task<IList<Category>> categorylist();
         Task<User> getUser(string username);
-        Task<User> UpdateUser(User model);
+        Task<(User, string)> UpdateUser(User model);
         Task<Item> getItemById(int id);
         Task<(IList<Item>, int)> searchItem(int page, int take, string search, string order, int? cate);
         Task<(Item,string)> sellItem(SellItemReqest req);
         Task<(bool,string)> Ratting(string username, RateBuyerRequest req);
         Task<(bool,string)> updateItem(SellItemReqest req);
         Task<AuctionHistory> GetAcutionHistory(string username, int id);
-        Task<AuctionHistory> PlaceABid(PlaceBidRequest req, User user);
+        Task<(AuctionHistory, bool)> PlaceABid(PlaceBidRequest req, User user);
         Task<(User, int)> getProfileDetail(string username);
         Task<bool> AuctionEnd(int ItemId);
+
+        Task<IList<User>> GetItemPaticipants(int itemId);
+        Task NotifyParticipants(int ItemId, string Content);
     }
 }
