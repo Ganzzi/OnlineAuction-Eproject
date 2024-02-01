@@ -134,7 +134,7 @@ namespace AuctionOnline.Controllers
                 });
             }
             else {
-                return BadRequest(new
+                return Accepted(new
                 {
                     message = sellitem.Item2,
                 });
@@ -339,18 +339,18 @@ namespace AuctionOnline.Controllers
             user.UserId = foundUser.UserId;
 
             var userupdate = await _s.UpdateUser(user);
-            if (userupdate != null)
+            if (userupdate.Item1 != null)
             {
                 return Ok(new
                 {
-                    message = "success update"
+                    message = userupdate.Item2
                 });
             }
             else
             {
                 return BadRequest(new
                 {
-                    message = "Fail Actions"
+                    message = userupdate.Item2
                 });
             }
         }

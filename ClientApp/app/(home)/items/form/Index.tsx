@@ -131,7 +131,7 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
       }).catch((e) => {
         if (e?.response?.status === 400) {
           const errors = e?.response?.data?.errors;
-
+          
           setResMessage({
             content: e?.response?.data?.message,
             title: errors?.['Item.Title'] ? errors['Item.Title'][0] : '',

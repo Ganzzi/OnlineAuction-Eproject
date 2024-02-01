@@ -16,12 +16,10 @@ namespace Application.Service
     {
         private readonly IUnitOfWork _u;
         private readonly IphotoService _p;
-        private readonly RedisService _redisService;
-        public UserService(IUnitOfWork u, IphotoService p, RedisService redisService)
+        public UserService(IUnitOfWork u, IphotoService p)
         {
             _u = u;
             _p = p;
-            _redisService = redisService;
         }
 
         // categorylist 
@@ -29,29 +27,6 @@ namespace Application.Service
         {
             try
             {
-                // var value = await _redisService.GetCachedData<Category[]>("list_category");
-
-                // if (value == null)
-                // {
-                //     var categoryspec = new BaseSpecification<Category>();
-                //         //  .AddInclude(x => x.Include(x => x.CategoryItems).ThenInclude(x => x.Item));
-                //     var liscategory = await _u.Repository<Category>().ListAsynccheck(categoryspec);
-
-                //     foreach (var item in liscategory)
-                //     {
-                //         var cateItemSpec = new BaseSpecification<CategoryItem>
-                //             (ci => ci.CategoryId == item.CategoryId)
-                //             .AddInclude(q => q.Include(ci => ci.Item))
-                //             .ApplyPaging(0, 10)
-                //             .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
-                //             item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
-                //     }
-                //     value = liscategory.ToArray();
-                //     _redisService.SetCachedData<Category[]>("list_category", value, TimeSpan.FromSeconds(200));
-                // }
-
-                // return value.ToList();
-
                 var categoryspec = new BaseSpecification<Category>();
                     //  .AddInclude(x => x.Include(x => x.CategoryItems).ThenInclude(x => x.Item));
                 var liscategory = await _u.Repository<Category>().ListAsynccheck(categoryspec);
@@ -60,7 +35,7 @@ namespace Application.Service
                 {
                     var cateItemSpec = new BaseSpecification<CategoryItem>
                         (ci => ci.CategoryId == item.CategoryId)
-                        .AddInclude(q => q.Include(ci => ci.Item))
+                        .AddInclude(q => q.Include(ci => ci.Item).ThenInclude(i => i.Bids))
                         .ApplyPaging(0, 10)
                         .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
                         item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
@@ -99,12 +74,20 @@ namespace Application.Service
         }
 
         // update User => img
-        public async Task<User> UpdateUser(User model)
+        public async Task<(User, string)> UpdateUser(User model)
         {
             try
             {
                 var Userspec = new BaseSpecification<User>(x => x.UserId == model.UserId);
                 var user = await _u.Repository<User>().FindOne(Userspec);
+
+                var user_with_email_exist_spec = new BaseSpecification<User>(x => x.Email.Equals(model.Email));
+                var user_with_email_exist = await _u.Repository<User>().FindOne(user_with_email_exist_spec);
+
+                if (user_with_email_exist != null)
+                {
+                    return (null, "Email Already in use");
+                }
 
                 if (model.AvatarFile != null)
                 {
@@ -113,25 +96,25 @@ namespace Application.Service
                         await _p.DeletPhoto(user.Avatar);   
                     }
                     var CloudinaryUserAvatar = await _p.addPhoto(model.AvatarFile);
-                    user.Name = model.Name;
+                    // user.Name = model.Name;
                     user.Email = model.Email;
                     user.Avatar = CloudinaryUserAvatar;
                 }
                 else 
                 {
-                    user.Name = model.Name;
+                    //user.Name = model.Name;
                     user.Email = model.Email;
                 }
                 if (model.Password != null) user.Password = model.Password;
                 
                 _u.Repository<User>().Update(user);
                 await _u.SaveChangesAsync();
-                return user;
+                return (user, "update success");
             }
             catch (Exception e)
             {
                 await _u.RollBackChangesAsync();
-                return null;
+                return (null, "update fail");
             }
 
         }
@@ -205,6 +188,12 @@ namespace Application.Service
                 if (req.Item.ReservePrice < req.Item.StartingPrice)
                 {
                     return (null, "require: ReservePrice > StartingPrice");
+                }
+                if (req.Item.StartingPrice != 0 && req.Item.IncreasingAmount < req.Item.StartingPrice * 0.1)
+                {
+                    return (null, "require: IncreasingAmount > 10% StartingPrice");
+                } else if (req.Item.StartingPrice == 0 && req.Item.IncreasingAmount < 10) {
+                    return (null, "require: IncreasingAmount > $10 when StartingPrice is zero");
                 }
                 if (req.Item.StartDate > req.Item.EndDate)
                 {

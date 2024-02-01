@@ -11,7 +11,7 @@ namespace Application.Interface
     {
         Task<IList<Category>> categorylist();
         Task<User> getUser(string username);
-        Task<User> UpdateUser(User model);
+        Task<(User, string)> UpdateUser(User model);
         Task<Item> getItemById(int id);
         Task<(IList<Item>, int)> searchItem(int page, int take, string search, string order, int? cate);
         Task<(Item,string)> sellItem(SellItemReqest req);

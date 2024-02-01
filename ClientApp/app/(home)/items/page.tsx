@@ -59,13 +59,14 @@ const fetchItems = async (searchParams: SearchParams): Promise<ItemProps> => {
   url.searchParams.set("search",  search)
   url.searchParams.set("cate",  cate)
 
-  console.log(url.toString());
-
   const response = await axios.get(url.toString(), {
     httpsAgent: new https.Agent({ rejectUnauthorized: false }), // Ignore SSL certificate validation errors
   });
 
   const res = response.data;  
+
+  console.log(res);
+  
 
   const items: Item[] = res?.listSearch;
   const total = res?.count;  
