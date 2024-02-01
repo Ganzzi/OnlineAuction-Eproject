@@ -40,7 +40,7 @@ const SignIn: React.FC = () => {
     e.preventDefault();
 
     await axios.post(
-      "https://localhost:7073/api/auth/signin", 
+      process.env.NEXT_PUBLIC_SERVER_URL+"/api/auth/signin", 
       JSON.stringify(payload),
       {
         headers: {

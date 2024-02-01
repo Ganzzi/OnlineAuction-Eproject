@@ -87,7 +87,7 @@ namespace Application.Service
                 user.tokenResetPassword = emailToken;
                 user.ResetExpire = DateTime.Now.AddMinutes(15);
                 await _u.SaveChangesAsync();
-                var bodyemail = new EmailModel(email, "Reset Password", EmailBody.EmailStringBody(email, emailToken));
+                var bodyemail = new EmailModel(email, "Reset Password", EmailBody.EmailStringBody(email, emailToken, _config));
                 return bodyemail;
             }
             catch (Exception e)

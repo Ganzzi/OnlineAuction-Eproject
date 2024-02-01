@@ -23,7 +23,7 @@ const existedCategories = [
 ]
 
 const getItemById: (itemId: number) => Promise<[Item, Category[]]> = async (itemId: number) => {
-  const url = new URL('https://localhost:7073/api/User/getItemById')
+  const url = new URL(process.env.NEXT_PUBLIC_SERVER_URL+'/api/User/getItemById')
   url.searchParams.set("id", itemId.toString());
 
   const response = await axios.get(url.toString(), {
@@ -36,7 +36,7 @@ const getItemById: (itemId: number) => Promise<[Item, Category[]]> = async (item
 };
 
 export const getListCategories: () => Promise<Category[]> = async () => {
-  const url = new URL('https://localhost:7073/api/User/CategoriesWithTenItems')
+  const url = new URL(process.env.NEXT_PUBLIC_SERVER_URL+'/api/User/CategoriesWithTenItems')
 
   const response = await axios.get(url.toString(), {
     httpsAgent: new https.Agent({ rejectUnauthorized: false }),

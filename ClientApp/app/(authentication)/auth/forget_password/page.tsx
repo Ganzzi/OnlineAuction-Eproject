@@ -37,7 +37,7 @@ const SignIn: React.FC = () => {
     }
 
     await axios.post(
-      "https://localhost:7073/api/user/checkemailandsendlink?email="+payload,
+      process.env.NEXT_PUBLIC_SERVER_URL+"/api/user/checkemailandsendlink?email="+payload,
       {
         headers: {
           "Content-Type": "application/json"

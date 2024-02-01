@@ -16,7 +16,7 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get("https://localhost:7073/api/user/CategoriesWithTenItems", {
+        const res = await axios.get(process.env.NEXT_PUBLIC_SERVER_URL+"/api/user/CategoriesWithTenItems", {
           httpsAgent: new https.Agent({ rejectUnauthorized: false }),
         });
         const data: Category[] = res.data;

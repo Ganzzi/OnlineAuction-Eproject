@@ -49,7 +49,7 @@ const SignUp: React.FC = () => {
     }
 
     await axios.post(
-      "https://localhost:7073/api/auth/signup",
+      process.env.NEXT_PUBLIC_SERVER_URL+"/api/auth/signup",
       JSON.stringify(payload),
       {
         headers: {

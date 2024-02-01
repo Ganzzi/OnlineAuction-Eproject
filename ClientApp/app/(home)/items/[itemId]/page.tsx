@@ -19,7 +19,7 @@ const itemData: Item = {
 };
 
 const fetchItemData: (itemId: number) => Promise<Item> = async (itemId: number) => {
-  const url = new URL('https://localhost:7073/api/User/getItemById')
+  const url = new URL(process.env.NEXT_PUBLIC_SERVER_URL+'/api/User/getItemById')
   url.searchParams.set("id", itemId.toString());
 
   const response = await axios.get(url.toString(), {

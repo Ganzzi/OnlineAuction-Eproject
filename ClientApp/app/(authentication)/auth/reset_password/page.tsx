@@ -50,7 +50,7 @@ const ResetPassword = ({ searchParams }: { searchParams: SearchParams }) => {
     const {passwordReset, confirmPassword} = payload;
 
     await axios.post(
-      "https://localhost:7073/api/user/ResetPassword", 
+      process.env.NEXT_PUBLIC_SERVER_URL+"/api/user/ResetPassword", 
       JSON.stringify({
         email: searchParams?.email as string ?? "",
         emailToken: searchParams?.code as string ?? "",

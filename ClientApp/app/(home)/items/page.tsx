@@ -52,7 +52,7 @@ const fetchItems = async (searchParams: SearchParams): Promise<ItemProps> => {
     cate = searchParams.cate;
   }
 
-  const url = new URL('https://localhost:7073/api/User/ListItemsWithQuery')
+  const url = new URL(process.env.NEXT_PUBLIC_SERVER_URL+'/api/User/ListItemsWithQuery')
   url.searchParams.set('page', page.toString())
   url.searchParams.set('take', perPage.toString())
   url.searchParams.set('order', order)

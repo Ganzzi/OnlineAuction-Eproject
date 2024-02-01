@@ -37,7 +37,7 @@ const signalRService: SignalRService = {
 
   startConnection: async (userId) => {
     signalRService.hubConnection = new HubConnectionBuilder()
-      .withUrl('https://localhost:7073/auctionHub')
+      .withUrl(process.env.NEXT_PUBLIC_SERVER_URL+'/auctionHub')
       .configureLogging(LogLevel.Information)
       .build();
 
