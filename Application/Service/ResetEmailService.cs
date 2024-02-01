@@ -107,7 +107,7 @@ namespace Application.Service
                 var newToken = model.EmailToken.Replace(" ", "+");
                 var specUser = new BaseSpecification<User>(x => x.Email == model.Email);
                 var user = await _u.Repository<User>().FindOne(specUser);
-                if (newToken != model.EmailToken || user.ResetExpire < DateTime.Now)
+                if (newToken != user.tokenResetPassword || user.ResetExpire < DateTime.Now)
                 {
                     return -1;
                 }

@@ -29,28 +29,45 @@ namespace Application.Service
         {
             try
             {
-                var value = await _redisService.GetCachedData<Category[]>("list_category");
+                // var value = await _redisService.GetCachedData<Category[]>("list_category");
 
-                if (value == null)
+                // if (value == null)
+                // {
+                //     var categoryspec = new BaseSpecification<Category>();
+                //         //  .AddInclude(x => x.Include(x => x.CategoryItems).ThenInclude(x => x.Item));
+                //     var liscategory = await _u.Repository<Category>().ListAsynccheck(categoryspec);
+
+                //     foreach (var item in liscategory)
+                //     {
+                //         var cateItemSpec = new BaseSpecification<CategoryItem>
+                //             (ci => ci.CategoryId == item.CategoryId)
+                //             .AddInclude(q => q.Include(ci => ci.Item))
+                //             .ApplyPaging(0, 10)
+                //             .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
+                //             item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
+                //     }
+                //     value = liscategory.ToArray();
+                //     _redisService.SetCachedData<Category[]>("list_category", value, TimeSpan.FromSeconds(200));
+                // }
+
+                // return value.ToList();
+
+                var categoryspec = new BaseSpecification<Category>();
+                    //  .AddInclude(x => x.Include(x => x.CategoryItems).ThenInclude(x => x.Item));
+                var liscategory = await _u.Repository<Category>().ListAsynccheck(categoryspec);
+
+                foreach (var item in liscategory)
                 {
-                    var categoryspec = new BaseSpecification<Category>();
-                        //  .AddInclude(x => x.Include(x => x.CategoryItems).ThenInclude(x => x.Item));
-                    var liscategory = await _u.Repository<Category>().ListAsynccheck(categoryspec);
-
-                    foreach (var item in liscategory)
-                    {
-                        var cateItemSpec = new BaseSpecification<CategoryItem>
-                            (ci => ci.CategoryId == item.CategoryId)
-                            .AddInclude(q => q.Include(ci => ci.Item))
-                            .ApplyPaging(0, 10)
-                            .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
-                            item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
-                    }
-                    value = liscategory.ToArray();
-                    _redisService.SetCachedData<Category[]>("list_category", value, TimeSpan.FromSeconds(200));
+                    var cateItemSpec = new BaseSpecification<CategoryItem>
+                        (ci => ci.CategoryId == item.CategoryId)
+                        .AddInclude(q => q.Include(ci => ci.Item))
+                        .ApplyPaging(0, 10)
+                        .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
+                        item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
                 }
 
-                return value.ToList();
+                return liscategory;
+
             }
             catch (Exception e)
             {

@@ -76,7 +76,7 @@ const ResetPassword = ({ searchParams }: { searchParams: SearchParams }) => {
           email: e?.response?.data?.errors?.Email ?? "",
           emailToken: e?.response?.data?.errors?.EmailToken ?? "",
           passwordReset: e?.response?.data?.errors?.PasswordReset ?? "",
-          confirmPassword: e?.response?.data?.errors?.ConfirmPassword ?? "",
+          confirmPassword: e?.response?.data?.errors?.ConfirmPassWord ?? "",
 
         })
       }
