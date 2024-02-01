@@ -357,7 +357,7 @@ namespace AuctionOnline.Controllers
 
         // TODO
         //checkEmail and send link reset
-        [Route("sendlink")]
+        [Route("checkemailandsendlink")]
         [HttpPost]
         public async Task<IActionResult> checkemailandsendlink(string email)
         {
@@ -387,7 +387,7 @@ namespace AuctionOnline.Controllers
 
         // TODO
         //reset Email
-        [Route("resetpassword")]
+        [Route("ResetPassword")]
         [HttpPost]
         public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
         {

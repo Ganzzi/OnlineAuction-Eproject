@@ -15,7 +15,7 @@ namespace DomainLayer.Entities.helper
         <body>
         <div>
             <h3>reset</h3>
-        <a href=""http://localhost:4200/reset?email={email}&code={emailToken}"" target=""_blank"">ResetPassword</a>    
+        <a href=""http://localhost:3000/auth/reset_password?email={email}&code={emailToken}"" target=""_blank"">ResetPassword</a>    
         </div>
         </body>
         </html>";

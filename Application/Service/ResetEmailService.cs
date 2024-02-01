@@ -73,16 +73,17 @@ namespace Application.Service
         {
             try
             {
-                var specUserEmail = new BaseSpecification<User>(x => x.Email == email);
-                var UserEmail = await _u.Repository<User>().FindOne(specUserEmail);
-                if (UserEmail == null)
+                var spec = new BaseSpecification<User>(x => x.Email.Equals(email));
+                var user = await _u.Repository<User>().FindOne(spec);
+            
+                if (user == null)
                 {
                     return null;
                 }
                 var tokenByte = RandomNumberGenerator.GetBytes(64);
                 var emailToken = Convert.ToBase64String(tokenByte);
-                UserEmail.tokenResetPassword = emailToken;
-                UserEmail.ResetExpire = DateTime.Now.AddMinutes(15);
+                user.tokenResetPassword = emailToken;
+                user.ResetExpire = DateTime.Now.AddMinutes(15);
                 await _u.SaveChangesAsync();
                 var bodyemail = new EmailModel(email, "Reset Password", EmailBody.EmailStringBody(email, emailToken));
                 return bodyemail;
@@ -120,10 +121,6 @@ namespace Application.Service
             {
                 return 0;
             }
-
-
-
-
         }
     }
 }
