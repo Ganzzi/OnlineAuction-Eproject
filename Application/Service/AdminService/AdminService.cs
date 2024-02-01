@@ -1,5 +1,4 @@
 ﻿using Application.Interface;
-using Azure;
 using DomainLayer.Core;
 using DomainLayer.Entities.Models;
 using DomainLayer.SpecificationPattern;
@@ -93,48 +92,60 @@ namespace Application.Service.AdminServicevice
                 return null;
             }
         }
-        // gửi về 10 user
-        public async Task<IDictionary<string, (int, int)>> ListAllUserWithRatingAndBidCount(int take, int page)
+
+        // gửi về 10 user + avgRate
+        public async Task<(int, IDictionary<User, (int,int, int)>)> ListAllUserWithRatingAndBidCount(int take, int page)
         {
             try
             {
 
                 var skip = take * (page - 1);
-                var userspec = new BaseSpecification<User>().ApplyPaging(skip, take);
+                var userspec = new BaseSpecification<User>();
+                
+                var CountUser =  await _u.Repository<User>().CountAsync(userspec);
+                
+                userspec = userspec.ApplyPaging(skip, take);
                 var listUser = await _u.Repository<User>().ListAsynccheck(userspec);
-                var userRatingAndBidCounts = new Dictionary<string, (int, int)>();
+                var userRatingAndBidCounts = new Dictionary<User, (int,int, int)>();
 
                 foreach (var user in listUser)
                 {
                     var ratingSpec = new BaseSpecification<Rating>(x => x.RaterId == user.UserId);
-                    var userRatings = await _u.Repository<Rating>().ListAsynccheck(ratingSpec);
+                    var userRatings = await _u.Repository<Rating>().CountAsync(ratingSpec);
+
+
+                    var ratedspec = new BaseSpecification<Rating>(x => x.RatedUserId == user.UserId);
+                    var Rateds = await _u.Repository<Rating>().ListAsynccheck(ratedspec);
+
+                    var avgRate = Rateds != null  && Rateds.Count > 0 ?  Rateds.ToArray().Average(x  => x.Rate) : -1;
 
                     var bidSpec = new BaseSpecification<Bid>(x => x.UserId == user.UserId);
-                    var userBids = await _u.Repository<Bid>().ListAsynccheck(bidSpec);
-                    userRatingAndBidCounts[user.Name] = (userRatings.Count, userBids.Count);
+                    var userBids = await _u.Repository<Bid>().CountAsync(bidSpec);
+
+                    userRatingAndBidCounts[user] = (userRatings, (int)avgRate, userBids);
                 }
 
-                return userRatingAndBidCounts;
+                return (CountUser, userRatingAndBidCounts);
             }
             catch (Exception ex)
             {
-                return null;
+                return default;
             }
         }
 
         // cate và itemcount
-        public async Task<IDictionary<string, int>> ListAllCategoryAndCountItem()
+        public async Task<IDictionary<Category, int>> ListAllCategoryAndCountItem()
         {
             try
             {
                 var listCate = await _u.Repository<Category>().ListAllAsync();
-                var userRatingAndBidCounts = new Dictionary<string, int>();
+                var userRatingAndBidCounts = new Dictionary<Category, int>();
 
                 foreach (var cate in listCate)
                 {
                     var spec = new BaseSpecification<CategoryItem>(x => x.CategoryId == cate.CategoryId);
                     var itemCount = await _u.Repository<CategoryItem>().CountAsync(spec);
-                    userRatingAndBidCounts.Add(cate.CategoryName, itemCount);
+                    userRatingAndBidCounts.Add(cate, itemCount);
                 }
 
                 return userRatingAndBidCounts;
@@ -147,19 +158,19 @@ namespace Application.Service.AdminServicevice
         }
 
         // lock user
-        public async Task<bool> LockOrUnlock(string username, string status)
+        public async Task<bool> LockOrUnlock(int userId)
         {
             try
             {
-                var spec = new BaseSpecification<User>(x => x.Name == username);
+                var spec = new BaseSpecification<User>(x => x.UserId == userId);
                 var user = await _u.Repository<User>().FindOne(spec);
-                if (status == "Disable")
+                if (user.Role == "User")
                 {
                     user.Role = "Disable";
                     await _u.SaveChangesAsync();
                     return true;
                 }
-                else if (status == "User")
+                else if (user.Role == "Disable")
                 {
                     user.Role = "User";
                     await _u.SaveChangesAsync();
@@ -183,7 +194,10 @@ namespace Application.Service.AdminServicevice
         {
             try
             {
-                var addcate = await _u.Repository<Category>().AddAsync(category);
+                var addcate = await _u.Repository<Category>().AddAsync(new Category{
+                    CategoryName = category.CategoryName,
+                    Description = category.Description
+                });
                 await _u.SaveChangesAsync();
                 return true;
             }
@@ -204,6 +218,7 @@ namespace Application.Service.AdminServicevice
                 oldcategory.CategoryName = category.CategoryName;
                 oldcategory.Description = category.Description;
                 _u.Repository<Category>().Update(oldcategory);
+                await _u.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
@@ -229,77 +244,76 @@ namespace Application.Service.AdminServicevice
 
 
         // get category details have itemlist
-        public async Task<(IList<CategoryItem>, int)> categorylistItem(int id, int page, int take, string searchName, bool belongtocategory)
+        public async Task<(Category, IList<(Item, bool)>, int)> CategorylistItem(int id, int page, int take, string searchName, bool? belongtocategory)
         {
             try
             {
                 var skip = take * (page - 1);
                 var catespec = new BaseSpecification<Category>(x => x.CategoryId == id);
                 var cate = await _u.Repository<Category>().FindOne(catespec);
-                BaseSpecification<CategoryItem> sp;
 
-                if (searchName != null && belongtocategory == false)
-                {
-                    sp = new BaseSpecification<CategoryItem>(
-                        ci => ci.Item.Title.Contains(searchName)
+                BaseSpecification<Item> sp = new BaseSpecification<Item>(
+                        ci => ci.Title.Contains(searchName)
                     );
+
+
+                if (belongtocategory != null) {
+                    if(belongtocategory == true) {
+                        sp = sp = new BaseSpecification<Item>(
+                            ci => ci.Title.Contains(searchName) && ci.CategoryItems.Any(ci => ci.CategoryId == id)
+                        );
+                    } else {
+                        sp = sp = new BaseSpecification<Item>(
+                            ci => ci.Title.Contains(searchName) && !ci.CategoryItems.Any(ci => ci.CategoryId == id)
+                        );
+                    }
                 }
-                else if (belongtocategory == true && searchName == null)
+
+                sp = sp.AddInclude(query => query.Include(x => x.CategoryItems));
+
+                var count = await _u.Repository<Item>().CountAsync(sp);
+                
+                sp = sp.ApplyPaging(skip, take);
+                
+                var listItems = await _u.Repository<Item>().ListAsynccheck(sp);
+                var itemRes = new List<(Item, bool)>();
+
+                foreach (var item in listItems)
                 {
-                    sp = sp = new BaseSpecification<CategoryItem>(
-                        ci => ci.CategoryId == id
-                    );
-                }
-                else if (belongtocategory == true && searchName != null)
-                {
-                    sp = sp = new BaseSpecification<CategoryItem>(
-                   ci => ci.CategoryId == id && ci.Item.Title.Contains(searchName)
-               );
-                }
-                else
-                {
-
-                    return (null, 0);
+                    var belong = item.CategoryItems == null ? false : item.CategoryItems.Any(x => x.CategoryId == id);
+                    itemRes.Add((item, belong));
                 }
 
-                sp = sp.AddInclude(query => query.Include(x => x.Item)).ApplyPaging(skip, take);
-                var listcategory = await _u.Repository<CategoryItem>().ListAsynccheck(sp);
-                var count = await _u.Repository<CategoryItem>().CountAsync(sp);
-
-
-                return (listcategory, count);
+                return (cate, itemRes, count);
             }
             catch (Exception ex)
             {
-                return (null, 0);
+                return default;
             }
         }
 
 
         // add_or_remove_item
-        public async Task<bool> addOrDeleteItemForCate(int cate, int item, bool status)
+        public async Task<bool> addOrDeleteItemForCate(int CategoryId, int ItemId)
         {
-            var spec = new BaseSpecification<CategoryItem>(x => x.CategoryId == cate && x.ItemId == item);
-            var feildexits = await _u.Repository<CategoryItem>().FindOne(spec);
+            var spec = new BaseSpecification<CategoryItem>(x => x.CategoryId == CategoryId && x.ItemId == ItemId);
             try
             {
-                if (feildexits != null && status == true)
+                var categoryItem = await _u.Repository<CategoryItem>().FindOne(spec);
+                if (categoryItem == null)
                 {
-                    return false;
+                    await _u.Repository<CategoryItem>().AddAsync(new CategoryItem {
+                        CategoryId = CategoryId,
+                        ItemId = ItemId
+                    });
                 }
-                else if (feildexits == null && status == true)
+                else
                 {
-                    await _u.Repository<CategoryItem>().AddAsync(feildexits);
-                    await _u.SaveChangesAsync();
-                    return true;
+                    _u.Repository<CategoryItem>().Delete(categoryItem);
                 }
-                else if (feildexits != null && status == false)
-                {
-                    _u.Repository<CategoryItem>().Delete(feildexits);
-                    await _u.SaveChangesAsync();
-                    return true;
-                }
-                else { return false; }
+                
+                await _u.SaveChangesAsync();
+                return true;
             }
             catch (Exception ex)
             {
@@ -310,24 +324,23 @@ namespace Application.Service.AdminServicevice
 
 
         //list item + count category, count bid, count page
-        public async Task<(IDictionary<string, (int, int)>, int)> getListItemhaveCount(int page, int take)
+        public async Task<(IDictionary<Item, (int, int)>, int)> getListItemhaveCount(int page, int take)
         {
             try
             {
                 var skip = take * (page - 1);
-                var spec = new BaseSpecification<Item>().ApplyPaging(skip, take);
+                var spec = new BaseSpecification<Item>().AddInclude(q=> q.Include(i => i.Seller)).ApplyPaging(skip, take);
                 var listspec = await _u.Repository<Item>().ListAsynccheck(spec);
                 var count = await _u.Repository<Item>().CountAsync(spec);
-                var ItemRatingAndBidCounts = new Dictionary<string, (int, int)>();
+                var ItemRatingAndBidCounts = new Dictionary<Item, (int, int)>();
                 foreach (var item in listspec)
                 {
-                    var ratingSpec = new BaseSpecification<Rating>(x => x.ItemId == item.ItemId);
-                    var Ratings = await _u.Repository<Rating>().ListAsynccheck(ratingSpec);
-                    var CountRating = tbc(Ratings);
+                    var CategorySpec = new BaseSpecification<CategoryItem>(x => x.ItemId == item.ItemId);
+                    var Categories = await _u.Repository<CategoryItem>().CountAsync(CategorySpec);
 
                     var bidSpec = new BaseSpecification<Bid>(x => x.ItemId == item.ItemId);
-                    var userBids = await _u.Repository<Bid>().ListAsynccheck(bidSpec);
-                    ItemRatingAndBidCounts[item.Title] = (CountRating, userBids.Count);
+                    var itemBids = await _u.Repository<Bid>().CountAsync(bidSpec);
+                    ItemRatingAndBidCounts[item] = (Categories, itemBids);
                 }
                 return (ItemRatingAndBidCounts, count);
             }
@@ -339,30 +352,31 @@ namespace Application.Service.AdminServicevice
         }
 
         //thong tin chi tiet item + listcategoryItem(page,take)
-        public async Task<(Item,IList<CategoryItem>,int)> GetOneItemAndListCategoryItem(int id,int page,int take)
+        public async Task<(Item, IList<(Category, bool)>)> GetOneItemAndListCategoryItem(int id)
         {
-            try { 
+            try
+            {
                 // get item by id
                 var Itemspec = new BaseSpecification<Item>(x => x.ItemId == id);
                 var Item = await _u.Repository<Item>().FindOne(Itemspec);
-                // get listcategoryItem
-                var skip = take * (page - 1);
-                var CategoryItemspec = new BaseSpecification<CategoryItem>().ApplyPaging(skip, take);
-                var count = await _u.Repository<CategoryItem>().CountAsync(CategoryItemspec);
-                var listCategoryItem = await _u.Repository<CategoryItem>().ListAsynccheck(CategoryItemspec);
-                if (Item != null && listCategoryItem != null)
+                
+                var Categoryspec = new BaseSpecification<Category>().AddInclude(
+                    q => q.Include(ci => ci.CategoryItems)
+                );
+                var Categories = await _u.Repository<Category>().ListAsynccheck(Categoryspec);
+                var cateRes = new List<(Category, bool)>();
+
+                foreach (var item in Categories)
                 {
-                    return (Item, listCategoryItem,count);
+                    cateRes.Add((item, item.CategoryItems.Any(x  =>  x.ItemId == id)));
                 }
-                else
-                {
-                    return (null, null,0);
-                }
+                
+                return (Item, cateRes);
 
             }
-            catch (Exception e )
+            catch (Exception e)
             {
-                return (null,null,0);
+                return default;
             }
         }
 

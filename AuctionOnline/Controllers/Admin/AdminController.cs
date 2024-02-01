@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuctionOnline.Controllers.Admin
 {
-    [Authorize( Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase
@@ -20,60 +20,35 @@ namespace AuctionOnline.Controllers.Admin
             _a = a;
         }
 
-        [Route("getall")]
+
+        [Route("GetListUserWithRatingAndBidCount")]
         [HttpGet]
-        public async Task<IActionResult> getallUser([FromQuery] int page = 1,
- [FromQuery] int take = 10)
-        {
-
-            var listUser = await _a.ListAllUser(take, page);
-
-            return Ok(listUser.ToString());
-        }
-
-        // TODO: additionally return average rated amount
-        //all user
-        [Route("getallUser")]
-        [HttpGet]
-        public async Task<IActionResult> getall([FromQuery] int page = 1,
-         [FromQuery] int take = 10)
+        public async Task<IActionResult> GetListUserWithRatingAndBidCount(
+            [FromQuery] int page = 1,
+            [FromQuery] int take = 10
+        )
         {
 
             var listUser = await _a.ListAllUserWithRatingAndBidCount(take, page);
 
             return Ok(new
             {
-                userData = listUser.Select(x => new
+                userData = listUser.Item2.Select(x => new
                 {
-                    userName = x.Key,
-                    ratingCount = x.Value.Item1,
-                    bidCount = x.Value.Item2
-                }).ToArray()
+                    user = x.Key,
+                    ratings = x.Value.Item1,
+                    avgRate =  x.Value.Item2,
+                    bidCount = x.Value.Item3
+                }).ToArray(),
+                count = listUser.Item1,
             });
         }
 
-        //all cate
-        [Route("getallCategory")]
-        [HttpGet]
-        public async Task<IActionResult> getallCategory()
-        {
-            var listcate = await _a.ListAllCategoryAndCountItem();
-            return Ok(new
-            {
-                categorylist = listcate.Select(x => new
-                {
-                    categoryName = x.Key,
-                    ItemCount = x.Value
-                }).ToArray()
-            });
-        }
-
-        //lock user
-        [Route("lock/{name}/{status}")]
+        [Route("LockUnlockUser/{userId}")]
         [HttpPost]
-        public async Task<IActionResult> lockUserAction(string name, string status)
+        public async Task<IActionResult> LockUnlockUser(int userId)
         {
-            var checkstatus = await _a.LockOrUnlock(name, status);
+            var checkstatus = await _a.LockOrUnlock(userId);
             if (checkstatus == true)
             {
                 return Ok(new
@@ -90,11 +65,62 @@ namespace AuctionOnline.Controllers.Admin
             }
         }
 
-        //add cate
-        [Route("addCategory")]
-        [HttpPost]
-        public async Task<IActionResult> AddCategory(Category category)
+        [Route("GetAllCategory")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllCategory()
         {
+            var listcate = await _a.ListAllCategoryAndCountItem();
+            return Ok(new
+            {
+                categorylist = listcate.Select(x => new
+                {
+                    Category = x.Key,
+                    ItemCount = x.Value
+                }).ToArray()
+            });
+        }
+
+        [Route("CategoryDetailWithListCategoryItems/{CategoryId}")]
+        [HttpGet]
+        public async Task<IActionResult> CategoryDetailWithListCategoryItems(
+            int CategoryId,
+            [FromQuery] int page = 1,
+            [FromQuery] int take = 10, 
+            [FromQuery] string? search = "",
+            [FromQuery] bool? belongtocategory = null
+        )
+        {
+            var Item = await _a.CategorylistItem(CategoryId, page, take, search ?? "", belongtocategory);
+            if (Item.Item1 != null)
+            {
+                return Ok(new
+                {
+                    Category = Item.Item1,
+                    Items = Item.Item2.Select(x => new {
+                        Item = x.Item1,
+                        belong = x.Item2
+                    }).ToList(),
+                    Count = Item.Item3
+                });
+            }
+            else
+            {
+                return NotFound(new
+                {
+                    message = "Fail Actions"
+                });
+            }
+        }
+    
+
+        [Route("AddCategory")]
+        [HttpPost]
+        public async Task<IActionResult> AddCategory([FromBody] Category category)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var addcate = await _a.CreateCategory(category);
             if (addcate == true)
             {
@@ -113,17 +139,16 @@ namespace AuctionOnline.Controllers.Admin
         }
 
         // update cate
-        [Route("UpdateCategory")]
+        [Route("UpdateCategory/{CategoryId}")]
         [HttpPost]
-        public async Task<IActionResult> UpdateCategory([FromBody] Category category)
+        public async Task<IActionResult> UpdateCategory(int CategoryId, [FromBody] Category category)
         {
-            if (category.CategoryName == null || category.Description == null)
+
+            if (!ModelState.IsValid)
             {
-                return BadRequest(new
-                {
-                    message = "Invalid category"
-                });
+                return BadRequest(ModelState);
             }
+            category.CategoryId = CategoryId;
             var checkresult = await _a.UpdateCategory(category);
             if (checkresult == true)
             {
@@ -138,31 +163,12 @@ namespace AuctionOnline.Controllers.Admin
             }
         }
 
-        // get item by id
-        [Route("getItem/{id}")]
-        [HttpGet]
-        public async Task<IActionResult> getItem(int id)
-        {
-            var item = await _a.takeOneItem(id);
-            if (item == null)
-            {
-                return NotFound(new
-                {
-                    message = "item may not exit"
-                });
-            }
-            else
-            {
-                return Ok(item);
-            }
-        }
-
         // add+remove item in cate
-        [Route("ItemInCate")]
+        [Route("AddDeleteCategoryItem/{CategoryId}/{ItemId}")]
         [HttpPost]
-        public async Task<IActionResult> AddorDelItemInCate(bool status, int cate,int item)
+        public async Task<IActionResult> AddDeleteCategoryItem(int CategoryId, int ItemId)
         {
-            var checkAddorDel = await _a.addOrDeleteItemForCate(cate, item, status);
+            var checkAddorDel = await _a.addOrDeleteItemForCate(CategoryId, ItemId);
             if (checkAddorDel == true)
             {
                 return Ok(new
@@ -172,25 +178,29 @@ namespace AuctionOnline.Controllers.Admin
             }
             else
             {
-                return BadRequest(new {
+                return BadRequest(new
+                {
                     message = "Fail Action"
                 });
             }
         }
 
-        [Route("listItem")]
+        [Route("GetListItems")]
         [HttpGet]
-        public async Task<IActionResult> ListItemInAdmin(int page, int take)
+        public async Task<IActionResult> GetListItems(
+            [FromQuery] int page = 1,
+            [FromQuery] int take = 10
+        )
         {
             var listItem = await _a.getListItemhaveCount(page, take);
             if (listItem != (null, 0))
-            {               
+            {
                 return Ok(new
                 {
                     listItem = listItem.Item1.Select(x => new
                     {
-                        itemName = x.Key,
-                        AvgRate = x.Value.Item1,
+                        Item = x.Key,
+                        Categories = x.Value.Item1,
                         bidCount = x.Value.Item2,
                     }),
                     Countpage = listItem.Item2
@@ -205,27 +215,43 @@ namespace AuctionOnline.Controllers.Admin
             }
         }
 
-        [Route("ItemWithListCategoryItem")]
+        [Route("ItemDetailWithListCategoryItems/{ItemId}")]
         [HttpGet]
-        public async Task<IActionResult> ItemAndListCategoryItem(int id,int page, int take)
+        public async Task<IActionResult> ItemDetailWithListCategoryItems(int ItemId)
         {
-            var listItem = await _a.GetOneItemAndListCategoryItem( id,page, take);
-            if (listItem != (null, null,0))
-            {              
+            var Item = await _a.GetOneItemAndListCategoryItem(ItemId);
+
+            if (Item.Item1 != null)
+            {
+                var categories = Item.Item2.Select(categoryTuple => new
+                {
+                    Category = categoryTuple.Item1,
+                    Belong = categoryTuple.Item2 // Replace with the actual property name of the boolean value
+                }).ToList();
+
                 return Ok(new
                 {
-                    Item = listItem.Item1,
-                    listcategoryItem =  listItem.Item2,
-                    Count = listItem.Item3
+                    Item = Item.Item1,
+                    Categories = categories,
                 });
             }
-            else
-            {
-                return NotFound(new
-                {
-                    message = "Fail Actions"
-                });
-            }
+
+            return NotFound();
+            // if (Item.Item1 != null)
+            // {
+            //     return Ok(new
+            //     {
+            //         Item = Item.Item1,
+            //         CategoryItems = Item.Item2,
+            //     });
+            // }
+            // else
+            // {
+            //     return NotFound(new
+            //     {
+            //         message = "Fail Actions"
+            //     });
+            // }
         }
     }
 

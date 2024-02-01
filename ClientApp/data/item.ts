@@ -7,11 +7,11 @@ import { User } from "@/types/models/user";
 
 // Fake data for User type
 const user1: User = {
-    userId: 1,
-    name: 'john_doe',
-    email: 'john.doe@example.com',
-    password: 'password123',
-    role: 'user',
+    userId: 0,
+    name: '',
+    email: '',
+    password: '',
+    role: 'Disable',
     avatar : "/images/user/user-06.png"
 };
 
@@ -33,8 +33,8 @@ const item1: Item = {
     startingPrice: 1200,
     increasingAmount: 20,
     reservePrice: 1500,
-    startDate: new Date('2024-02-01T10:00:00Z'),
-    endDate: new Date('2024-02-10T18:00:00Z'),
+    startDate: new Date('2024-02-01T10:00:00Z').toDateString(),
+    endDate: new Date('2024-02-10T18:00:00Z').toDateString(),
     sellerId: user1.userId,
     seller: user1,
   };
@@ -47,17 +47,17 @@ const item1: Item = {
     startingPrice: 800,
     increasingAmount: 20,
     reservePrice: 1000,
-    startDate: new Date('2024-02-15T12:00:00Z'),
-    endDate: new Date('2024-02-25T20:00:00Z'),
+    startDate: new Date('2024-02-15T12:00:00Z').toDateString(),
+    endDate: new Date('2024-02-25T20:00:00Z').toDateString(),
     sellerId: user2.userId,
     seller: user2,
   };
 
 
 const auctionHistory1: AuctionHistory = {
-    autionHistoryId: 201,
+    auctionHistoryId: 201,
     winningBid: 1300,
-    endDate: new Date('2024-03-01T12:00:00Z'),
+    endDate: new Date('2024-03-01T12:00:00Z').toDateString(),
     winnerId: user1.userId,
     winner: user1,
     itemId: item1.itemId,
@@ -65,9 +65,9 @@ const auctionHistory1: AuctionHistory = {
 };
   
 const auctionHistory2: AuctionHistory = {
-    autionHistoryId: 202,
+    auctionHistoryId: 202,
     winningBid: 900,
-    endDate: new Date('2024-03-02T14:30:00Z'),
+    endDate: new Date('2024-03-02T14:30:00Z').toDateString(),
     winnerId: user2.userId,
     winner: user2,
     itemId: item2.itemId,
@@ -78,7 +78,7 @@ const auctionHistory2: AuctionHistory = {
 const bid1: Bid = {
     bidId: 201,
     bidAmount: 1300,
-    bidDate: new Date('2024-01-15T08:00:00'),
+    bidDate: new Date('2024-01-15T08:00:00').toDateString(),
     userId: user2.userId,
     user: user2,
     itemId: item1.itemId,
@@ -88,7 +88,7 @@ const bid1: Bid = {
 const bid2: Bid = {
     bidId: 202,
     bidAmount: 850,
-    bidDate: new Date('2024-01-16T10:30:00'),
+    bidDate: new Date('2024-01-16T10:30:00').toDateString(),
     userId: user1.userId,
     user: user1,
     itemId: item2.itemId,
@@ -98,13 +98,13 @@ const bid2: Bid = {
 // Fake data for Category type
 const category1: Category = {
     categoryId: 1,
-    categoryName: 'Electronics',
+    categoryName: 'Category 1',
     description: 'Electronic gadgets and devices',
 };
 
 const category2: Category = {
     categoryId: 2,
-    categoryName: 'Clothing',
+    categoryName: 'Category 2',
     description: 'Fashionable clothing items',
 };
 

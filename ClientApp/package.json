@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@microsoft/signalr": "^8.0.0",
     "@react-jvectormap/core": "^1.0.4",
     "@react-jvectormap/unitedstates": "^1.0.1",
     "@types/node": "20.4.8",
@@ -28,6 +29,7 @@
     "react-jvectormap": "^0.0.16",
     "react-multi-select-component": "^4.3.4",
     "react-paginate": "^8.2.0",
+    "start": "^5.1.0",
     "tailwindcss": "3.3.3",
     "typescript": "5.1.6"
   }

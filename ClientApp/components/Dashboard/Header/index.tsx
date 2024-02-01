@@ -113,12 +113,12 @@ const Header = (props: {
             {/* <!-- Notification Menu Area --> */}
 
             {/* <!-- Chat Notification Area --> */}
-            <DropdownMessage />
+            {/* <DropdownMessage /> */}
             {/* <!-- Chat Notification Area --> */}
           </ul>
 
           {/* <!-- User Area --> */}
-          <DropdownUser />
+          <DropdownUser admin={true}/>
           {/* <!-- User Area --> */}
         </div>
       </div>

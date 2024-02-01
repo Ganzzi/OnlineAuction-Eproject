@@ -103,9 +103,12 @@ namespace Application.Service
 
         public string dataFormToken(string token)
         {
-            var jwt = new JwtSecurityTokenHandler();
-            var readjwt = jwt.ReadJwtToken(token);
-            var claimName = readjwt.Claims;
+            var jwtHandler = new JwtSecurityTokenHandler();
+            var jwtInput = token.Replace("Bearer ", string.Empty);
+            var readableToken = jwtHandler.CanReadToken(jwtInput);
+            if (!readableToken) return null;
+            var decodedJwt = jwtHandler.ReadJwtToken(jwtInput);
+            var claimName = decodedJwt.Claims;
             foreach (var item in claimName)
             {
                 if (item.Type == "unique_name")

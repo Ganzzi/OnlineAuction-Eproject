@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import Loader from "@/components/common/Loader";
 import { useGlobalState } from "@/context/globalState";
@@ -10,7 +9,7 @@ export default function HomeLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const {accessToken, user} = useGlobalState();
+  const {isLoggedIn, user} = useGlobalState();
   const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -20,21 +19,23 @@ export default function HomeLayout({
   }, []);
 
   useEffect(() => {
-    if(accessToken!=="") {
+    if(isLoggedIn) {
       if (user.role === "Admin") {
         router.push("/dashboard")
       } else {
         router.push("/")
       }
     }
-  }, [accessToken])
+  }, [isLoggedIn])
 
   return (
-        <div className="dark:bg-boxdark-2 dark:text-bodydark">
+        <div className="dark:bg-boxdark bg-white" style={{
+          height: '100vh'
+        }}>
           {loading ? (
             <Loader />
           ) : (
-            <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+            <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
                 <main>
                   <div className="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
                     {children}

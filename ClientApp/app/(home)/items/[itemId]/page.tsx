@@ -3,7 +3,7 @@ import React from 'react';
 import { Item } from '@/types/models/item';
 import { item1, bid1, bid2, categoryItem1, categoryItem2, auctionHistory1 } from '@/data/item';
 import Index from './Index';
-import axiosService from '@/axiosService';
+import axiosService from '@/services/axiosService';
 import { useRouter } from 'next/router';
 import { useParams } from 'next/navigation';
 import { Params } from 'next/dist/shared/lib/router/utils/route-matcher';

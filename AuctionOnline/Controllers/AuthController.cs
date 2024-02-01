@@ -1,7 +1,6 @@
 ﻿using Application.DTO;
 using Application.Interface;
 using Application.Service;
-using Azure.Core;
 using DomainLayer.Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +15,7 @@ namespace AuctionOnline.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IJwtService _jwt;
+        private readonly IresetEmailService _e;
         public AuthController(IAuthService authService, IJwtService jwt)
         {
             _authService = authService;
@@ -26,18 +26,24 @@ namespace AuctionOnline.Controllers
         [HttpPost]
         public async Task<IActionResult> SignIn(LoginModel model)
         {
-            //if (!IsValidPassword(model.Password))
-            //{
-            //    return BadRequest(new
-            //    {
-            //        message = "Invalid Password"
-            //    });
-            //}
+            if (!IsValidPassword(model.Password))
+            {
+                return BadRequest(new
+                {
+                    message = "Invalid Password"
+                });
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // var hashpassword = _authService.HashPassWord(model.Password);
+            // model.Password = hashpassword;
             var User = await _authService.Login(model);
             if (User == null)
             {
-
-                return BadRequest();
+                return Unauthorized();
             }
             var token = await _jwt.CreateToken(User);
             var RefreshToken = await  _jwt.createRrefreshtoken(User.UserId);
@@ -49,10 +55,23 @@ namespace AuctionOnline.Controllers
             }) ;
         }
 
-        [Route("SignUp")]
+        [Route("signup")]
         [HttpPost]
         public async Task<IActionResult> SignUp([FromBody] RegisterModel model)
         {
+            if (!IsValidPassword(model.Password))
+            {
+                return BadRequest(new
+                {
+                    message = "Invalid Password"
+                });
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var hashpassword = _authService.HashPassWord(model.Password);
+            model.Password = hashpassword;
             var user2 = await _authService.Register(model);
             if (user2 != null)
             {
@@ -82,6 +101,35 @@ namespace AuctionOnline.Controllers
         }
 
 
+        // TODO
+        //checkEmail and send link reset
+        [Route("sendlink")]
+        [HttpPost]
+        public async Task<IActionResult> checkemailandsendlink(string email)
+        {
+            var checkEmail = await _e.CheckEmailAndTokenEmail(email);
+            if (checkEmail == null)
+            {
+                return BadRequest(new
+                {
+                    message = "No Email exit"
+                });
+            }
+            if (_e.sendMail(checkEmail))
+            {
+                return Ok(new
+                {
+                    message = "Success Action"
+                });
+            }
+            else
+            {
+                return BadRequest(new
+                {
+                    message = "Fail to send Reset link"
+                });
+            }
+        }
         [NonAction]
         public bool IsValidPassword(string password)
         {

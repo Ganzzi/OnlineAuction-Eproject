@@ -15,7 +15,7 @@ export default function HomeLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const {accessToken, user} = useGlobalState();
+  const {accessToken, user, isLoggedIn} = useGlobalState();
   const router = useRouter();
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -26,10 +26,14 @@ export default function HomeLayout({
   }, []);
 
   useEffect(() => {
-    if(accessToken!==""&&user.role !== "Admin") {
+    if (isLoggedIn) {
+      if (user.userId != 0 && user.role !== "Admin") {
         router.push("/")
+      }
+    } else if (!isLoggedIn) {
+      router.push("/auth/signin")
     }
-  }, [accessToken])
+  }, [user.userId])
 
   return (
         <div className="dark:bg-boxdark-2 dark:text-bodydark">

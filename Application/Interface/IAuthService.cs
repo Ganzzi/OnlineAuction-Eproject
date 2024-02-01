@@ -14,7 +14,9 @@ namespace Application.Interface
         Task<User> Login(LoginModel model);
 
         Task<User> Register (RegisterModel model);
-    
-        
+
+        string HashPassWord(string password);
+
+
     }
 }
