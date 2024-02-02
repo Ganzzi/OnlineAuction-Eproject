@@ -97,11 +97,11 @@ namespace Application.Service
                 var user_with_email_exist_spec = new BaseSpecification<User>(x => x.Email.Equals(model.Email));
                 var user_with_email_exist = await _u.Repository<User>().FindOne(user_with_email_exist_spec);
 
-                if (user_with_email_exist != null)
+                if (user_with_email_exist != null && user_with_email_exist.Email != user.Email)
                 {
                     return (null, "Email Already in use");
                 }
-                var hashpassword = _a.HashPassWord(model.Password);
+                
                 if (model.AvatarFile != null)
                 {
                     if (user.Avatar != null)
@@ -118,7 +118,13 @@ namespace Application.Service
                     //user.Name = model.Name;
                     user.Email = model.Email;
                 }
-                if (model.Password != null) user.Password = hashpassword;
+                if (model.Password != null) {
+                    if (!IsValidPassword(model.Password))
+                    {
+                        return (null,  "Password must be at least 8 charater, 1 number and a Upper letter");
+                    }
+                    user.Password = _a.HashPassWord(model.Password);
+                };
                 
                 _u.Repository<User>().Update(user);
                 await _u.SaveChangesAsync();
@@ -129,7 +135,12 @@ namespace Application.Service
                 await _u.RollBackChangesAsync();
                 return (null, "update fail");
             }
+        }
 
+        public bool IsValidPassword(string password)
+        {
+            var regex = new System.Text.RegularExpressions.Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$");
+            return regex.IsMatch(password);
         }
 
         //item list with search query

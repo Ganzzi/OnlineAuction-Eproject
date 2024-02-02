@@ -55,10 +55,10 @@ const SignIn: React.FC = () => {
       }
     }).catch((e) => {
       if (e?.response?.status == 400) {
-        console.log(e?.response?.data?.errors);
+        console.log(e?.response?.data);
         
         setErrors({
-          message: "Please Enter fields correctly",
+          message: e?.response?.data?.message,
           email: e?.response?.data?.errors?.Email ?? "",
           password: e?.response?.data?.errors?.Password ?? ""
         })

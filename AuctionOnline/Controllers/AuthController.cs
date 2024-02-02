@@ -30,7 +30,7 @@ namespace AuctionOnline.Controllers
             {
                 return BadRequest(new
                 {
-                    message = "Invalid Password"
+                    message = "Password must be at least 8 charater, 1 number and a Upper letter"
                 });
             }
             if (!ModelState.IsValid)
@@ -69,7 +69,7 @@ namespace AuctionOnline.Controllers
             {
                 return BadRequest(new
                 {
-                    message = "Invalid Password"
+                    message = "Password must be at least 8 charater, 1 number and a Upper letter"
                 });
             }
             if (!ModelState.IsValid)
