@@ -41,11 +41,17 @@ namespace Application.Service
                 {
                     var cateItemSpec = new BaseSpecification<CategoryItem>
                         (ci => ci.CategoryId == item.CategoryId)
-                        .AddInclude(q => q.Include(ci => ci.Item).ThenInclude(i => i.Bids)
-                        .Include(ci => ci.Item).ThenInclude(i => i.AuctionHistory).ThenInclude(ah => ah.Winner).Include(ci => ci.Item).ThenInclude(i => i.Seller))
-                        .ApplyPaging(0, 10)
-                        .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
-                        item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
+                            .AddInclude(q => 
+                                q.Include(ci => ci.Item)
+                                    .ThenInclude(i => i.Bids)
+                                .Include(ci => ci.Item)
+                                    .ThenInclude(i => i.AuctionHistory)
+                                        .ThenInclude(ah => ah.Winner)
+                                .Include(ci => ci.Item)
+                                    .ThenInclude(i => i.Seller))
+                            .ApplyPaging(0, 10)
+                            .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
+                    item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
                 }
 
                 return liscategory;
@@ -163,7 +169,7 @@ namespace Application.Service
             {
                 var itemspec = new BaseSpecification<Item>(x => x.ItemId == id)
                     .AddInclude(x => x
-                    .Include(x => x.Bids)
+                    .Include(x => x.Bids).ThenInclude(b => b.User)
                     .Include(x => x.AuctionHistory)
                         .ThenInclude(ah => ah.Winner)
                     .Include(x => x.CategoryItems)
@@ -456,9 +462,12 @@ namespace Application.Service
                 var maxbid  = listBid.OrderByDescending(x => x.BidAmount).FirstOrDefault();
                 var Item = await _u.Repository<Item>().FindOne(new BaseSpecification<Item>(i => i.ItemId == req.ItemId));
               
-                if (req.Amount < (maxbid.BidAmount +  maxbid.Item.IncreasingAmount))
+                if (maxbid  != null)
                 {
-                    return (null,"Not valid Price");
+                    if (req.Amount < (maxbid.BidAmount +  maxbid.Item.IncreasingAmount))
+                    {   
+                        return (null,"Not valid Price");
+                    }
                 }
 
     

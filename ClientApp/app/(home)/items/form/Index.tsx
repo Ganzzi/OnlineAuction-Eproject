@@ -31,6 +31,8 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
       description: '',
       image: 'null',
       imageFile: undefined,
+      document: 'null ',
+      documentFile: undefined,
       startingPrice: 0,
       increasingAmount: 0,
       reservePrice: undefined,
@@ -50,6 +52,8 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
   const [resMessage, setResMessage] = useState({
     title: "",
     description: "",
+    image: "",
+    document: "",
     categories: "",
     content: "",
     color: ""
@@ -75,7 +79,7 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
     }
   }, [])
 
-  const handleFileChange = (file: File) => {
+  const handleImageChange = (file: File) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       item: {
@@ -84,6 +88,16 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
       },
     }));
   };
+  const handleDocumentChange = (file: File) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      item: {
+        ...prevFormData.item,
+        documentFile: file,
+      },
+    }));
+  };
+
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -103,9 +117,17 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
         }
       });
 
+
+
       // Append imageFile to FormData
       if (formData.item.imageFile) {
         formDataToSend.append('item.ImageFile', formData.item.imageFile);
+      }
+
+      if (formData.item.documentFile) {
+        console.log('has document');
+
+        formDataToSend.append('item.DocumentFile', formData.item.documentFile);
       }
 
       selectedCategories.forEach((category, index) => {
@@ -113,6 +135,7 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
         formDataToSend.append(`categories[${index}].categoryName`, category.label);
         formDataToSend.append(`categories[${index}].Description`, category?.key ?? "");
       });
+      console.log(Array.from(formDataToSend));
 
       await axiosService.post(`/api/user/${item == undefined ? "sellItem" : "updateItem"}`, formDataToSend, {
         headers: {
@@ -131,11 +154,13 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
       }).catch((e) => {
         if (e?.response?.status === 400) {
           const errors = e?.response?.data?.errors;
-          
+
           setResMessage({
             content: e?.response?.data?.message,
             title: errors?.['Item.Title'] ? errors['Item.Title'][0] : '',
             description: errors?.['Item.Description'] ? errors['Item.Description'][0] : '',
+            image: errors?.['Item.ImageFile'] ? errors['Item.ImageFile'][0] : '',
+            document: errors?.['Item.DocumentFile'] ? errors['Item.DocumentFile'][0] : '',
             categories: errors?.Categories ? errors.Categories[0] : '',
             color: "meta-1",
           });
@@ -153,74 +178,79 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
   return (
     <form onSubmit={handleSubmit}>
       <p className={`text-${resMessage.color} text-center`}>{resMessage.content}</p>
-      <div>
-        <label className="mb-3 block text-black dark:text-white">Title</label>
-        <p className={`text-${resMessage.color}`}>{resMessage.title}</p>
 
-        <input
-          type="text"
-          placeholder="Title"
-          value={formData.item.title}
-          onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, title: e.target.value }, }))}
-          className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
-        />
-      </div>
+      {/* title & description */}
+      <div className="flex flex-row justify-center items-center">
+        {/* title */}
+        <div className="w-1/2 mx-2">
+          <label className="mb-3 block text-black dark:text-white">Title</label>
+          <p className={`text-${resMessage.color}`}>{resMessage.title}</p>
 
-      <div>
-        <label className="mb-3 block text-black dark:text-white">Description</label>
-        <p className={`text-${resMessage.color}`}>{resMessage.description}</p>
-        <input
-          type="text"
-          placeholder="Description"
-          value={formData.item.description}
-          onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, description: e.target.value }, }))}
-          className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
-        />
-      </div>
-      <div>
-        <label className="mb-3 block text-black dark:text-white">File</label>
-        <p className="text-center text-meta-3">File choosen: {formData.item.imageFile?.name ?? "No file choosen"}</p>
-        <div className="flex flex-row items-center">
-          {item?.image && (
-            <img src={item.image} className="w-36 h-36" alt="" />
-          )}
-        <FileUpload onFileChange={handleFileChange} />
+          <input
+            type="text"
+            placeholder="Title"
+            value={formData.item.title}
+            onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, title: e.target.value }, }))}
+            className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
+          />
+        </div>
+
+        {/* description */}
+        <div className="w-1/2 mx-2">
+          <label className="mb-3 block text-black dark:text-white">Description</label>
+          <p className={`text-${resMessage.color}`}>{resMessage.description}</p>
+          <input
+            type="text"
+            placeholder="Description"
+            value={formData.item.description}
+            onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, description: e.target.value }, }))}
+            className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
+          />
         </div>
       </div>
 
-      <div>
-        <label className="mb-3 block text-black dark:text-white">Starting Price</label>
-        <input
-          type="number"
-          placeholder="Starting Price"
-          value={formData.item.startingPrice}
-          onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, startingPrice: Number(e.target.value) }, }))}
-          className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
-        />
+      {/* image & document */}
+      <div className="flex flex-row justify-center items-center mt-5">
+        <div className="w-1/2 mx-2">
+          <label className="block text-black dark:text-white">
+            Image
+            <p className="text-center text-meta-3">
+              File choosen: {formData.item.imageFile?.name ?? "No file choosen"}
+            </p>
+            <p className={`text-${resMessage.color}`}>{resMessage.image}</p>
+          </label>
+
+          <div className="flex flex-row items-center">
+            {item?.image && (
+              <img src={item.image} className="w-36 h-36" alt="" />
+            )}
+            <FileUpload onFileChange={handleImageChange} accept="image/*" />
+
+
+          </div>
+        </div>
+
+        <div className="w-1/2 mx-2">
+          <label className="block text-black dark:text-white">
+            Document
+            <p className="text-center text-meta-3">
+              File choosen: {formData.item.documentFile?.name ?? "No file choosen"}
+            </p>
+            <p className={`text-${resMessage.color}`}>{resMessage.document}</p>
+          </label>
+
+          <div className="flex flex-row items-center">
+            {/* {item?.image && (
+              <img src={item.image} className="w-36 h-36" alt="" />
+            )} */}
+            <FileUpload onFileChange={handleDocumentChange} />
+
+
+          </div>
+        </div>
       </div>
 
-      <div>
-        <label className="mb-3 block text-black dark:text-white">Increasing Amount</label>
-        <input
-          type="number"
-          placeholder="Increasing Amount"
-          value={formData.item.increasingAmount}
-          onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, increasingAmount: Number(e.target.value) }, }))}
-          className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
-        />
-      </div>
-
-      <div>
-        <label className="mb-3 block text-black dark:text-white">Reserve Price</label>
-        <input
-          type="number"
-          placeholder="Reserve Price"
-          value={formData.item.reservePrice || ''}
-          onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, reservePrice: Number(e.target.value) }, }))}
-          className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
-        />
-      </div>
-
+      {/* Categories */}
       <div>
         <label className="mb-3 block text-black dark:text-white">Categories</label>
         <p className={`text-meta-1`}>{resMessage.categories}</p>
@@ -239,32 +269,88 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
         />
       </div>
 
-      <div>
-        <label className="mb-3 block text-black dark:text-white">Start Date</label>
-        <input
-          type="date"
-          value={formData.item.startDate.substring(0, 10)} // Extracting the date part
-          onChange={(e) => setFormData((prev) => ({ ...prev, item: { ...prev.item, startDate: e.target.value }, }))}
-          className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
-        />
+      <div className="flex flex-row justify-center items-center mt-5">
+
+        {/* starting price */}
+        <div className="w-1/3 mx-2">
+          <label className="mb-3 block text-black dark:text-white">Starting Price</label>
+          <input
+            type="number"
+            placeholder="Starting Price"
+            value={formData.item.startingPrice}
+            onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, startingPrice: Number(e.target.value) }, }))}
+            className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
+          />
+        </div>
+
+        {/* increasing amount */}
+        <div className="w-1/3 mx-2">
+          <label className="mb-3 block text-black dark:text-white">Increasing Amount</label>
+          <p className={`text-${resMessage.color}`}>
+            {resMessage.content == "require: IncreasingAmount > 10% StartingPrice" 
+            || resMessage.content == "require: IncreasingAmount > $10 when StartingPrice is zero"  && resMessage.content}
+          </p>
+          <input
+            type="number"
+            placeholder="Increasing Amount"
+            value={formData.item.increasingAmount}
+            onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, increasingAmount: Number(e.target.value) }, }))}
+            className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
+          />
+        </div>
+
+        {/* Reserve price */}
+        <div className="w-1/3 mx-2">
+          <label className="mb-3 block text-black dark:text-white">Reserve Price</label>
+          <p className={`text-${resMessage.color}`}>
+            {resMessage.content == "require: ReservePrice > StartingPrice" && resMessage.content}
+          </p>
+          <input
+            type="number"
+            placeholder="Reserve Price"
+            value={formData.item.reservePrice || ''}
+            onChange={(e) => setFormData((pev) => ({ ...pev, item: { ...pev.item, reservePrice: Number(e.target.value) }, }))}
+            className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
+          />
+        </div>  
       </div>
 
-      <div>
-        <label className="mb-3 block text-black dark:text-white">End Date</label>
-        <input
-          type="date"
-          value={formData.item.endDate.substring(0, 10)} // Extracting the date part
-          onChange={(e) => setFormData((prev) => ({ ...prev, item: { ...prev.item, endDate: e.target.value }, }))}
-          className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
-        />
+      <div className="flex flex-row justify-center items-center mt-5">
+
+        {/* start date */}
+        <div className="w-1/3 mx-2">
+          <label className="mb-3 block text-black dark:text-white">Start Date</label>
+          <p className={`text-${resMessage.color}`}>
+            {resMessage.content == "require: StartDate < EndDate"  && resMessage.content}
+          </p>
+          <input
+            type="datetime-local"
+            value={formData.item.startDate.substring(0, 10)} // Extracting the date part
+            onChange={(e) => setFormData((prev) => ({ ...prev, item: { ...prev.item, startDate: e.target.value }, }))}
+            className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
+          />
+        </div>
+
+        {/* end date */}
+        <div className="w-1/3 mx-2">
+          <label className="mb-3 block text-black dark:text-white">End Date</label>
+          <input
+            type="date"
+            value={formData.item.endDate.substring(0, 10)} // Extracting the date part
+            onChange={(e) => setFormData((prev) => ({ ...prev, item: { ...prev.item, endDate: e.target.value }, }))}
+            className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
+          />
+        </div>
       </div>
 
 
       {/* Add more fields as needed */}
 
+          <div className="flex w-full flex-row justify-center">
       <button type="submit" className="mt-4 bg-primary text-white py-3 px-6 rounded-lg">
         {!item ? "Create Item" : "Update Item"}
       </button>
+          </div>
     </form>
   );
 }

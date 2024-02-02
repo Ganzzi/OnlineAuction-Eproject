@@ -9,6 +9,8 @@ import { parseDate } from '@/utils';
 import { useRouter } from 'next/navigation';
 import React, { use, useEffect, useState } from 'react'
 import signalRService from '@/services/signalRService';
+import Link from 'next/link';
+import { Countdown } from '@/components/Home/ItemCard';
 
 
 const Index = ({ itemData }: { itemData: Item }) => {
@@ -22,17 +24,20 @@ const Index = ({ itemData }: { itemData: Item }) => {
     content: "",
     color: ""
   });
-  const MinimumBid = itemData.increasingAmount + (itemData.bids ? itemData?.bids[0]?.bidAmount : 0);
+
+  const HighestBid = (itemData.bids && itemData.bids.length != 0 ? itemData?.bids[0]?.bidAmount : 0);
+  const MinimumBid = itemData.increasingAmount + HighestBid;
+
+  const endDate = itemData.auctionHistory?.winner != null
+    ? itemData.auctionHistory.endDate
+    : itemData.endDate;
+
 
   useEffect(() => {
     // Assuming you have a utility function to determine the item status
     const calculateItemStatus = (item: Item): string => {
       const currentDate = new Date();
 
-      const endDate = itemData.auctionHistory?.winner != null 
-          ? itemData.auctionHistory.endDate 
-          : itemData.endDate;
-    
       if (currentDate < parseDate(itemData.startDate)) {
         return 'not started';
       } else if (currentDate >= parseDate(itemData.startDate) && currentDate <= parseDate(endDate)) {
@@ -101,21 +106,48 @@ const Index = ({ itemData }: { itemData: Item }) => {
         {itemData && (
           <>
             <div className='relative w-fit'>
-              <p className={`right-5 top-5 absolute p-5 bg-meta-3 text-black-2 rounded-3xl`}>{itemStatus}</p>
+              <div className={`-right-5 -top-5 absolute p-5 bg-meta-3 text-black-2 rounded-3xl`}>
+                {itemStatus == "started" && (
+                  <div>
+                    <p className='text-font-bold text-lg'>Auction End in</p>
+                    <Countdown date={endDate} />
+                  </div>
+                )}
+
+                {itemStatus == "not started" && (
+                  <div>
+                    <p className='text-font-bold text-lg'>Auction Start in</p>
+                    <Countdown date={itemData.startDate} />
+                  </div>
+                )}
+
+                {itemStatus == "ended" && (
+                  <div>
+                    <p className='text-font-bold text-lg'>Auction Ended</p>
+                  </div>
+                )}
+              </div>
               <img src={itemData.image} alt={itemData.title} className="mb-4" />
             </div>
 
             <div className='flex flex-row justify-between items-center'>
 
               <div>
-                <h1 className="text-3xl font-bold mb-4">{itemData.title}</h1>
-                <p className="text-gray-600 mb-4">{itemData.description}</p>
+                <h1 className="text-7xl font-bold mb-4">{itemData.title}</h1>
+                <p className="text-lg text-body mb-4">{itemData.description}</p>
               </div>
               <div className='flex flex-row items-start justify-end'>
                 <p className="text-gray-600 mb-4 text-3xl mx-3">{itemData.seller?.name}</p>
                 <img src={itemData.seller?.avatar} className='w-16 h-16 rounded-full' alt="" />
               </div>
             </div>
+            <Link
+              href={`${process.env.NEXT_PUBLIC_SERVER_URL}/${itemData.document}`}
+              target='blank'
+              className='text-lg text-secondary hover:text-meta-5'
+            >
+              download
+            </Link>
             {winner != null && <p className="text-lg font-semibold mb-4">Winner: {winner.name}</p>}
 
             {/* Display other item details as needed */}
@@ -138,6 +170,8 @@ const Index = ({ itemData }: { itemData: Item }) => {
 
         {user && !isItemSeller && itemStatus === 'started' && (
           <div className="mb-8">
+            <p className='text-meta-8'>Increasing Amount: {itemData.increasingAmount}</p>
+            <p className='text-meta-8'>Highest Bid: {HighestBid}</p>
             <p className='text-meta-7'>* Current Minimum bid: {MinimumBid}</p>
             <label htmlFor="bidAmount" className="block text-sm font-medium text-gray-600">
               Your Bid Amount:
@@ -147,7 +181,21 @@ const Index = ({ itemData }: { itemData: Item }) => {
               id="bidAmount"
               disabled={winner != null}
               value={bidAmount}
-              onChange={(e) => setBidAmount(e.target.value)}
+              onChange={(e) => {
+                setBidAmount(e.target.value);
+
+                if (parseInt(e.target.value) >= MinimumBid) { 
+                  setResMessage({
+                    color: "meta-3",
+                    content: "be able to bid!"
+                  })
+                } else {
+                  setResMessage({
+                    content: "require more than minimum bid",
+                    color: "meta-1"
+                  })
+                }
+              }}
               className="mt-1 p-2 border rounded w-full"
             />
             <p className={`text-${resMessage.color}`}>{resMessage.content}</p>

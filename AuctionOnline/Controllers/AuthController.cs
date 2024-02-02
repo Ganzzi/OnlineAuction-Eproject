@@ -44,6 +44,12 @@ namespace AuctionOnline.Controllers
             if (User == null)
             {
                 return Unauthorized();
+            } else if (User.Role == "Disable")
+            {
+                return StatusCode(403, new
+                {
+                    message = "Your account is locked"
+                });
             }
             var token = await _jwt.CreateToken(User);
             var RefreshToken = await  _jwt.createRrefreshtoken(User.UserId);

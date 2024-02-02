@@ -4,9 +4,10 @@ import React, { ChangeEvent } from 'react';
 
 interface FileUploadProps {
     onFileChange: (file: File) => void;
+    accept?: string
   }
   
-  const FileUpload: React.FC<FileUploadProps> = ({ onFileChange }) => {
+  const FileUpload: React.FC<FileUploadProps> = ({ onFileChange, accept }) => {
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
       const selectedFile = e.target.files && e.target.files[0];
   
@@ -20,7 +21,7 @@ interface FileUploadProps {
     <div className="relative my-5.5 block w-full cursor-pointer appearance-none rounded border-2 border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5">
       <input
         type="file"
-        accept="image/*"
+        accept={`${accept ? accept : "*"}`}
         className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
         onChange={handleFileChange}
       />

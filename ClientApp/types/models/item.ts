@@ -10,6 +10,8 @@ export type Item = {
     description: string,
     image: string,
     imageFile?: File,
+    document: string,
+    documentFile?: File,
 
     startingPrice: number,
     increasingAmount: number,

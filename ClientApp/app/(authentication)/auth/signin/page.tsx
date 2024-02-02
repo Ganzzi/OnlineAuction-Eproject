@@ -67,6 +67,11 @@ const SignIn: React.FC = () => {
           ...errors,
           message: "Wrong email or password",
         })
+      } else if (e?.response?.status == 403) {
+        setErrors({
+          ...errors,
+          message: e?.response?.data?.message,
+        })
       }
       
     });    

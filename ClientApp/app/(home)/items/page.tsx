@@ -65,9 +65,6 @@ const fetchItems = async (searchParams: SearchParams): Promise<ItemProps> => {
 
   const res = response.data;  
 
-  console.log(res);
-  
-
   const items: Item[] = res?.listSearch;
   const total = res?.count;  
 

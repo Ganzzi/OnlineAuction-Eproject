@@ -25,10 +25,12 @@ namespace DomainLayer.Entities.Models
         public string Document { get; set; }
 
         [NotMapped]
+        [Required]
         public IFormFile? ImageFile { get; set; }
 
         [NotMapped]
-        public IFormFile? DocumentFile { get;}
+        [Required]
+        public IFormFile? DocumentFile { get; set; }
 
         [ForeignKey("SellerId")]
         public User? Seller { get; set; }
