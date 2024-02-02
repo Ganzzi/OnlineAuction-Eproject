@@ -42,7 +42,7 @@ const ItemCard = ({ item }: { item: Item }) => {
     <div className="bg-white shadow-md rounded-lg p-4 transition-transform transform hover:scale-105 relative mx-3 my-2"
       onClick={() => router.push(`/items/${item.itemId}`)}
     >
-      <div className='-right-3 -top-3 absolute p-3 bg-meta-3 text-black-2 rounded-3xl'>
+      <div className='-right-2 top-20 absolute p-3 bg-meta-3 text-black-2 rounded-3xl'>
         {itemStatus == "started" && (
           <div>
             <p className='text-font-bold text-lg'>Auction End in</p>
@@ -63,9 +63,9 @@ const ItemCard = ({ item }: { item: Item }) => {
           </div>
         )}
       </div>
-      <h5 className="text-3xl text-black font-bold mb-2">{item.title}</h5>
+      <h5 className="text-2xl text-black font-bold mb-2">{item.title}</h5>
       <p className="text-body mb-4">{item.description}</p>
-      <img src={item.image} alt={item.title} className="w-full mb-4" />
+      <img src={item.image} alt={item.title} className="h-1/2 w-auto mb-4" />
       <p className="text-body mb-4">Current Price: <span className='text-meta-1 text-lg'>${HighestBid}</span></p>
       <div className='flex flex-row justify-between'>
         <div>

@@ -222,7 +222,7 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
 
           <div className="flex flex-row items-center">
             {item?.image && (
-              <img src={item.image} className="w-36 h-36" alt="" />
+              <img src={item.image} className="w-36 h-36 m-3" alt="" />
             )}
             <FileUpload onFileChange={handleImageChange} accept="image/*" />
 
@@ -324,7 +324,7 @@ const Index: React.FC<PageProps> = ({ item, categories, existedCategories }) => 
             {resMessage.content == "require: StartDate < EndDate"  && resMessage.content}
           </p>
           <input
-            type="datetime-local"
+            type="date"
             value={formData.item.startDate.substring(0, 10)} // Extracting the date part
             onChange={(e) => setFormData((prev) => ({ ...prev, item: { ...prev.item, startDate: e.target.value }, }))}
             className="w-full rounded-lg border-[1.5px] border-primary bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:bg-form-input"

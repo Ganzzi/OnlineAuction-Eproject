@@ -142,7 +142,7 @@ const BoughtItemsList: React.FC<BoughtItemsListProps> = ({ auctionHistories }) =
                         key={auc.auctionHistoryId}
                         onClick={() => router.push(`/profile/auction/${auc.auctionHistoryId}`)}
                         className="mb-2 hover:bg-meta-3 px-2 py-1 flex flex-row items-center">
-                        <img src={auc?.item?.image} width={30} height={30} className="mr-2" alt="" />{auc?.item?.title} - ${auc?.winningBid.toFixed(2)} - {new Date(auc.endDate).toLocaleString()}
+                        <img src={auc?.item?.image} width={30} height={30} className="mr-2" alt="" />{auc?.item?.title} - ${auc?.winningBid} - {new Date(auc.endDate).toLocaleString()}
                     </li>
                 ))}
             </ul>

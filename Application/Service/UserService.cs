@@ -33,28 +33,61 @@ namespace Application.Service
         {
             try
             {
-                var categoryspec = new BaseSpecification<Category>();
-                    //  .AddInclude(x => x.Include(x => x.CategoryItems).ThenInclude(x => x.Item));
-                var liscategory = await _u.Repository<Category>().ListAsynccheck(categoryspec);
-
-                foreach (var item in liscategory)
+                var categoryspec2 = new BaseSpecification<Category>();
+                var liscategory2 = await _u.Repository<Category>().ListAsynccheck(categoryspec2);
+                foreach (var item in liscategory2)
                 {
                     var cateItemSpec = new BaseSpecification<CategoryItem>
-                        (ci => ci.CategoryId == item.CategoryId)
-                            .AddInclude(q => 
-                                q.Include(ci => ci.Item)
-                                    .ThenInclude(i => i.Bids)
-                                .Include(ci => ci.Item)
-                                    .ThenInclude(i => i.AuctionHistory)
-                                        .ThenInclude(ah => ah.Winner)
-                                .Include(ci => ci.Item)
-                                    .ThenInclude(i => i.Seller))
-                            .ApplyPaging(0, 10)
-                            .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
-                    item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
+                    (ci => ci.CategoryId == item.CategoryId);
+                    
+                    var cis = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
+
+                    item.CategoryItems = cis;
+
+                    foreach (var ci in item.CategoryItems)
+                    {
+                        var itemSpec = new BaseSpecification<Item>
+                        (i => i.ItemId == ci.ItemId)
+                        .AddInclude(q => q
+                            .Include(i => i.Bids)
+                            .Include(i => i.Seller)
+                            .Include(i => i.AuctionHistory)
+                                .ThenInclude(ah => ah.Winner));
+                        
+                        var i = await _u.Repository<Item>().FindOne(itemSpec);
+                        i.CategoryItems = null;
+
+                        ci.Item = i;
+                    }
+
+
+                   List<CategoryItem> topTen = item.CategoryItems
+                    .OrderByDescending(ci => ci.Item.Bids.Count)
+                    .Take(4)
+                    .ToList();
+
+                    item.CategoryItems = topTen;
                 }
 
-                return liscategory;
+                // foreach (var item in liscategory)
+                // {
+                //     var cateItemSpec = new BaseSpecification<CategoryItem>
+                //         (ci => ci.CategoryId == item.CategoryId)
+                //             .AddInclude(q => 
+                //                 q.Include(ci => ci.Item)
+                //                 //     .ThenInclude(i => i.Bids)
+                //                 // .Include(ci => ci.Item)
+                //                 //     .ThenInclude(i => i.AuctionHistory)
+                //                 //         .ThenInclude(ah => ah.Winner)
+                //                 // .Include(ci => ci.Item)
+                //                 //     .ThenInclude(i => i.Seller)
+                //                 )
+                //             .ApplyPaging(0, 10)
+                //             .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
+                //     item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
+                // }
+
+                return liscategory2;
 
             }
             catch (Exception e)

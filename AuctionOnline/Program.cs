@@ -22,8 +22,9 @@ builder.Services.AddInfrastructureServices(appSettings);
 builder.Services.AddControllers();
 builder.Services.AddControllers().AddJsonOptions(x =>
                 {
-                    x.JsonSerializerOptions.MaxDepth = 64; 
+                    // x.JsonSerializerOptions.MaxDepth = 64; 
                     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                    // x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
                 });
 
 builder.Services.AddAuthentication(x =>

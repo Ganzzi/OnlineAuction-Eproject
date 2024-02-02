@@ -142,7 +142,7 @@ const Index = ({ itemData }: { itemData: Item }) => {
               </div>
             </div>
             <Link
-              href={`${process.env.NEXT_PUBLIC_SERVER_URL}/${itemData.document}`}
+              href={`${process.env.NEXT_PUBLIC_SERVER_URL}/Upload/Files/${itemData.document}`}
               target='blank'
               className='text-lg text-secondary hover:text-meta-5'
             >

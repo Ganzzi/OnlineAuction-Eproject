@@ -25,7 +25,7 @@ const Header = () => {
               height={32}
             />
           </Link>
-          <Link href={'/items'} className={`${pathname.startsWith("/items") ? "text-meta-7" : ""}`}>Market</Link>
+          <Link href={'/items'} className={`${pathname.startsWith("/items") ? "text-meta-7" : ""} hover:text-meta-5`}>Market</Link>
           <Search />
         </div>
 

@@ -329,9 +329,13 @@ namespace Application.Service.AdminServicevice
             try
             {
                 var skip = take * (page - 1);
-                var spec = new BaseSpecification<Item>().AddInclude(q=> q.Include(i => i.Seller)).ApplyPaging(skip, take);
-                var listspec = await _u.Repository<Item>().ListAsynccheck(spec);
+                var spec = new BaseSpecification<Item>();
                 var count = await _u.Repository<Item>().CountAsync(spec);
+
+                spec = spec
+                    .AddInclude(q=> q.Include(i => i.Seller))
+                    .ApplyPaging(skip, take);
+                var listspec = await _u.Repository<Item>().ListAsynccheck(spec);
                 var ItemRatingAndBidCounts = new Dictionary<Item, (int, int)>();
                 foreach (var item in listspec)
                 {

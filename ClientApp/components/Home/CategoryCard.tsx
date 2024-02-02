@@ -21,7 +21,7 @@ const CategoryCard = ({ category }: { category: Category }) => {
       <div className='flex flex-row justify-between'>
         <div>
           <h5 className="text-5xl font-bold mb-2 text-meta-6">{category.categoryName}</h5>
-          <p className="text-meta-8 mb-4">{category.description}</p>
+          <p className="text-black mb-4">{category.description}</p>
         </div>
 
         <div>

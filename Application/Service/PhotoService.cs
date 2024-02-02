@@ -81,7 +81,7 @@ namespace Application.Service
                 await file.CopyToAsync(stream);
             }
 
-            string res = Path.Combine("Upload/Files", filename);
+            string res = Path.Combine(filename);
 
             return res;
         }
