@@ -27,6 +27,15 @@ namespace Application.Service
                 );
             _c = new Cloudinary(acc);
         }
+          
+
+        public async Task<DeletionResult> DeletPhoto(string publicId)
+        {
+            var deletParams = new DeletionParams(publicId);
+            var result = await _c.DestroyAsync(deletParams);
+            return result;
+        }
+
         public async Task<string> addPhoto(IFormFile file)
         {
             var uploadresult = new ImageUploadResult();
@@ -43,11 +52,47 @@ namespace Application.Service
             return uploadresult.SecureUrl.ToString();
         }
 
-        public async Task<DeletionResult> DeletPhoto(string publicId)
+        public async Task<string> WriteFile(IFormFile file)
         {
-            var deletParams = new DeletionParams(publicId);
-            var result = await _c.DestroyAsync(deletParams);
-            return result;
+            string filename = "";
+            string exactpath = "";
+            try
+            {
+                var extension = "." + file.FileName.Split('.')[file.FileName.Split('.').Length - 1];
+                filename = DateTime.Now.Ticks.ToString() + extension;
+
+                var filepath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files");
+
+                if (!Directory.Exists(filepath))
+                {
+                    Directory.CreateDirectory(filepath);
+                }
+
+                exactpath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files", filename);
+                using (var stream = new FileStream(exactpath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            return exactpath;
+        }
+
+        public async Task DeleteFile(string filename)
+        {
+            try
+            {
+                var filepath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files", filename);
+                if (File.Exists(filepath))
+                {
+                    File.Delete(filepath);
+                }
+            }
+            catch (Exception ex)
+            {
+            }
         }
     }
 }

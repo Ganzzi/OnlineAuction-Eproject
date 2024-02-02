@@ -226,9 +226,13 @@ namespace Application.Service
                 {
                     return (null, "require: item image"); ; ;
                 }
-
+                if (req.Item.DocumentFile == null)
+                {
+                    return (null, "require:item file");
+                }
                 // Add the item with the associated image
                 req.Item.Image = await _p.addPhoto(req.Item.ImageFile);
+                req.Item.Document = await _p.WriteFile(req.Item.DocumentFile);
                 var addedItem = await _u.Repository<Item>().AddAsync(req.Item);
 
                 await _u.SaveChangesAsync();
@@ -370,7 +374,12 @@ namespace Application.Service
                     var addpicture = await _p.addPhoto(req.Item.ImageFile);
                     newItem.Image = addpicture; 
                 }
-
+                if (req.Item.DocumentFile != null)
+                {
+                   await _p.DeleteFile(req.Item.DocumentFile.FileName);
+                    var addfile = await _p.WriteFile(req.Item.DocumentFile);
+                    newItem.Document = addfile;
+                }
                 _u.Repository<Item>().Update(newItem);
                 await _u.SaveChangesAsync();
 
