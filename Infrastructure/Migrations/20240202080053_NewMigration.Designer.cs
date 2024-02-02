@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240131155151_V0")]
-    partial class V0
+    [Migration("20240202080053_NewMigration")]
+    partial class NewMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -115,17 +115,17 @@ namespace Infrastructure.Migrations
                         new
                         {
                             BidId = 1,
-                            BidAmount = 100f,
-                            BidDate = new DateTime(2024, 1, 31, 22, 51, 51, 110, DateTimeKind.Local).AddTicks(9615),
-                            ItemId = 1,
+                            BidAmount = 10f,
+                            BidDate = new DateTime(2024, 2, 2, 15, 0, 53, 350, DateTimeKind.Local).AddTicks(4820),
+                            ItemId = 2,
                             UserId = 1
                         },
                         new
                         {
                             BidId = 2,
-                            BidAmount = 200f,
-                            BidDate = new DateTime(2024, 1, 31, 22, 51, 51, 110, DateTimeKind.Local).AddTicks(9626),
-                            ItemId = 2,
+                            BidAmount = 12f,
+                            BidDate = new DateTime(2024, 2, 2, 15, 0, 53, 350, DateTimeKind.Local).AddTicks(4852),
+                            ItemId = 1,
                             UserId = 2
                         });
                 });
@@ -229,6 +229,10 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Document")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
@@ -269,24 +273,28 @@ namespace Infrastructure.Migrations
                         {
                             ItemId = 1,
                             Description = "Description for Item 1",
+                            Document = "Online Auction.doc",
                             EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
-                            IncreasingAmount = 100f,
+                            IncreasingAmount = 2f,
+                            ReservePrice = 16f,
                             SellerId = 1,
-                            StartDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StartingPrice = 1000f,
+                            StartDate = new DateTime(2024, 2, 2, 15, 0, 53, 350, DateTimeKind.Local).AddTicks(4876),
+                            StartingPrice = 8f,
                             Title = "Item 1"
                         },
                         new
                         {
                             ItemId = 2,
                             Description = "Description for Item 2",
+                            Document = "Online Auction.doc",
                             EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
-                            IncreasingAmount = 100f,
+                            IncreasingAmount = 2f,
+                            ReservePrice = 20f,
                             SellerId = 1,
                             StartDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            StartingPrice = 2000f,
+                            StartingPrice = 10f,
                             Title = "Item 2"
                         });
                 });
@@ -375,7 +383,7 @@ namespace Infrastructure.Migrations
                             Rate = 4.5f,
                             RatedUserId = 2,
                             RaterId = 1,
-                            RatingDate = new DateTime(2024, 1, 31, 22, 51, 51, 110, DateTimeKind.Local).AddTicks(9676)
+                            RatingDate = new DateTime(2024, 2, 2, 15, 0, 53, 350, DateTimeKind.Local).AddTicks(4936)
                         },
                         new
                         {
@@ -384,7 +392,7 @@ namespace Infrastructure.Migrations
                             Rate = 4f,
                             RatedUserId = 1,
                             RaterId = 2,
-                            RatingDate = new DateTime(2024, 1, 31, 22, 51, 51, 110, DateTimeKind.Local).AddTicks(9678)
+                            RatingDate = new DateTime(2024, 2, 2, 15, 0, 53, 350, DateTimeKind.Local).AddTicks(4939)
                         });
                 });
 
@@ -470,7 +478,7 @@ namespace Infrastructure.Migrations
                             Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             Email = "batman123@gmail.com",
                             Name = "batman",
-                            Password = "b6d66b8e89f46d29fc7480552e5cd34747c0c7a3017364329e9299c3f1df01d3",
+                            Password = "B6-D6-6B-8E-89-F4-6D-29-FC-74-80-55-2E-5C-D3-47-47-C0-C7-A3-01-73-64-32-9E-92-99-C3-F1-DF-01-D3",
                             Role = "User"
                         },
                         new
@@ -479,7 +487,7 @@ namespace Infrastructure.Migrations
                             Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             Email = "ironman123@gmail.com",
                             Name = "ironman",
-                            Password = "9a44c472f319b374d598c106619b6b02a7c9577bc7826e8061f288b72a388c0e",
+                            Password = "9A-44-C4-72-F3-19-B3-74-D5-98-C1-06-61-9B-6B-02-A7-C9-57-7B-C7-82-6E-80-61-F2-88-B7-2A-38-8C-0E",
                             Role = "User"
                         },
                         new
@@ -488,7 +496,7 @@ namespace Infrastructure.Migrations
                             Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
                             Email = "admin123@gmail.com",
                             Name = "admin",
-                            Password = "60fe74406e7f353ed979f350f2fbb6a2e8690a5fa7d1b0c32983d1d8b3f95f67",
+                            Password = "60-FE-74-40-6E-7F-35-3E-D9-79-F3-50-F2-FB-B6-A2-E8-69-0A-5F-A7-D1-B0-C3-29-83-D1-D8-B3-F9-5F-67",
                             Role = "Admin"
                         });
                 });
