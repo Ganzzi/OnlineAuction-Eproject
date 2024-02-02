@@ -85,7 +85,8 @@ namespace Infrastructure.Data
                           ReservePrice = 16,
                           SellerId = 1,
                           StartDate = DateTime.Now,
-                          Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
+                          Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
+                          Document = "Online Auction.doc"
                       },
                       new Item
                       {
@@ -96,7 +97,8 @@ namespace Infrastructure.Data
                           IncreasingAmount = 2,
                           ReservePrice = 20,
                           SellerId = 1,
-                          Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
+                          Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
+                          Document = "Online Auction.doc"
                       }
                   );
 
