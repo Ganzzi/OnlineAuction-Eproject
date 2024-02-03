@@ -56,6 +56,22 @@ namespace Infrastructure.Migrations
                     b.HasIndex("WinnerId");
 
                     b.ToTable("AuctionHistory");
+
+                    b.HasData(
+                        new
+                        {
+                            AuctionHistoryId = 1,
+                            EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ItemId = 1,
+                            WinningBid = 199f
+                        },
+                        new
+                        {
+                            AuctionHistoryId = 2,
+                            EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ItemId = 2,
+                            WinningBid = 199f
+                        });
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.Bid", b =>
@@ -91,6 +107,24 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("BidTable");
+
+                    b.HasData(
+                        new
+                        {
+                            BidId = 1,
+                            BidAmount = 10f,
+                            BidDate = new DateTime(2024, 2, 3, 11, 6, 34, 412, DateTimeKind.Local).AddTicks(1739),
+                            ItemId = 2,
+                            UserId = 1
+                        },
+                        new
+                        {
+                            BidId = 2,
+                            BidAmount = 12f,
+                            BidDate = new DateTime(2024, 2, 3, 11, 6, 34, 412, DateTimeKind.Local).AddTicks(1762),
+                            ItemId = 1,
+                            UserId = 2
+                        });
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.Category", b =>
@@ -118,6 +152,20 @@ namespace Infrastructure.Migrations
                     b.HasKey("CategoryId");
 
                     b.ToTable("CategoryTable");
+
+                    b.HasData(
+                        new
+                        {
+                            CategoryId = 1,
+                            CategoryName = "Sports",
+                            Description = "Get the latest scoop on your favorite sports teams and players, plus expert analysis and commentary on the biggest games and events"
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            CategoryName = "Health",
+                            Description = "Stay healthy and informed with our comprehensive coverage of health and wellness"
+                        });
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.CategoryItem", b =>
@@ -147,6 +195,20 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ItemId");
 
                     b.ToTable("CategoryItem");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CategoryId = 1,
+                            ItemId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CategoryId = 2,
+                            ItemId = 2
+                        });
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.Item", b =>
@@ -202,6 +264,36 @@ namespace Infrastructure.Migrations
                     b.HasIndex("SellerId");
 
                     b.ToTable("ItemTable");
+
+                    b.HasData(
+                        new
+                        {
+                            ItemId = 1,
+                            Description = "Description for Item 1",
+                            Document = "638424880943910685.doc",
+                            EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
+                            IncreasingAmount = 2f,
+                            ReservePrice = 16f,
+                            SellerId = 1,
+                            StartDate = new DateTime(2024, 2, 3, 11, 6, 34, 412, DateTimeKind.Local).AddTicks(1783),
+                            StartingPrice = 8f,
+                            Title = "Item 1"
+                        },
+                        new
+                        {
+                            ItemId = 2,
+                            Description = "Description for Item 2",
+                            Document = "638424880943910685.doc",
+                            EndDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
+                            IncreasingAmount = 2f,
+                            ReservePrice = 20f,
+                            SellerId = 1,
+                            StartDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            StartingPrice = 10f,
+                            Title = "Item 2"
+                        });
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.Notification", b =>
@@ -279,6 +371,26 @@ namespace Infrastructure.Migrations
                     b.HasIndex("RaterId");
 
                     b.ToTable("Rating");
+
+                    b.HasData(
+                        new
+                        {
+                            RatingId = 1,
+                            ItemId = 1,
+                            Rate = 4.5f,
+                            RatedUserId = 2,
+                            RaterId = 1,
+                            RatingDate = new DateTime(2024, 2, 3, 11, 6, 34, 412, DateTimeKind.Local).AddTicks(1840)
+                        },
+                        new
+                        {
+                            RatingId = 2,
+                            ItemId = 2,
+                            Rate = 4f,
+                            RatedUserId = 1,
+                            RaterId = 2,
+                            RatingDate = new DateTime(2024, 2, 3, 11, 6, 34, 412, DateTimeKind.Local).AddTicks(1843)
+                        });
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.RefreshToken", b =>
@@ -355,6 +467,35 @@ namespace Infrastructure.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Usertable");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
+                            Email = "batman123@gmail.com",
+                            Name = "batman",
+                            Password = "B6-D6-6B-8E-89-F4-6D-29-FC-74-80-55-2E-5C-D3-47-47-C0-C7-A3-01-73-64-32-9E-92-99-C3-F1-DF-01-D3",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
+                            Email = "ironman123@gmail.com",
+                            Name = "ironman",
+                            Password = "9A-44-C4-72-F3-19-B3-74-D5-98-C1-06-61-9B-6B-02-A7-C9-57-7B-C7-82-6E-80-61-F2-88-B7-2A-38-8C-0E",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            UserId = 3,
+                            Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
+                            Email = "admin123@gmail.com",
+                            Name = "admin",
+                            Password = "60-FE-74-40-6E-7F-35-3E-D9-79-F3-50-F2-FB-B6-A2-E8-69-0A-5F-A7-D1-B0-C3-29-83-D1-D8-B3-F9-5F-67",
+                            Role = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.Models.AuctionHistory", b =>

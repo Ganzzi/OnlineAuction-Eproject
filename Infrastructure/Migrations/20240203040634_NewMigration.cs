@@ -280,8 +280,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "ItemId", "Created", "Description", "Document", "EndDate", "Image", "IncreasingAmount", "LastModified", "ReservePrice", "SellerId", "StartDate", "StartingPrice", "Title" },
                 values: new object[,]
                 {
-                    { 1, null, "Description for Item 1", "Online Auction.doc", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 2f, null, 16f, 1, new DateTime(2024, 2, 2, 15, 0, 53, 350, DateTimeKind.Local).AddTicks(4876), 8f, "Item 1" },
-                    { 2, null, "Description for Item 2", "Online Auction.doc", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 2f, null, 20f, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 10f, "Item 2" }
+                    { 1, null, "Description for Item 1", "638424880943910685.doc", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 2f, null, 16f, 1, new DateTime(2024, 2, 3, 11, 6, 34, 412, DateTimeKind.Local).AddTicks(1783), 8f, "Item 1" },
+                    { 2, null, "Description for Item 2", "638424880943910685.doc", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png", 2f, null, 20f, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 10f, "Item 2" }
                 });
 
             migrationBuilder.InsertData(
@@ -298,8 +298,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "BidId", "BidAmount", "BidDate", "Created", "ItemId", "LastModified", "UserId" },
                 values: new object[,]
                 {
-                    { 1, 10f, new DateTime(2024, 2, 2, 15, 0, 53, 350, DateTimeKind.Local).AddTicks(4820), null, 2, null, 1 },
-                    { 2, 12f, new DateTime(2024, 2, 2, 15, 0, 53, 350, DateTimeKind.Local).AddTicks(4852), null, 1, null, 2 }
+                    { 1, 10f, new DateTime(2024, 2, 3, 11, 6, 34, 412, DateTimeKind.Local).AddTicks(1739), null, 2, null, 1 },
+                    { 2, 12f, new DateTime(2024, 2, 3, 11, 6, 34, 412, DateTimeKind.Local).AddTicks(1762), null, 1, null, 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -316,8 +316,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "RatingId", "Created", "ItemId", "LastModified", "Rate", "RatedUserId", "RaterId", "RatingDate" },
                 values: new object[,]
                 {
-                    { 1, null, 1, null, 4.5f, 2, 1, new DateTime(2024, 2, 2, 15, 0, 53, 350, DateTimeKind.Local).AddTicks(4936) },
-                    { 2, null, 2, null, 4f, 1, 2, new DateTime(2024, 2, 2, 15, 0, 53, 350, DateTimeKind.Local).AddTicks(4939) }
+                    { 1, null, 1, null, 4.5f, 2, 1, new DateTime(2024, 2, 3, 11, 6, 34, 412, DateTimeKind.Local).AddTicks(1840) },
+                    { 2, null, 2, null, 4f, 1, 2, new DateTime(2024, 2, 3, 11, 6, 34, 412, DateTimeKind.Local).AddTicks(1843) }
                 });
 
             migrationBuilder.CreateIndex(

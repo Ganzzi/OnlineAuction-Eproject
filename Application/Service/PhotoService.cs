@@ -20,8 +20,7 @@ namespace Application.Service
     public class PhotoService : IphotoService
     {
         private readonly Cloudinary _c;
-        private IHostingEnvironment _hostEnvironment;
-        public PhotoService(IOptions<CloudKey> config, IHostingEnvironment hostEnvironment)
+        public PhotoService(IOptions<CloudKey> config)
         {
             var acc = new Account(
                 config.Value.CloudName,
@@ -29,7 +28,6 @@ namespace Application.Service
                     config.Value.ApiSecret
                 );
             _c = new Cloudinary(acc);
-            _hostEnvironment = hostEnvironment;
         }
           
 
