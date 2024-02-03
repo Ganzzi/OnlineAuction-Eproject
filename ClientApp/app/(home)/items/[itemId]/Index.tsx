@@ -89,6 +89,8 @@ const Index = ({ itemData }: { itemData: Item }) => {
           content: res.data?.message,
           color: "meta-4"
         })
+
+        router.refresh();
       }
     }).catch((e) => {
       console.log(e?.response);
@@ -172,6 +174,9 @@ const Index = ({ itemData }: { itemData: Item }) => {
 
         {user && !isItemSeller && itemStatus === 'started' && (
           <div className="mb-8">
+            {itemData.reservePrice && (
+              <p className='text-meta-3 text-center text-xl'>Preserve Price: {itemData.reservePrice}</p>
+            )}
             <p className='text-meta-8'>Increasing Amount: {itemData.increasingAmount}</p>
             <p className='text-meta-8'>Highest Bid: {HighestBid}</p>
             <p className='text-meta-7'>* Current Minimum bid: {MinimumBid}</p>
