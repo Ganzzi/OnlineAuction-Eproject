@@ -70,7 +70,7 @@ namespace AuctionOnline.Controllers
         [HttpGet]
         public async Task<IActionResult> ListItemsWithQuery(
             [FromQuery] int page = 1,
-            [FromQuery] int take = 10, 
+            [FromQuery] int take = 10,
             [FromQuery] string? search = "",
             [FromQuery] string? order = "",
             [FromQuery] int? cate = null
@@ -94,6 +94,7 @@ namespace AuctionOnline.Controllers
         //sell item
         // TODO: add CategoryItem[] to db base on category[]
         // ****checked
+        [Authorize(Roles = "User")]
         [Route("SellItem")]
         [HttpPost]
         [Consumes("multipart/form-data")]
@@ -119,14 +120,14 @@ namespace AuctionOnline.Controllers
 
                         await _hubContext.Clients.Group($"item_{req.Item.ItemId}")
                             .SendAsync(
-                                "AuctionEnded", 
-                                sellitem.Item1.ItemId, 
-                                sellitem.Item1.Title, 
-                                sellitem.Item1.SellerId, 
+                                "AuctionEnded",
+                                sellitem.Item1.ItemId,
+                                sellitem.Item1.Title,
+                                sellitem.Item1.SellerId,
                                 -1);
-                        timer.Dispose(); 
+                        timer.Dispose();
                     }
-                }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1)); 
+                }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
 
                 return Ok(new
                 {
@@ -134,7 +135,8 @@ namespace AuctionOnline.Controllers
                     message = sellitem.Item2,
                 });
             }
-            else {
+            else
+            {
                 return BadRequest(new
                 {
                     message = sellitem.Item2,
@@ -146,6 +148,7 @@ namespace AuctionOnline.Controllers
         // TODO: finish function, delete old & add CategoryItem[] to db base on category[]
         // ****checked
         [Route("UpdateItem")]
+        [Authorize(Roles = "User")]
         [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UpdateItem([FromForm] SellItemReqest req)
@@ -175,6 +178,7 @@ namespace AuctionOnline.Controllers
 
         // Place a bid
         // TODO: finish function, get userid by token, new Bid model
+        [Authorize(Roles = "User")]
         [Route("PlaceBid")]
         [HttpPost]
         public async Task<IActionResult> PlaceBid([FromBody] PlaceBidRequest req)
@@ -203,15 +207,15 @@ namespace AuctionOnline.Controllers
 
                     await _hubContext.Clients.Group($"item_{auctionHistory.Item1.Item.ItemId}")
                         .SendAsync(
-                            "AuctionEnded", 
-                            auctionHistory.Item1.Item.ItemId, 
-                            auctionHistory.Item1.Item.Title, 
-                            auctionHistory.Item1.Item.SellerId, 
+                            "AuctionEnded",
+                            auctionHistory.Item1.Item.ItemId,
+                            auctionHistory.Item1.Item.Title,
+                            auctionHistory.Item1.Item.SellerId,
                             auctionHistory.Item1.WinnerId);
 
                     var sellerMail = await _e.sendMailForSuccessBuyer(user.UserId, auctionHistory.Item1.Item.SellerId);
                     _e.sendMail(sellerMail);
-                    var buyerMail = await _e.sendMailForSuccessSeller(auctionHistory.Item1.Item.SellerId,user.UserId);
+                    var buyerMail = await _e.sendMailForSuccessSeller(auctionHistory.Item1.Item.SellerId, user.UserId);
                     _e.sendMail(buyerMail);
                     return Ok(new
                     {
@@ -304,7 +308,9 @@ namespace AuctionOnline.Controllers
         // - test function
         // TODO
         [Route("RateBuyer")]
-        [HttpPost]
+        [HttpPost
+         [Authorize(Roles = "User")]
+
         public async Task<IActionResult> RateBuyer([FromBody] RateBuyerRequest req)
         {
             var token = HttpContext.Request.Headers["Authorization"];
@@ -335,6 +341,8 @@ namespace AuctionOnline.Controllers
         // *** checked
         [Route("UpdateUser")]
         [HttpPost]
+        [Authorize(Roles = "User")]
+
         public async Task<IActionResult> UpdateUser([FromForm] User user)
         {
             var token = HttpContext.Request.Headers["Authorization"];
@@ -362,6 +370,8 @@ namespace AuctionOnline.Controllers
         //checkEmail and send link reset
         [Route("checkemailandsendlink")]
         [HttpPost]
+        [Authorize(Roles = "User")]
+
         public async Task<IActionResult> checkemailandsendlink(string email)
         {
             var checkEmail = await _e.CheckEmailAndTokenEmail(email);
@@ -392,6 +402,8 @@ namespace AuctionOnline.Controllers
         //reset Email
         [Route("ResetPassword")]
         [HttpPost]
+        [Authorize(Roles = "User")]
+
         public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
         {
             var checkPasswordReset = await _e.checkTokenEmailAndSaveNewPassword(model);

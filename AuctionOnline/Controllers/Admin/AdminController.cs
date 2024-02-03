@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuctionOnline.Controllers.Admin
 {
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdminController : ControllerBase

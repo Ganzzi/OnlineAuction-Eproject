@@ -58,6 +58,8 @@ const Index = ({ itemData }: { itemData: Item }) => {
 
     if (!isLoggedIn) {
       router.push("/auth/signin")
+
+      return;
     }
 
     if (bidAmount == "") {
