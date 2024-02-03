@@ -308,7 +308,7 @@ namespace AuctionOnline.Controllers
         // - test function
         // TODO
         [Route("RateBuyer")]
-        [HttpPost
+        [HttpPost]
          [Authorize(Roles = "User")]
 
         public async Task<IActionResult> RateBuyer([FromBody] RateBuyerRequest req)

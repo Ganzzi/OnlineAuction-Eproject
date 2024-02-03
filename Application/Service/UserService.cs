@@ -55,6 +55,18 @@ namespace Application.Service
                                 .ThenInclude(ah => ah.Winner));
                         
                         var i = await _u.Repository<Item>().FindOne(itemSpec);
+
+                        foreach (var b in i.Bids)
+                        {
+                            b.User = null;
+                        }
+                        i.Seller.Bids = null;
+                        
+                        if (i.AuctionHistory.Winner != null)
+                        {
+                            i.AuctionHistory.Winner.Bids = null;
+                        }
+                            
                         i.CategoryItems = null;
 
                         ci.Item = i;
