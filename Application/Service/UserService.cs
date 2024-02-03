@@ -33,22 +33,61 @@ namespace Application.Service
         {
             try
             {
-                var categoryspec = new BaseSpecification<Category>();
-                    //  .AddInclude(x => x.Include(x => x.CategoryItems).ThenInclude(x => x.Item));
-                var liscategory = await _u.Repository<Category>().ListAsynccheck(categoryspec);
-
-                foreach (var item in liscategory)
+                var categoryspec2 = new BaseSpecification<Category>();
+                var liscategory2 = await _u.Repository<Category>().ListAsynccheck(categoryspec2);
+                foreach (var item in liscategory2)
                 {
                     var cateItemSpec = new BaseSpecification<CategoryItem>
-                        (ci => ci.CategoryId == item.CategoryId)
-                        .AddInclude(q => q.Include(ci => ci.Item).ThenInclude(i => i.Bids)
-                        .Include(ci => ci.Item).ThenInclude(i => i.AuctionHistory).ThenInclude(ah => ah.Winner).Include(ci => ci.Item).ThenInclude(i => i.Seller))
-                        .ApplyPaging(0, 10)
-                        .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
-                        item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
+                    (ci => ci.CategoryId == item.CategoryId);
+                    
+                    var cis = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
+
+                    item.CategoryItems = cis;
+
+                    foreach (var ci in item.CategoryItems)
+                    {
+                        var itemSpec = new BaseSpecification<Item>
+                        (i => i.ItemId == ci.ItemId)
+                        .AddInclude(q => q
+                            .Include(i => i.Bids)
+                            .Include(i => i.Seller)
+                            .Include(i => i.AuctionHistory)
+                                .ThenInclude(ah => ah.Winner));
+                        
+                        var i = await _u.Repository<Item>().FindOne(itemSpec);
+                        i.CategoryItems = null;
+
+                        ci.Item = i;
+                    }
+
+
+                   List<CategoryItem> topTen = item.CategoryItems
+                    .OrderByDescending(ci => ci.Item.Bids.Count)
+                    .Take(4)
+                    .ToList();
+
+                    item.CategoryItems = topTen;
                 }
 
-                return liscategory;
+                // foreach (var item in liscategory)
+                // {
+                //     var cateItemSpec = new BaseSpecification<CategoryItem>
+                //         (ci => ci.CategoryId == item.CategoryId)
+                //             .AddInclude(q => 
+                //                 q.Include(ci => ci.Item)
+                //                 //     .ThenInclude(i => i.Bids)
+                //                 // .Include(ci => ci.Item)
+                //                 //     .ThenInclude(i => i.AuctionHistory)
+                //                 //         .ThenInclude(ah => ah.Winner)
+                //                 // .Include(ci => ci.Item)
+                //                 //     .ThenInclude(i => i.Seller)
+                //                 )
+                //             .ApplyPaging(0, 10)
+                //             .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
+                //     item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
+                // }
+
+                return liscategory2;
 
             }
             catch (Exception e)
@@ -91,11 +130,11 @@ namespace Application.Service
                 var user_with_email_exist_spec = new BaseSpecification<User>(x => x.Email.Equals(model.Email));
                 var user_with_email_exist = await _u.Repository<User>().FindOne(user_with_email_exist_spec);
 
-                if (user_with_email_exist != null)
+                if (user_with_email_exist != null && user_with_email_exist.Email != user.Email)
                 {
                     return (null, "Email Already in use");
                 }
-                var hashpassword = _a.HashPassWord(model.Password);
+                
                 if (model.AvatarFile != null)
                 {
                     if (user.Avatar != null)
@@ -112,7 +151,13 @@ namespace Application.Service
                     //user.Name = model.Name;
                     user.Email = model.Email;
                 }
-                if (model.Password != null) user.Password = hashpassword;
+                if (model.Password != null) {
+                    if (!IsValidPassword(model.Password))
+                    {
+                        return (null,  "Password must be at least 8 charater, 1 number and a Upper letter");
+                    }
+                    user.Password = _a.HashPassWord(model.Password);
+                };
                 
                 _u.Repository<User>().Update(user);
                 await _u.SaveChangesAsync();
@@ -123,7 +168,12 @@ namespace Application.Service
                 await _u.RollBackChangesAsync();
                 return (null, "update fail");
             }
+        }
 
+        public bool IsValidPassword(string password)
+        {
+            var regex = new System.Text.RegularExpressions.Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$");
+            return regex.IsMatch(password);
         }
 
         //item list with search query
@@ -163,7 +213,7 @@ namespace Application.Service
             {
                 var itemspec = new BaseSpecification<Item>(x => x.ItemId == id)
                     .AddInclude(x => x
-                    .Include(x => x.Bids)
+                    .Include(x => x.Bids).ThenInclude(b => b.User)
                     .Include(x => x.AuctionHistory)
                         .ThenInclude(ah => ah.Winner)
                     .Include(x => x.CategoryItems)
@@ -226,9 +276,13 @@ namespace Application.Service
                 {
                     return (null, "require: item image"); ; ;
                 }
-
+                if (req.Item.DocumentFile == null)
+                {
+                    return (null, "require:item file");
+                }
                 // Add the item with the associated image
                 req.Item.Image = await _p.addPhoto(req.Item.ImageFile);
+                req.Item.Document = await _p.WriteFile(req.Item.DocumentFile);
                 var addedItem = await _u.Repository<Item>().AddAsync(req.Item);
 
                 await _u.SaveChangesAsync();
@@ -370,7 +424,12 @@ namespace Application.Service
                     var addpicture = await _p.addPhoto(req.Item.ImageFile);
                     newItem.Image = addpicture; 
                 }
-
+                if (req.Item.DocumentFile != null)
+                {
+                   await _p.DeleteFile(req.Item.DocumentFile.FileName);
+                    var addfile = await _p.WriteFile(req.Item.DocumentFile);
+                    newItem.Document = addfile;
+                }
                 _u.Repository<Item>().Update(newItem);
                 await _u.SaveChangesAsync();
 
@@ -447,9 +506,12 @@ namespace Application.Service
                 var maxbid  = listBid.OrderByDescending(x => x.BidAmount).FirstOrDefault();
                 var Item = await _u.Repository<Item>().FindOne(new BaseSpecification<Item>(i => i.ItemId == req.ItemId));
               
-                if (req.Amount < (maxbid.BidAmount +  maxbid.Item.IncreasingAmount))
+                if (maxbid  != null)
                 {
-                    return (null,"Not valid Price");
+                    if (req.Amount < (maxbid.BidAmount +  maxbid.Item.IncreasingAmount))
+                    {   
+                        return (null,"Not valid Price");
+                    }
                 }
 
     

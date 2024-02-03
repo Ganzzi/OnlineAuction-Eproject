@@ -47,10 +47,10 @@ const Index = ({ searchParams, resource, categories }: { searchParams: SearchPar
   };
 
   return (
-    <div className='flex flex-col items-end'>
+    <div className='flex flex-col items-end relative'>
       <button
         onClick={() => router.push('/items/form')}
-        className="mt-2 px-4 py-2 bg-meta-5 hover:bg-meta-3 text-white rounded hover:bg-blue-600"
+        className="mt-2 px-4 py-2 bg-meta-5 hover:bg-meta-3 text-white rounded hover:bg-blue-600 absolute -top-5 right-5"
       >Sell Item</button>
 
       <div className="flex flex-row justify-start w-full">
@@ -67,15 +67,15 @@ const Index = ({ searchParams, resource, categories }: { searchParams: SearchPar
         />
 
         {/* Right Section: List of Item Cards and Pagination */}
-        <div className="w-3/4 p-4 space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
+        <div className="w-3/4 p-4">
+            {/* Pagination Component */}
+            <Pagination meta={resource.meta} />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3 gap-4 mt-3">
             {resource.data?.map((item) => (
               <ItemCard key={item.itemId} item={item} />
             ))}
           </div>
-
-          {/* Pagination Component */}
-          <Pagination meta={resource.meta} />
         </div>
       </div>
     </div>

@@ -21,7 +21,7 @@ const UsersPage = ({ searchParams }: { searchParams: SearchParams }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axiosService.get(`/api/Admin/GetListUserWithRatingAndBidCount${searchParams?.page != undefined ? "&page=" + searchParams?.page : ""}`);
+        const res = await axiosService.get(`/api/Admin/GetListUserWithRatingAndBidCount${searchParams?.page != undefined ? "?page=" + searchParams?.page : ""}`);
         
         const _data: UserData[] = res.data.userData; 
         const count = res.data.count;
@@ -36,7 +36,7 @@ const UsersPage = ({ searchParams }: { searchParams: SearchParams }) => {
     };
 
     fetchData();
-  }, []); 
+  }, [searchParams]); 
 
   return (
     <>

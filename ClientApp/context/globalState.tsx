@@ -90,6 +90,8 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
 
       await signalRService.startConnection(user.userId);
 
+      user.notifications = user.notifications?.reverse();
+      
       setUser(user);
     }
 
@@ -107,7 +109,7 @@ export const GlobalStateProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const handleSomeoneJoinItemRoom = (itemId: number, itemTitle: string, userId: number, username: string, bidAmount: number) => {
       const newNotification: Notification = {
-        notificationContent: `${userId == user.userId ? "you" : username} has placed a new bid on ${itemTitle} amount ${bidAmount}`,
+        notificationContent: `${userId == user.userId ? "you" : username} has placed a new bid amount ${bidAmount}`,
         notificationDate: new Date().toDateString(),
         notificationId: -1,
         userId,

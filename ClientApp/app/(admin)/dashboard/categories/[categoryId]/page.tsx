@@ -10,7 +10,7 @@ import { Category } from "@/types/models/category";
 import { useEffect, useState } from "react";
 import axiosService from "@/services/axiosService";
 import CategoryForm from "@/components/Dashboard/categories/CategoryForm";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import CategoryFilter from "@/components/Dashboard/categories/CategoryFilter";
 
 export type CategoryData = {
@@ -32,8 +32,10 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({ searchParams, p
   const pathname = usePathname();
   const [search, setSearch] = useState<string>(searchParams?.search as string || '');
   const [belongToCategory, setBelongToCategory] = useState<string | null>(searchParams?.belongToCategory as string || null);
+  
+  const _searchParams = useSearchParams()
 
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -70,7 +72,15 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({ searchParams, p
     };
 
     fetchData();
-  }, [categoryId, search, belongToCategory]);
+  }, [categoryId, searchParams?.page, search, belongToCategory]);
+
+  useEffect(() => {
+    const newSearchParams = new URLSearchParams(_searchParams);
+    newSearchParams.set("page", "1");
+    console.log(newSearchParams.get("page"));
+    
+    router.push(`${pathname}?${newSearchParams}`);
+  }, [search, belongToCategory])
 
   const handleSearchChange = (value: string) => {
     setSearch(value);

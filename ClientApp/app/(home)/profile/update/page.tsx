@@ -141,6 +141,16 @@ const ProfileUpdatingPage: React.FC = () => {
         }
       }).then(() => {
         router.push("/profile")
+      }).catch((e) => {
+        console.log(e);
+
+        if (e.response.status == 400) {
+          setErrors({
+            ...errors,
+            message: e.response?.data?.message
+          })
+        }
+
       });
 
     } catch (error) {
@@ -194,6 +204,8 @@ const ProfileUpdatingPage: React.FC = () => {
         }
       });
 
+      console.log(Array.from(formDataToSend));
+
       // Send the POST request to the backend
       await axiosService.post('/api/user/UpdateUser', formDataToSend, {
         headers: {
@@ -201,7 +213,17 @@ const ProfileUpdatingPage: React.FC = () => {
         }
       }).then(() => {
         router.push("/profile")
-      });
+      }).catch((e) => {
+        console.log(e);
+
+        if (e.response.status == 400) {
+          setErrors({
+            ...errors,
+            message: e.response?.data?.message
+          })
+        }
+
+      });;
 
     } catch (error) {
       // Handle errors
@@ -217,7 +239,7 @@ const ProfileUpdatingPage: React.FC = () => {
     if (!profileData.avatarFile) {
       setErrors({
         ...errors,
-        message: "Nothing to update",
+        message: "",
         avatarFile: 'please choose an image'
       })
       return;
@@ -243,7 +265,17 @@ const ProfileUpdatingPage: React.FC = () => {
         }
       }).then(() => {
         router.push("/profile")
-      });
+      }).catch((e) => {
+        console.log(e);
+
+        if (e.response.status == 400) {
+          setErrors({
+            ...errors,
+            message: e.response?.data?.message
+          })
+        }
+
+      });;
 
     } catch (error) {
       // Handle errors
@@ -260,7 +292,8 @@ const ProfileUpdatingPage: React.FC = () => {
           </h3>
         </div>
 
-        <p className="text-meta-1 text-center text-3xl">{errors.message}</p>
+        <p className="text-meta-1 text-center text-3xl">{errors.message != "Email Already in use"
+          && errors.message != "Password must be at least 8 charater, 1 number and a Upper letter"  && errors.message}</p>
 
         <div className="p-7">
           <form
@@ -354,7 +387,8 @@ const ProfileUpdatingPage: React.FC = () => {
                     value={profileData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
                   />
-                   <p className="text-meta-1 text-center">{errors.email}</p>
+                  <p className="text-meta-1 text-center">{errors.email}</p>
+                  <p className="text-meta-1 text-center">{errors.message == "Email Already in use" && errors.message}</p>
                 </div>
                 <div className="flex items-center justify-center mt-3">
 
@@ -362,10 +396,10 @@ const ProfileUpdatingPage: React.FC = () => {
                     className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
                     type="button"
                     onClick={handleEmailUpdate}
-                    >
+                  >
                     Update Email
                   </button>
-                    </div>
+                </div>
               </div>
             </div>
 
@@ -389,6 +423,7 @@ const ProfileUpdatingPage: React.FC = () => {
                 />
 
               </div>
+              <p className="text-meta-1 text-center">{errors.message == "Password must be at least 8 charater, 1 number and a Upper letter" && errors.message}</p>
               <p className="text-meta-1 text-center">{errors.password}</p>
 
               <div className="mb-5.5">
@@ -412,14 +447,14 @@ const ProfileUpdatingPage: React.FC = () => {
 
               <div className="flex items-center justify-center mt-3">
 
-              <button
-                className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
-                type="button"
-                onClick={handlePasswordUpdate}
+                <button
+                  className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
+                  type="button"
+                  onClick={handlePasswordUpdate}
                 >
-                Update Password
-              </button>
-                </div>
+                  Update Password
+                </button>
+              </div>
             </div>
 
             <div>
@@ -454,19 +489,19 @@ const ProfileUpdatingPage: React.FC = () => {
                 </div>
               </div>
 
-            <FileUpload onFileChange={handleFileChange} />
-            <p className="text-meta-1 text-center">{errors.avatarFile}</p>
+              <FileUpload onFileChange={handleFileChange} />
+              <p className="text-meta-1 text-center">{errors.avatarFile}</p>
 
-            <div className="flex flex-col items-center justify-center mt-3">
-              {profileData?.avatarFile && profileData?.avatarFile?.name}
-              <button
-                className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
-                type="button"
-                onClick={handleImageUpdate}
-              >
-                Update Image
-              </button>
-            </div>
+              <div className="flex flex-col items-center justify-center mt-3">
+                {profileData?.avatarFile && profileData?.avatarFile?.name}
+                <button
+                  className="flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-95"
+                  type="button"
+                  onClick={handleImageUpdate}
+                >
+                  Update Image
+                </button>
+              </div>
             </div>
 
             {/* <div className="flex justify-end gap-4.5">

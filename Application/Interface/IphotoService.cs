@@ -12,5 +12,8 @@ namespace Application.Interface
     {
         Task<string> addPhoto(IFormFile file);
         Task<DeletionResult> DeletPhoto(string file);
+        Task<string> WriteFile(IFormFile file);
+        Task DeleteFile(string filename);
+
     }
 }

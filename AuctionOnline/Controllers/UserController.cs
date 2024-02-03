@@ -185,7 +185,7 @@ namespace AuctionOnline.Controllers
 
             var auctionHistory = await _s.PlaceABid(req, user);
 
-            await _s.NotifyParticipants(req.ItemId, $"{user.UserId} has place a new bid on {req.ItemId}");
+            await _s.NotifyParticipants(req.ItemId, $"{user.Name} has place a new bid on {auctionHistory.Item1.Item.Title}");
 
             if (auctionHistory.Item1 != null)
             {

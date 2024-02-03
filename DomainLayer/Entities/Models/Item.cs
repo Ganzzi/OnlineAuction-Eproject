@@ -22,9 +22,15 @@ namespace DomainLayer.Entities.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string Image { get; set; }
+        public string Document { get; set; }
 
         [NotMapped]
+        [Required]
         public IFormFile? ImageFile { get; set; }
+
+        [NotMapped]
+        [Required]
+        public IFormFile? DocumentFile { get; set; }
 
         [ForeignKey("SellerId")]
         public User? Seller { get; set; }

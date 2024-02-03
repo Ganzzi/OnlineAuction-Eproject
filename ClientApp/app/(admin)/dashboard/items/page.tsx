@@ -21,7 +21,7 @@ const ItemsPage = ({ searchParams }: { searchParams: SearchParams }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axiosService.get(`/api/Admin/GetListItems${searchParams?.page != undefined ? "&page=" + searchParams?.page : ""}`);
+        const res = await axiosService.get(`/api/Admin/GetListItems${searchParams?.page != undefined ? "?page=" + searchParams?.page : ""}`);
 
         const _data: ItemData[] = res.data.listItem;
         const count = res.data.countpage;
@@ -36,7 +36,7 @@ const ItemsPage = ({ searchParams }: { searchParams: SearchParams }) => {
     };
 
     fetchData();
-  }, []);
+  }, [searchParams?.page]);
 
   return (
     <>

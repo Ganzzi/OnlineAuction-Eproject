@@ -28,9 +28,6 @@ const fetchItemData: (itemId: number) => Promise<Item> = async (itemId: number) 
 
   const itemData: Item = response.data;
 
-  console.log(itemData);
-  
-
   return itemData;
 }
 
@@ -38,6 +35,7 @@ export default async function  ItemDetailPage (
       { params: {itemId} }: { params: {itemId: number} }
     ) {
   const itemData = await fetchItemData(itemId);
+  itemData.bids = itemData.bids?.reverse();
   
   return (
   <>

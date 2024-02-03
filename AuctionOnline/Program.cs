@@ -19,8 +19,13 @@ builder.Services.AddAppService(appSettings);
 builder.Services.AddInfrastructureServices(appSettings);
 
 // Add services to the container.
+builder.Services.AddControllers();
 builder.Services.AddControllers().AddJsonOptions(x =>
-                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+                {
+                    // x.JsonSerializerOptions.MaxDepth = 64; 
+                    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                    // x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+                });
 
 builder.Services.AddAuthentication(x =>
 {
@@ -75,6 +80,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
 
 app.UseCors("mypolicy");
 

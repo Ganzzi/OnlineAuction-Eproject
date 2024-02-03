@@ -30,7 +30,7 @@ namespace AuctionOnline.Controllers
             {
                 return BadRequest(new
                 {
-                    message = "Invalid Password"
+                    message = "Password must be at least 8 charater, 1 number and a Upper letter"
                 });
             }
             if (!ModelState.IsValid)
@@ -44,6 +44,12 @@ namespace AuctionOnline.Controllers
             if (User == null)
             {
                 return Unauthorized();
+            } else if (User.Role == "Disable")
+            {
+                return StatusCode(403, new
+                {
+                    message = "Your account is locked"
+                });
             }
             var token = await _jwt.CreateToken(User);
             var RefreshToken = await  _jwt.createRrefreshtoken(User.UserId);
@@ -63,7 +69,7 @@ namespace AuctionOnline.Controllers
             {
                 return BadRequest(new
                 {
-                    message = "Invalid Password"
+                    message = "Password must be at least 8 charater, 1 number and a Upper letter"
                 });
             }
             if (!ModelState.IsValid)
