@@ -10,13 +10,10 @@ namespace Application.Interface
 {
     public interface IAuthService
     {
-       
         Task<User> Login(LoginModel model);
 
         Task<User> Register (RegisterModel model);
 
         string HashPassWord(string password);
-
-
     }
 }

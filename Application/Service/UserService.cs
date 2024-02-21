@@ -13,15 +13,23 @@ using System.Threading.Tasks;
 
 namespace Application.Service
 {
-    internal class UserService : IuserService
+    internal class UserService : IUserService
     {
         private readonly IUnitOfWork _u;
-        private readonly IphotoService _p;
+        private readonly IPhotoService _p;
 
         private readonly IAuthService _a;
-        private readonly IresetEmailService _r;
-        public UserService(IUnitOfWork u, IphotoService p, IAuthService a,IresetEmailService r)
+        private readonly IResetEmailService _r;
+        private readonly RedisService _redis;
+        public UserService(
+            IUnitOfWork u, 
+            IPhotoService p, 
+            IAuthService a, 
+            IResetEmailService r, 
+            RedisService redis
+        )
         {
+            _redis = redis;
             _u = u;
             _p = p;
             _a = a;
@@ -29,17 +37,21 @@ namespace Application.Service
         }
 
         // categorylist 
-        public async Task<IList<Category>> categorylist()
+        public async Task<IList<Category>> Categorylist()
         {
+            var key = $"user_category_list";
+            var cacheData = await _redis.GetCachedData<Category[]>(key);
+            if (cacheData != null){ return cacheData.ToList(); }
+
             try
             {
-                var categoryspec2 = new BaseSpecification<Category>();
-                var liscategory2 = await _u.Repository<Category>().ListAsynccheck(categoryspec2);
-                foreach (var item in liscategory2)
+                var categorySpec = new BaseSpecification<Category>();
+                var listCategory = await _u.Repository<Category>().ListAsynccheck(categorySpec);
+                foreach (var item in listCategory)
                 {
                     var cateItemSpec = new BaseSpecification<CategoryItem>
                     (ci => ci.CategoryId == item.CategoryId);
-                    
+
                     var cis = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
 
                     item.CategoryItems = cis;
@@ -53,53 +65,42 @@ namespace Application.Service
                             .Include(i => i.Seller)
                             .Include(i => i.AuctionHistory)
                                 .ThenInclude(ah => ah.Winner));
-                        
+
                         var i = await _u.Repository<Item>().FindOne(itemSpec);
 
-                        foreach (var b in i.Bids)
+                        if (i.Bids != null)
                         {
-                            b.User = null;
+                            foreach (var b in i.Bids)
+                            {
+                                b.User = null;
+                            }
                         }
-                        i.Seller.Bids = null;
-                        
+                        if (i.Seller != null)
+                        {
+                            i.Seller.Bids = null;
+                        }
+
                         if (i.AuctionHistory.Winner != null)
                         {
                             i.AuctionHistory.Winner.Bids = null;
                         }
-                            
+
                         i.CategoryItems = null;
 
                         ci.Item = i;
                     }
 
 
-                   List<CategoryItem> topTen = item.CategoryItems
-                    .OrderByDescending(ci => ci.Item.Bids.Count)
-                    .Take(4)
-                    .ToList();
+                    List<CategoryItem> topTen = item.CategoryItems
+                     .OrderByDescending(ci => ci.Item != null && ci.Item.Bids != null ? ci.Item.Bids.Count : 0)
+                     .Take(4)
+                     .ToList();
 
                     item.CategoryItems = topTen;
                 }
-
-                // foreach (var item in liscategory)
-                // {
-                //     var cateItemSpec = new BaseSpecification<CategoryItem>
-                //         (ci => ci.CategoryId == item.CategoryId)
-                //             .AddInclude(q => 
-                //                 q.Include(ci => ci.Item)
-                //                 //     .ThenInclude(i => i.Bids)
-                //                 // .Include(ci => ci.Item)
-                //                 //     .ThenInclude(i => i.AuctionHistory)
-                //                 //         .ThenInclude(ah => ah.Winner)
-                //                 // .Include(ci => ci.Item)
-                //                 //     .ThenInclude(i => i.Seller)
-                //                 )
-                //             .ApplyPaging(0, 10)
-                //             .ApplyOrderByDescending(ci => ci.Item.Bids.Count); 
-                //     item.CategoryItems = await _u.Repository<CategoryItem>().ListAsynccheck(cateItemSpec);
-                // }
-
-                return liscategory2;
+                
+                await _redis.SetCachedData<Category[]>(key, listCategory.ToArray(), TimeSpan.FromSeconds(180));
+                return listCategory;
 
             }
             catch (Exception e)
@@ -110,9 +111,15 @@ namespace Application.Service
         }
 
         //UserProfile ****
-        public async Task<User> getUser(string username)
+        public async Task<User> GetUser(string username)
         {
-            var spec = new BaseSpecification<User>(x => x.Name == username).AddInclude(x => x.Include(x => x.Notifications));
+            var key = $"user_user_{username}";
+            var cacheData = await _redis.GetCachedData<User>(key);
+            if (cacheData != null){ return cacheData; }
+
+            var spec = new BaseSpecification<User>
+                (x => x.Name == username)
+                    .AddInclude(x => x.Include(x => x.Notifications));
             var User = await _u.Repository<User>().FindOne(spec);
             try
             {
@@ -122,6 +129,7 @@ namespace Application.Service
                 }
                 else
                 {
+                    await _redis.SetCachedData<User>(key, User, TimeSpan.FromSeconds(180));
                     return User;
                 }
             }
@@ -146,31 +154,32 @@ namespace Application.Service
                 {
                     return (null, "Email Already in use");
                 }
-                
+
                 if (model.AvatarFile != null)
                 {
                     if (user.Avatar != null)
                     {
-                        await _p.DeletPhoto(user.Avatar);   
+                        await _p.DeletPhoto(user.Avatar);
                     }
-                    var CloudinaryUserAvatar = await _p.addPhoto(model.AvatarFile);
+                    var CloudinaryUserAvatar = await _p.AddPhoto(model.AvatarFile);
                     // user.Name = model.Name;
                     user.Email = model.Email;
                     user.Avatar = CloudinaryUserAvatar;
                 }
-                else 
+                else
                 {
                     //user.Name = model.Name;
                     user.Email = model.Email;
                 }
-                if (model.Password != null) {
+                if (model.Password != null)
+                {
                     if (!IsValidPassword(model.Password))
                     {
-                        return (null,  "Password must be at least 8 charater, 1 number and a Upper letter");
+                        return (null, "Password must be at least 8 charater, 1 number and a Upper letter");
                     }
                     user.Password = _a.HashPassWord(model.Password);
                 };
-                
+
                 _u.Repository<User>().Update(user);
                 await _u.SaveChangesAsync();
                 return (user, "update success");
@@ -189,25 +198,34 @@ namespace Application.Service
         }
 
         //item list with search query
-        public async Task<(IList<Item>, int)> searchItem(int page, int take, string search, string order, int? cate)
+        public async Task<(IList<Item>, int)> SearchItem(int page, int take, string search, string order, int? cate)
         {
+            var skip = take * (page - 1);
+            var key1 = $"user_search_item_{page}_{skip}_{search}_{order}_{cate}";
+            var key2 = $"user_search_item_{page}_{skip}_{search}_{order}_{cate}_count";
+            var cacheData1 = await _redis.GetCachedData<Item[]>(key1);
+            var cacheData2 = await _redis.GetCachedData<int>(key2);
+            if (cacheData1 != null){ return (cacheData1.ToList(), cacheData2); }
+
             try
             {
-                var skip = take * (page - 1);
 
                 var iSpec = new BaseSpecification<Item>(
-                    x => (search == null || x.Title.Contains(search)) && (cate == null || x.CategoryItems.Any(ci => ci.CategoryId == cate))
+                    x => (search == null || x.Title.Contains(search)) && (cate == null || (x.CategoryItems != null && x.CategoryItems.Any(ci => ci.CategoryId == cate)))
                 );
                 var count = await _u.Repository<Item>().CountAsync(iSpec);
-                 iSpec = iSpec
-                            .ApplyPaging(skip, take)
-                            .AddInclude(x => x.Include(x => x.Bids)
-                            .Include(i => i.Seller)
-                            .Include(i => i.AuctionHistory).ThenInclude(ah => ah.Winner))
-                            .ApplyOrderBy(x => order == "date" ? x.StartDate : x.Title);
-                
+                iSpec = iSpec
+                           .ApplyPaging(skip, take)
+                           .AddInclude(q => q
+                               .Include(x => x.Bids)
+                               .Include(i => i.Seller)
+                               .Include(i => i.AuctionHistory).ThenInclude(ah => ah.Winner))
+                           .ApplyOrderBy(x => order == "date" ? x.StartDate : x.Title);
+
                 var listItem = await _u.Repository<Item>().ListAsynccheck(iSpec);
 
+                await _redis.SetCachedData<Item[]>(key1, listItem.ToArray(), TimeSpan.FromSeconds(180));
+                await _redis.SetCachedData<int>(key2, count, TimeSpan.FromSeconds(180));
                 return (listItem, count);
             }
             catch (Exception ex)
@@ -217,10 +235,13 @@ namespace Application.Service
             }
         }
 
-
         //  get item by id
-        public async Task<Item> getItemById(int id)
+        public async Task<Item> GetItemById(int id)
         {
+            var key = $"user_item_{id}";
+            var cacheData = await _redis.GetCachedData<Item>(key);
+            if (cacheData != null){ return cacheData; }
+
             try
             {
                 var itemspec = new BaseSpecification<Item>(x => x.ItemId == id)
@@ -231,10 +252,11 @@ namespace Application.Service
                     .Include(x => x.CategoryItems)
                         .ThenInclude(ci => ci.Category)
                     .Include(x => x.Seller));
-                    
+
                 var item = await _u.Repository<Item>().FindOne(itemspec);
                 if (item != null)
                 {
+                    await _redis.SetCachedData<Item>(key, item, TimeSpan.FromSeconds(180));
                     return item;
                 }
                 else
@@ -251,7 +273,7 @@ namespace Application.Service
         }
 
         // sell item => img
-        public async Task<(Item,string)> sellItem(SellItemReqest req)
+        public async Task<(Item, string)> SellItem(SellItemReqest req)
         {
             try
             {
@@ -263,7 +285,9 @@ namespace Application.Service
                 if (req.Item.StartingPrice != 0 && req.Item.IncreasingAmount < req.Item.StartingPrice * 0.1)
                 {
                     return (null, "require: IncreasingAmount > 10% StartingPrice");
-                } else if (req.Item.StartingPrice == 0 && req.Item.IncreasingAmount < 10) {
+                }
+                else if (req.Item.StartingPrice == 0 && req.Item.IncreasingAmount < 10)
+                {
                     return (null, "require: IncreasingAmount > $10 when StartingPrice is zero");
                 }
                 if (req.Item.StartDate > req.Item.EndDate)
@@ -274,14 +298,14 @@ namespace Application.Service
                 {
                     return (null, "require: at least 1 category"); ; ;
                 }
-              
+
 
                 // Check if an item with the same title already exists
                 var existingItem = await _u.Repository<Item>().FindOne(new BaseSpecification<Item>(x => x.Title == req.Item.Title));
                 if (existingItem != null)
                 {
                     // Item with the same title already exists
-                    return (null,"title already exist in another item");
+                    return (null, "title already exist in another item");
                 }
 
                 if (req.Item.ImageFile == null)
@@ -293,7 +317,7 @@ namespace Application.Service
                     return (null, "require:item file");
                 }
                 // Add the item with the associated image
-                req.Item.Image = await _p.addPhoto(req.Item.ImageFile);
+                req.Item.Image = await _p.AddPhoto(req.Item.ImageFile);
                 req.Item.Document = await _p.WriteFile(req.Item.DocumentFile);
                 var addedItem = await _u.Repository<Item>().AddAsync(req.Item);
 
@@ -303,7 +327,7 @@ namespace Application.Service
                 if (addedItem == null || addedItem.ItemId <= 0)
                 {
                     // Handle the case where the item was not added successfully
-                    return (null,"item not exit");
+                    return (null, "item not exit");
                 }
 
                 // Create CategoryItem entities for each category and associate them with the added item
@@ -316,43 +340,43 @@ namespace Application.Service
                 }
 
                 await _u.Repository<AuctionHistory>().AddAsync(new AuctionHistory
-                    {
-                        ItemId = addedItem.ItemId,
-                        EndDate = new DateTime(),
-                        WinningBid = 0
-                    });
+                {
+                    ItemId = addedItem.ItemId,
+                    EndDate = new DateTime(),
+                    WinningBid = 0
+                });
 
                 // Save changes
                 await _u.SaveChangesAsync();
 
                 // Return success status
-                return (addedItem,"success");
+                return (addedItem, "success");
             }
             catch (Exception ex)
             {
                 // Handle exceptions and roll back changes
                 await _u.RollBackChangesAsync();
-                return (null,"FailAction");
+                return (null, "FailAction");
             }
         }
 
         // Rating
-        public async Task<(bool,string)> Ratting(string username, RateBuyerRequest req)
+        public async Task<(bool, string)> Ratting(string username, RateBuyerRequest req)
         {
             try
-            {                 
+            {
                 var Userspec = new BaseSpecification<User>(x => x.Name == username);
                 var user = await _u.Repository<User>().FindOne(Userspec);
                 if (user.UserId == req.RatedUserId)
                 {
-                    return (false, "you can't rate your own"); 
+                    return (false, "you can't rate your own");
                 }
 
                 var itemspec = new BaseSpecification<Item>(x => x.ItemId == req.ItemId);
                 var item = await _u.Repository<Item>().FindOne(itemspec);
                 if (user == null || item == null || user.UserId == item.SellerId)
                 {
-                    return (false,"cant rate for yourself");
+                    return (false, "cant rate for yourself");
                 }
                 else
                 {
@@ -363,12 +387,14 @@ namespace Application.Service
                     Ratting.ItemId = req.ItemId;
                     Ratting.Rate = req.RatingAmount;
                     await _u.Repository<Rating>().AddAsync(Ratting);
-                    await _u.Repository<Notification>().AddAsync(new Notification(){
+                    await _u.Repository<Notification>().AddAsync(new Notification()
+                    {
                         UserId = req.RatedUserId,
                         NotificationContent = $"You has been rated {req.RatingAmount} star by {user.UserId}",
                         ItemId = req.ItemId
                     });
-                    await _u.Repository<Notification>().AddAsync(new Notification(){
+                    await _u.Repository<Notification>().AddAsync(new Notification()
+                    {
                         UserId = user.UserId,
                         NotificationContent = $"You has rated {req.RatedUserId} {req.RatingAmount} star",
                         ItemId = req.ItemId
@@ -377,19 +403,19 @@ namespace Application.Service
                     // TODO: signal r notify seller and winner
 
                     await _u.SaveChangesAsync();
-                    return (true,"success");
+                    return (true, "success");
                 }
             }
             catch (Exception e)
             {
                 await _u.RollBackChangesAsync();
-                return (false,"Fail actions");
+                return (false, "Fail actions");
             }
 
         }
 
         //item update => img
-        public async Task<(bool,string)> updateItem(SellItemReqest req)
+        public async Task<(bool, string)> UpdateItem(SellItemReqest req)
         {
             try
             {
@@ -398,7 +424,7 @@ namespace Application.Service
                 var finditem = await _u.Repository<Item>().FindOne(checkName);
 
                 // check valid Price and valid time in req
-             
+
                 if (req.Item.ReservePrice < req.Item.StartingPrice)
                 {
                     return (false, "require: ReservePrice > StartingPrice");
@@ -429,16 +455,16 @@ namespace Application.Service
                 newItem.EndDate = req.Item.EndDate;
                 newItem.SellerId = req.Item.SellerId;
 
-           
+
                 if (req.Item.ImageFile != null)
                 {
                     await _p.DeletPhoto(finditem.Image);
-                    var addpicture = await _p.addPhoto(req.Item.ImageFile);
-                    newItem.Image = addpicture; 
+                    var addpicture = await _p.AddPhoto(req.Item.ImageFile);
+                    newItem.Image = addpicture;
                 }
                 if (req.Item.DocumentFile != null)
                 {
-                   await _p.DeleteFile(req.Item.DocumentFile.FileName);
+                    _p.DeleteFile(req.Item.DocumentFile.FileName);
                     var addfile = await _p.WriteFile(req.Item.DocumentFile);
                     newItem.Document = addfile;
                 }
@@ -459,7 +485,8 @@ namespace Application.Service
 
                 foreach (var item in categoriesToAdd)
                 {
-                    await _u.Repository<CategoryItem>().AddAsync(new CategoryItem {
+                    await _u.Repository<CategoryItem>().AddAsync(new CategoryItem
+                    {
                         ItemId = finditem.ItemId,
                         CategoryId = item.CategoryId
                     });
@@ -484,21 +511,29 @@ namespace Application.Service
         }
 
         //get AcutionHistory 
-        public async Task<AuctionHistory> GetAcutionHistory(string username, int id)
+        public async Task<AuctionHistory> GetAuctionHistory(string username, int id)
         {
+            var key = $"user_auction_history_{username}__{id}";
+            var cacheData = await _redis.GetCachedData<AuctionHistory>(key);
+            if (cacheData != null){ return cacheData; }
+
             try
             {
                 var specUser = new BaseSpecification<User>(x => x.Name == username);
                 var user = await _u.Repository<User>().FindOne(specUser);
-                // var specAuctionHistory = new BaseSpecification<AuctionHistory>
-                //     (x => (x.WinnerId == user.UserId || x.Item.SellerId == user.UserId) && x.AuctionHistoryId == id)
-                //     .AddInclude(q => q.Include(ah => ah.Winner).Include(ah => ah.Item));
 
                 var specAuctionHistory = new BaseSpecification<AuctionHistory>
                     (x => x.AuctionHistoryId == id && (x.Item.SellerId == user.UserId || (x.WinnerId != null && x.WinnerId == user.UserId)))
-                    .AddInclude(q => q.Include(ah => ah.Winner).Include(ah => ah.Item).ThenInclude(i => i.Seller).Include(ah => ah.Item).ThenInclude(i => i.Rating));
+                        .AddInclude(q => q
+                            .Include(ah => ah.Winner)
+                            .Include(ah => ah.Item)
+                                .ThenInclude(i => i.Seller)
+                            .Include(ah => ah.Item)
+                                .ThenInclude(i => i.Rating));
 
                 var AuctionHistory = await _u.Repository<AuctionHistory>().FindOne(specAuctionHistory);
+
+                await _redis.SetCachedData<AuctionHistory>(key, AuctionHistory, TimeSpan.FromSeconds(180));
                 return AuctionHistory;
             }
             catch (Exception e)
@@ -513,20 +548,22 @@ namespace Application.Service
         {
             try
             {
-                var speclistBid = new BaseSpecification<Bid>(x => x.ItemId == req.ItemId).AddInclude(x => x.Include(x => x.Item));
+                var speclistBid = new BaseSpecification<Bid>
+                    (x => x.ItemId == req.ItemId)
+                    .AddInclude(x => x.Include(x => x.Item));
+
                 var listBid = await _u.Repository<Bid>().ListAsynccheck(speclistBid);
-                var maxbid  = listBid.OrderByDescending(x => x.BidAmount).FirstOrDefault();
+                var maxbid = listBid.OrderByDescending(x => x.BidAmount).FirstOrDefault();
                 var Item = await _u.Repository<Item>().FindOne(new BaseSpecification<Item>(i => i.ItemId == req.ItemId));
-              
-                if (maxbid  != null)
+
+                if (maxbid != null && maxbid.Item != null)
                 {
-                    if (req.Amount < (maxbid.BidAmount +  maxbid.Item.IncreasingAmount))
-                    {   
-                        return (null,"Not valid Price");
+                    if (req.Amount < (maxbid.BidAmount + maxbid.Item.IncreasingAmount))
+                    {
+                        return (null, "Not valid Price");
                     }
                 }
 
-    
                 if (Item == null)
                 {
                     //false
@@ -540,8 +577,8 @@ namespace Application.Service
 
                 var ah = await _u.Repository<AuctionHistory>()
                     .FindOne(new BaseSpecification<AuctionHistory>(ah => ah.ItemId == Item.ItemId));
-                
-                if (ah.WinnerId != null)    
+
+                if (ah.WinnerId != null)
                 {
                     //false
                     return (ah, "The winner has been decided");
@@ -557,12 +594,12 @@ namespace Application.Service
                 if (req.Amount >= Item.ReservePrice)
                 {
                     // TODO: insert notification rows                  
-                    ah.WinnerId = user.UserId;                  
+                    ah.WinnerId = user.UserId;
+                    ah.EndDate = DateTime.Now;
                     _u.Repository<AuctionHistory>().Update(ah);
-               
                 }
 
-                
+
                 await _u.SaveChangesAsync();
                 //true
                 return (ah, "success Action");
@@ -576,11 +613,13 @@ namespace Application.Service
 
         }
 
-        public async Task NotifyParticipants(int ItemId, string Content) {
+        public async Task NotifyParticipants(int ItemId, string Content)
+        {
             var participants = await GetItemPaticipants(ItemId);
             foreach (var item in participants)
             {
-                await _u.Repository<Notification>().AddAsync(new Notification() {
+                await _u.Repository<Notification>().AddAsync(new Notification()
+                {
                     ItemId = ItemId,
                     UserId = item.UserId,
                     NotificationContent = Content,
@@ -592,6 +631,10 @@ namespace Application.Service
 
         public async Task<IList<User>> GetItemPaticipants(int itemId)
         {
+            var key = $"user_item_paticipants_{itemId}";
+            var cacheData = await _redis.GetCachedData<User[]>(key);
+            if (cacheData != null){ return cacheData.ToList(); }
+
             var bidSpec = new BaseSpecification<Bid>(x => x.ItemId == itemId)
                 .AddInclude(q => q.Include(b => b.User));
 
@@ -603,19 +646,38 @@ namespace Application.Service
                 new BaseSpecification<User>(u => distinctUserIds.Contains(u.UserId))
             );
 
+            await _redis.SetCachedData<User[]>(key, distinctUsers.ToArray(), TimeSpan.FromSeconds(180));
             return distinctUsers.ToList();
         }
 
         //Profile details
-        public async Task<(User, int)> getProfileDetail(string username)
+        public async Task<(User, int)> GetProfileDetail(string username)
         {
+            var key1 = $"user_profile_{username}";
+            var key2 = $"user_profile_{username}_item_count";
+            var cacheData1 = await _redis.GetCachedData<User>(key1);
+            var cacheData2 = await _redis.GetCachedData<int>(key2);
+            if (cacheData1 != null){ return (cacheData1, cacheData2); }
+
             try
             {
-                var specUser = new BaseSpecification<User>(x => x.Name == username).AddInclude(x => x.Include(x => x.SoldItems).ThenInclude(i => i.AuctionHistory).Include(c => c.Bids).ThenInclude(b => b.Item).Include(i => i.AuctionHistories).ThenInclude(ah => ah.Item));
+                var specUser = new BaseSpecification<User>
+                    (x => x.Name == username)
+                    .AddInclude(x => x
+                        .Include(x => x.SoldItems)
+                            .ThenInclude(i => i.AuctionHistory)
+                        .Include(c => c.Bids)
+                            .ThenInclude(b => b.Item)
+                        .Include(i => i.AuctionHistories)
+                            .ThenInclude(ah => ah.Item));
+
                 var user = await _u.Repository<User>().FindOne(specUser);
-                int itemCount = user.SoldItems.Count();
+                int itemCount = user.SoldItems != null ? user.SoldItems.Count() : 0;
+
                 if (user != null)
                 {
+                    await _redis.SetCachedData<User>(key1, user, TimeSpan.FromSeconds(180));
+                    await _redis.SetCachedData<int>(key2, itemCount, TimeSpan.FromSeconds(180));
                     return (user, itemCount);
                 }
                 else
@@ -636,7 +698,9 @@ namespace Application.Service
             try
             {
                 // auction history => winner => userid       
-                var specAuct = new BaseSpecification<AuctionHistory>(c => c.ItemId == ItemId).AddInclude(x => x.Include(x => x.Item).Include(x => x.Winner));
+                var specAuct = new BaseSpecification<AuctionHistory>
+                    (c => c.ItemId == ItemId)
+                    .AddInclude(x => x.Include(x => x.Item).Include(x => x.Winner));
                 var Auct = await _u.Repository<AuctionHistory>().FindOne(specAuct);
 
 
@@ -648,13 +712,14 @@ namespace Application.Service
                     NotificationContent = "your item has been sold",
                     NotificationDate = DateTime.Now,
                 };
-                    
+
                 var participants = await GetItemPaticipants(ItemId);
                 foreach (var item in participants)
                 {
                     if (item.UserId != Auct.Winner.UserId)
-                    {   
-                        await _u.Repository<Notification>().AddAsync(new Notification() {
+                    {
+                        await _u.Repository<Notification>().AddAsync(new Notification()
+                        {
                             ItemId = ItemId,
                             UserId = item.UserId,
                             NotificationContent = $"{Auct.Item.Title} has end",
@@ -662,7 +727,7 @@ namespace Application.Service
                         });
                     }
                 }
-                await _u.SaveChangesAsync();                
+                await _u.SaveChangesAsync();
 
                 // winner
                 var winnerNoti = new Notification
@@ -676,15 +741,14 @@ namespace Application.Service
                 await _u.Repository<Notification>().AddAsync(winnerNoti);
                 await _u.SaveChangesAsync();
 
-                return true; 
+                return true;
             }
-            catch (Exception e) { 
-              await  _u.RollBackChangesAsync();
+            catch (Exception e)
+            {
+                await _u.RollBackChangesAsync();
                 return false;
-            }           
+            }
         }
-
-  
     }
 }
 

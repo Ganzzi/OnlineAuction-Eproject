@@ -31,8 +31,13 @@ const getItemById: (itemId: number) => Promise<[Item, Category[]]> = async (item
   });
 
   const itemData: Item = response.data;
+  const categories: Category[] = itemData.categoryItems !== undefined 
+    ? itemData.categoryItems
+        .filter(ci => ci.category !== undefined)  // Remove undefined categories
+        .map(ci => ci.category as Category)     // Map to Category
+    : [];
   
-  return [itemData, itemData?.categoryItems?.map(ci => ci?.category) ?? []];
+  return [itemData, categories];
 };
 
 export const getListCategories: () => Promise<Category[]> = async () => {

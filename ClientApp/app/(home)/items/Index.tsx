@@ -10,6 +10,7 @@ import { Item } from '@/types/models/item';
 import Pagination from '@/components/common/Pagination/Pagination';
 import ItemCard from '@/components/Home/ItemCard';
 import { CategoryItem } from '@/types/models/categoryItem';
+import { convertSearchParamsToURLSearchParams } from '@/utils';
 
 const Index = ({ searchParams, resource, categories }: { searchParams: SearchParams, resource: Resource<Item>, categories: Category[] }) => {
   const router = useRouter();
@@ -20,7 +21,8 @@ const Index = ({ searchParams, resource, categories }: { searchParams: SearchPar
   const [selectedCategory, setSelectedCategory] = useState(searchParams?.cate as string || 'all');
 
   const handleSearch = () => {
-    const newSearchParams = new URLSearchParams(searchParams);
+    const newSearchParams = convertSearchParamsToURLSearchParams(searchParams);
+
     newSearchParams.set('search', searchKeyword);
     newSearchParams.set('order', orderBy);
     newSearchParams.set("page", "1");
@@ -30,7 +32,8 @@ const Index = ({ searchParams, resource, categories }: { searchParams: SearchPar
 
   const handleOrderChange = (value: string) => {
     setOrderBy(value);
-    const newSearchParams = new URLSearchParams(searchParams);
+    const newSearchParams = convertSearchParamsToURLSearchParams(searchParams);
+
     newSearchParams.set('order', value);
     newSearchParams.set("page", "1");
 
@@ -39,7 +42,8 @@ const Index = ({ searchParams, resource, categories }: { searchParams: SearchPar
 
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value);
-    const newSearchParams = new URLSearchParams(searchParams);
+    const newSearchParams = convertSearchParamsToURLSearchParams(searchParams);
+
     newSearchParams.set('cate', value);
     newSearchParams.set("page", "1");
 

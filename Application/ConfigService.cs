@@ -10,20 +10,19 @@ namespace Application
     {
         public static IServiceCollection AddAppService(this IServiceCollection service, IConfiguration config)
         {
-            // var cnts = config.GetConnectionString("RedisConnectionString");
+            var cnts = config.GetConnectionString("RedisConnectionString");
 
-            // service.AddStackExchangeRedisCache(op => {
-            //     op.Configuration = cnts;
-            // });
+            service.AddStackExchangeRedisCache(op => {
+                op.Configuration = cnts;
+            });
             
+            service.AddSingleton<RedisService>();
             service.AddScoped<IJwtService, JwtService>();
-            service.AddScoped<IAdminServicevice, AdminService>();
+            service.AddScoped<IAdminService, AdminService>();
             service.AddScoped<IAuthService, AuthService>();
-            service.AddScoped<IuserService, UserService>();
-            service.AddScoped<IphotoService, PhotoService>();
-            service.AddScoped<IresetEmailService, ResetEmailService>();
-            // service.AddSingleton<RedisService>();
-
+            service.AddScoped<IUserService, UserService>();
+            service.AddScoped<IPhotoService, PhotoService>();
+            service.AddScoped<IResetEmailService, ResetEmailService>();
 
             return service;
         }

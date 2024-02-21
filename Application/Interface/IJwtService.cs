@@ -10,8 +10,8 @@ namespace Application.Interface
     public interface IJwtService
     {
         Task<string> CreateToken(User user);
-        Task<RefreshToken> createRrefreshtoken(int? id);
+        Task<RefreshToken> CreateRrefreshtoken(int? id);
         Task<RefreshToken> RefreshAccessToken(string token);
-        public string dataFormToken(string token);
+        public string UsernameFormToken(string token);
     }
 }

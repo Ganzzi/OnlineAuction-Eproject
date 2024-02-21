@@ -21,7 +21,7 @@ using System.Xml.Linq;
 
 namespace Application.Service
 {
-    internal class ResetEmailService : IresetEmailService
+    internal class ResetEmailService : IResetEmailService
     {
         private readonly IConfiguration _config;
         private readonly AppDbContext _data;
@@ -35,7 +35,7 @@ namespace Application.Service
             authService = _authService;
         }
 
-        public bool sendMail(EmailModel email)
+        public bool SendMail(EmailModel email)
         {
             var emailmess = new MimeMessage();
             var from = _config["EmailSetting:Mail"];
@@ -98,7 +98,7 @@ namespace Application.Service
         }
 
         // 
-        public async Task<int> checkTokenEmailAndSaveNewPassword(ResetPasswordModel model)
+        public async Task<int> CheckTokenEmailAndSaveNewPassword(ResetPasswordModel model)
         {
             try
             {
@@ -127,7 +127,7 @@ namespace Application.Service
         }
 
         //
-        public async Task<EmailModel> sendMailForSuccessBuyer(int buyerId,int sellerId)
+        public async Task<EmailModel> SendMailForSuccessBuyer(int buyerId,int sellerId)
         {
             try
             {
@@ -144,7 +144,7 @@ namespace Application.Service
                 return null;
             }
         }
-        public async Task<EmailModel> sendMailForSuccessSeller(int sellerId,int buyerId)
+        public async Task<EmailModel> SendMailForSuccessSeller(int sellerId,int buyerId)
         {
             try
             {

@@ -16,10 +16,10 @@ namespace AuctionOnline.Controllers
     public class UserController : ControllerBase
     {
         private readonly IJwtService _j;
-        private readonly IuserService _s;
-        private readonly IresetEmailService _e;
+        private readonly IUserService _s;
+        private readonly IResetEmailService _e;
         private readonly IHubContext<AuctionHub> _hubContext;
-        public UserController(IJwtService j, IuserService s, IresetEmailService e, IHubContext<AuctionHub> hubContext)
+        public UserController(IJwtService j, IUserService s, IResetEmailService e, IHubContext<AuctionHub> hubContext)
         {
             _j = j;
             _s = s;
@@ -32,7 +32,7 @@ namespace AuctionOnline.Controllers
         [HttpGet]
         public async Task<IActionResult> CategoriesWithTenItems()
         {
-            var topTen = await _s.categorylist();
+            var topTen = await _s.Categorylist();
             if (topTen != null)
             {
                 return Ok(topTen);
@@ -51,7 +51,7 @@ namespace AuctionOnline.Controllers
         [HttpGet]
         public async Task<IActionResult> GetItemById(int id)
         {
-            var item = await _s.getItemById(id);
+            var item = await _s.GetItemById(id);
             if (item != null)
             {
                 return Ok(item);
@@ -76,7 +76,7 @@ namespace AuctionOnline.Controllers
             [FromQuery] int? cate = null
         )
         {
-            var listSeach = await _s.searchItem(page, take, search, order, cate);
+            var listSeach = await _s.SearchItem(page, take, search, order, cate);
             if (listSeach == (null, 0))
             {
                 return NotFound();
@@ -101,11 +101,11 @@ namespace AuctionOnline.Controllers
         public async Task<IActionResult> SellItem([FromForm] SellItemReqest req)
         {
             var token = HttpContext.Request.Headers["Authorization"];
-            var user = await _s.getUser(_j.dataFormToken(token));
+            var user = await _s.GetUser(_j.UsernameFormToken(token));
 
             req.Item.SellerId = user.UserId;
 
-            var sellitem = await _s.sellItem(req);
+            var sellitem = await _s.SellItem(req);
 
             Timer timer = null;
 
@@ -154,11 +154,11 @@ namespace AuctionOnline.Controllers
         public async Task<IActionResult> UpdateItem([FromForm] SellItemReqest req)
         {
             var token = HttpContext.Request.Headers["Authorization"];
-            var user = await _s.getUser(_j.dataFormToken(token));
+            var user = await _s.GetUser(_j.UsernameFormToken(token));
 
             req.Item.SellerId = user.UserId;
 
-            var responforUpdateItem = await _s.updateItem(req);
+            var responforUpdateItem = await _s.UpdateItem(req);
             if (responforUpdateItem.Item1 == true)
             {
                 return Ok(new
@@ -184,8 +184,8 @@ namespace AuctionOnline.Controllers
         public async Task<IActionResult> PlaceBid([FromBody] PlaceBidRequest req)
         {
             var token = HttpContext.Request.Headers["Authorization"];
-            var username = _j.dataFormToken(token);
-            var user = await _s.getUser(username);
+            var username = _j.UsernameFormToken(token);
+            var user = await _s.GetUser(username);
 
             var auctionHistory = await _s.PlaceABid(req, user);
 
@@ -213,10 +213,10 @@ namespace AuctionOnline.Controllers
                             auctionHistory.Item1.Item.SellerId,
                             auctionHistory.Item1.WinnerId);
 
-                    var sellerMail = await _e.sendMailForSuccessBuyer(user.UserId, auctionHistory.Item1.Item.SellerId);
-                    _e.sendMail(sellerMail);
-                    var buyerMail = await _e.sendMailForSuccessSeller(auctionHistory.Item1.Item.SellerId, user.UserId);
-                    _e.sendMail(buyerMail);
+                    var sellerMail = await _e.SendMailForSuccessBuyer(user.UserId, auctionHistory.Item1.Item.SellerId);
+                    _e.SendMail(sellerMail);
+                    var buyerMail = await _e.SendMailForSuccessSeller(auctionHistory.Item1.Item.SellerId, user.UserId);
+                    _e.SendMail(buyerMail);
                     return Ok(new
                     {
                         message = auctionHistory.Item2
@@ -243,8 +243,8 @@ namespace AuctionOnline.Controllers
         public async Task<IActionResult> Profile()
         {
             var token = HttpContext.Request.Headers["Authorization"];
-            var username = _j.dataFormToken(token);
-            var getuser = await _s.getUser(username);
+            var username = _j.UsernameFormToken(token);
+            var getuser = await _s.GetUser(username);
             if (getuser != null)
             {
                 return Ok(new { User = getuser });
@@ -266,8 +266,8 @@ namespace AuctionOnline.Controllers
         public async Task<IActionResult> ProfileDetail()
         {
             var token = HttpContext.Request.Headers["Authorization"];
-            var username = _j.dataFormToken(token);
-            var getUser = await _s.getProfileDetail(username);
+            var username = _j.UsernameFormToken(token);
+            var getUser = await _s.GetProfileDetail(username);
             if (getUser != (null, 0))
             {
                 return Ok(new
@@ -287,8 +287,8 @@ namespace AuctionOnline.Controllers
         public async Task<IActionResult> AuctionHistoryDetail(int AuctionHistoryId)
         {
             var token = HttpContext.Request.Headers["Authorization"];
-            var username = _j.dataFormToken(token);
-            var Auction = await _s.GetAcutionHistory(username, AuctionHistoryId);
+            var username = _j.UsernameFormToken(token);
+            var Auction = await _s.GetAuctionHistory(username, AuctionHistoryId);
             if (Auction != null)
             {
                 return Ok(Auction);
@@ -314,7 +314,7 @@ namespace AuctionOnline.Controllers
         public async Task<IActionResult> RateBuyer([FromBody] RateBuyerRequest req)
         {
             var token = HttpContext.Request.Headers["Authorization"];
-            var username = _j.dataFormToken(token);
+            var username = _j.UsernameFormToken(token);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -346,7 +346,7 @@ namespace AuctionOnline.Controllers
         public async Task<IActionResult> UpdateUser([FromForm] User user)
         {
             var token = HttpContext.Request.Headers["Authorization"];
-            var foundUser = await _s.getUser(_j.dataFormToken(token));
+            var foundUser = await _s.GetUser(_j.UsernameFormToken(token));
             user.UserId = foundUser.UserId;
 
             var userupdate = await _s.UpdateUser(user);
@@ -370,7 +370,6 @@ namespace AuctionOnline.Controllers
         //checkEmail and send link reset
         [Route("checkemailandsendlink")]
         [HttpPost]
-        [Authorize(Roles = "User")]
 
         public async Task<IActionResult> checkemailandsendlink(string email)
         {
@@ -382,7 +381,7 @@ namespace AuctionOnline.Controllers
                     message = "No Email exit"
                 });
             }
-            if (_e.sendMail(checkEmail))
+            if (_e.SendMail(checkEmail))
             {
                 return Ok(new
                 {
@@ -402,11 +401,10 @@ namespace AuctionOnline.Controllers
         //reset Email
         [Route("ResetPassword")]
         [HttpPost]
-        [Authorize(Roles = "User")]
 
         public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
         {
-            var checkPasswordReset = await _e.checkTokenEmailAndSaveNewPassword(model);
+            var checkPasswordReset = await _e.CheckTokenEmailAndSaveNewPassword(model);
             if (checkPasswordReset == 0)
             {
                 return BadRequest(new

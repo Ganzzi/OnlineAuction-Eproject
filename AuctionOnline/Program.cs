@@ -60,7 +60,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(opt => opt.AddPolicy(name: "mypolicy",
         policy =>
         {
-            policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(appSettings["ClientUrl"] ?? "*");
+            var origin = appSettings["ClientUrl"] ?? "*";
+            policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins(origin);
         }
     ));
 //cloudinary 

@@ -12,6 +12,7 @@ import axiosService from "@/services/axiosService";
 import CategoryForm from "@/components/Dashboard/categories/CategoryForm";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import CategoryFilter from "@/components/Dashboard/categories/CategoryFilter";
+import { convertSearchParamsToURLSearchParams, convertToURLSearchParams } from "@/utils";
 
 export type CategoryData = {
   item: Item,
@@ -39,7 +40,9 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({ searchParams, p
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const newSearchParams = new URLSearchParams(searchParams);
+        
+        const newSearchParams = convertSearchParamsToURLSearchParams(searchParams);
+
         newSearchParams.set('search', search);
         if (belongToCategory !== null) {
           newSearchParams.set('belongToCategory', belongToCategory);
@@ -75,7 +78,9 @@ const CategoryDetailPage: React.FC<CategoryDetailPageProps> = ({ searchParams, p
   }, [categoryId, searchParams?.page, search, belongToCategory]);
 
   useEffect(() => {
-    const newSearchParams = new URLSearchParams(_searchParams);
+    // const newSearchParams = new URLSearchParams(_searchParam);
+    const newSearchParams = convertToURLSearchParams(_searchParams);
+    
     newSearchParams.set("page", "1");
     console.log(newSearchParams.get("page"));
     

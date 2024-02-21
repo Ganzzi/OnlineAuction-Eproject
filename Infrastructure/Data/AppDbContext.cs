@@ -33,7 +33,7 @@ namespace Infrastructure.Data
                     Password = "B6-D6-6B-8E-89-F4-6D-29-FC-74-80-55-2E-5C-D3-47-47-C0-C7-A3-01-73-64-32-9E-92-99-C3-F1-DF-01-D3",
                     Email = "batman123@gmail.com",
                     Role = "User",
-                    Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
+                    Avatar = "https://res.cloudinary.com/dmb3vegiw/image/upload/v1708498756/jal1f2ldj4ustr0mckza.webp"
                 },
                 new User
                 {
@@ -42,7 +42,7 @@ namespace Infrastructure.Data
                     Password = "9A-44-C4-72-F3-19-B3-74-D5-98-C1-06-61-9B-6B-02-A7-C9-57-7B-C7-82-6E-80-61-F2-88-B7-2A-38-8C-0E",
                     Email = "ironman123@gmail.com",
                     Role = "User",
-                    Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
+                    Avatar = "https://res.cloudinary.com/dmb3vegiw/image/upload/v1708498757/cphi2vgges0e6jvvnmbr.webp"
                 },
                 new User
                 {
@@ -51,7 +51,7 @@ namespace Infrastructure.Data
                     Password = "60-FE-74-40-6E-7F-35-3E-D9-79-F3-50-F2-FB-B6-A2-E8-69-0A-5F-A7-D1-B0-C3-29-83-D1-D8-B3-F9-5F-67",
                     Email = "admin123@gmail.com",
                     Role = "Admin",
-                    Avatar = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png"
+                    Avatar = "https://res.cloudinary.com/dmb3vegiw/image/upload/v1708498759/va0qxsxu9a1qc8ea2azq.webp"
                 }
             );
 
@@ -85,7 +85,7 @@ namespace Infrastructure.Data
                           ReservePrice = 16,
                           SellerId = 1,
                           StartDate = DateTime.Now,
-                          Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
+                          Image = "https://res.cloudinary.com/dmb3vegiw/image/upload/v1708498491/je2lbatrgz2efnkojs6z.png",
                           Document = "638424880943910685.doc"
                       },
                       new Item
@@ -97,7 +97,7 @@ namespace Infrastructure.Data
                           IncreasingAmount = 2,
                           ReservePrice = 20,
                           SellerId = 1,
-                          Image = "https://res.cloudinary.com/dcxzqj0ta/image/upload/v1705895402/o5o4yqt8puuurevqlwmp.png",
+                          Image = "https://res.cloudinary.com/dmb3vegiw/image/upload/v1708498454/iq2qaqar32olzbkccmad.png",
                           Document = "638424880943910685.doc"
                       }
                   );

@@ -17,7 +17,7 @@ using CloudinaryDotNet.Actions;
 
 namespace Application.Service
 {
-    public class PhotoService : IphotoService
+    public class PhotoService : IPhotoService
     {
         private readonly Cloudinary _c;
         public PhotoService(IOptions<CloudKey> config)
@@ -38,7 +38,7 @@ namespace Application.Service
             return result;
         }
 
-        public async Task<string> addPhoto(IFormFile file)
+        public async Task<string> AddPhoto(IFormFile file)
         {
             var uploadresult = new ImageUploadResult();
             if (file.Length > 0)
@@ -89,33 +89,6 @@ namespace Application.Service
             Console.WriteLine($"Error saving file: {ex.Message}");
             return null; // You might want to return a specific value or throw an exception here
         }
-    //     try
-    //     {
-    //         if (file == null || file.Length == 0)
-    //         {
-    //             throw new ArgumentNullException(nameof(file), "File is null or empty.");
-    //         }
-
-    //         string extension = Path.GetExtension(file.FileName);
-    //         string filename = $"{DateTime.Now.Ticks}{extension}";
-
-    //         string uploadFolderPath = GetUploadFolderPath();
-
-    //         string exactPath = Path.Combine(uploadFolderPath, filename);
-
-    //         using (var stream = new FileStream(exactPath, FileMode.Create))
-    //         {
-    //             await file.CopyToAsync(stream);
-    //         }
-
-    //         return exactPath;
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         // Handle exceptions here (log, throw, etc.)
-    //         Console.WriteLine($"Error writing file: {ex.Message}");
-    //         return null; // You might want to return a specific value or throw an exception here
-    //     }
     }
 
         private string GenerateUniqueFileName(IFormFile file)
@@ -124,21 +97,8 @@ namespace Application.Service
             var extension = "." + file.FileName.Split('.')[^1];
             return DateTime.Now.Ticks.ToString() + extension;
         }
-        private string GetUploadFolderPath()
-        {
-            // Get the wwwroot folder path
-            string uploadFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "Upload/Files");
 
-            // Create the directory if it doesn't exist
-            if (!Directory.Exists(uploadFolderPath))
-            {
-                Directory.CreateDirectory(uploadFolderPath);
-            }
-
-            return uploadFolderPath;
-        }
-
-        public async Task DeleteFile(string filename)
+        public void DeleteFile(string filename)
         {
             try
             {

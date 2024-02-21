@@ -37,20 +37,22 @@ const item1: Item = {
     endDate: new Date('2024-02-10T18:00:00Z').toDateString(),
     sellerId: user1.userId,
     seller: user1,
-  };
+    document: "638425610610549469.doc"
+};
   
   const item2: Item = {
-    itemId: 102,
-    title: 'Smartphone',
-    description: 'The latest smartphone with amazing features',
-    image: 'https://imgs.search.brave.com/QYNbIFQtgZ-SvVfVypQ1mehSR4Vy_VCCSBV6nAeUgFQ/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvNDcx/MjA3MjYzL3Bob3Rv/L2J1c2luZXNzLW5l/d3NwYXBlci5qcGc_/cz02MTJ4NjEyJnc9/MCZrPTIwJmM9bVFa/RExPWmtKVmQ4MDVz/amdVREVmdV9ib09x/Q2d4NEFIZ1VoMVBM/Y1NYND0',
-    startingPrice: 800,
-    increasingAmount: 20,
-    reservePrice: 1000,
-    startDate: new Date('2024-02-15T12:00:00Z').toDateString(),
-    endDate: new Date('2024-02-25T20:00:00Z').toDateString(),
-    sellerId: user2.userId,
-    seller: user2,
+      itemId: 102,
+      title: 'Smartphone',
+      description: 'The latest smartphone with amazing features',
+      image: 'https://imgs.search.brave.com/QYNbIFQtgZ-SvVfVypQ1mehSR4Vy_VCCSBV6nAeUgFQ/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvNDcx/MjA3MjYzL3Bob3Rv/L2J1c2luZXNzLW5l/d3NwYXBlci5qcGc_/cz02MTJ4NjEyJnc9/MCZrPTIwJmM9bVFa/RExPWmtKVmQ4MDVz/amdVREVmdV9ib09x/Q2d4NEFIZ1VoMVBM/Y1NYND0',
+      startingPrice: 800,
+      increasingAmount: 20,
+      reservePrice: 1000,
+      startDate: new Date('2024-02-15T12:00:00Z').toDateString(),
+      endDate: new Date('2024-02-25T20:00:00Z').toDateString(),
+      sellerId: user2.userId,
+      seller: user2,
+      document: "638424880943910685.doc"
   };
 
 

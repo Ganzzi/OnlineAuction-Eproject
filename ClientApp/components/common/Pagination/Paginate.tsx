@@ -3,6 +3,7 @@
 import ReactPaginate from 'react-paginate'
 import React, { useEffect, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { convertToURLSearchParams } from '@/utils'
 
 type Props = {
   currentPage: number;
@@ -48,7 +49,8 @@ export default function Paginate(props: Props) {
             setPage(page)
           }
 
-          const newSearchParams = new URLSearchParams(searchParams)
+        const newSearchParams = convertToURLSearchParams(searchParams);
+
           newSearchParams.set('page', page.toString())
 
           router.push(`${pathname}?${newSearchParams}`)

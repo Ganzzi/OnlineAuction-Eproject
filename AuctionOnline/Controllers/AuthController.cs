@@ -15,7 +15,7 @@ namespace AuctionOnline.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IJwtService _jwt;
-        private readonly IresetEmailService _e;
+        private readonly IResetEmailService _e;
         public AuthController(IAuthService authService, IJwtService jwt)
         {
             _authService = authService;
@@ -52,7 +52,7 @@ namespace AuctionOnline.Controllers
                 });
             }
             var token = await _jwt.CreateToken(User);
-            var RefreshToken = await  _jwt.createRrefreshtoken(User.UserId);
+            var RefreshToken = await  _jwt.CreateRrefreshtoken(User.UserId);
             
             return Ok(new
             {
@@ -121,7 +121,7 @@ namespace AuctionOnline.Controllers
                     message = "No Email exit"
                 });
             }
-            if (_e.sendMail(checkEmail))
+            if (_e.SendMail(checkEmail))
             {
                 return Ok(new
                 {

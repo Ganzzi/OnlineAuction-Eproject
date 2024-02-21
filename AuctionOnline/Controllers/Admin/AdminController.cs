@@ -1,11 +1,7 @@
-﻿using Application.DTO;
-using Application.Interface;
-using Application.Service.AdminServicevice;
+﻿using Application.Interface;
 using DomainLayer.Entities.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace AuctionOnline.Controllers.Admin
 {
@@ -14,8 +10,8 @@ namespace AuctionOnline.Controllers.Admin
     [ApiController]
     public class AdminController : ControllerBase
     {
-        private readonly IAdminServicevice _a;
-        public AdminController(IAdminServicevice a)
+        private readonly IAdminService _a;
+        public AdminController(IAdminService a)
         {
             _a = a;
         }
@@ -28,27 +24,26 @@ namespace AuctionOnline.Controllers.Admin
             [FromQuery] int take = 10
         )
         {
-
             var listUser = await _a.ListAllUserWithRatingAndBidCount(take, page);
 
-            return Ok(new
+            var userData = listUser.Item2.Select(x => new
             {
-                userData = listUser.Item2.Select(x => new
-                {
-                    user = x.Key,
-                    ratings = x.Value.Item1,
-                    avgRate =  x.Value.Item2,
-                    bidCount = x.Value.Item3
-                }).ToArray(),
-                count = listUser.Item1,
-            });
-        }
+                user = x.User,
+                ratings = x.Ratings,
+                avgRate = x.AvgRate,
+                bidCount = x.BidCount
+            }).ToArray();
 
+            var count = listUser.Item1;
+
+            return Ok(new { userData, count });
+        }
+        
         [Route("LockUnlockUser/{userId}")]
         [HttpPost]
         public async Task<IActionResult> LockUnlockUser(int userId)
         {
-            var checkstatus = await _a.LockOrUnlock(userId);
+            var checkstatus = await _a.LockOrUnlockUser(userId);
             if (checkstatus == true)
             {
                 return Ok(new
@@ -69,15 +64,14 @@ namespace AuctionOnline.Controllers.Admin
         [HttpGet]
         public async Task<IActionResult> GetAllCategory()
         {
-            var listcate = await _a.ListAllCategoryAndCountItem();
-            return Ok(new
+            var listCategory = await _a.ListAllCategoryAndCountItem();
+            var categoryList = listCategory.Select(x => new
             {
-                categorylist = listcate.Select(x => new
-                {
-                    Category = x.Key,
-                    ItemCount = x.Value
-                }).ToArray()
-            });
+                Category = x.Category,
+                ItemCount = x.ItemCount
+            }).ToArray();
+
+            return Ok(new { categorylist = categoryList });
         }
 
         [Route("CategoryDetailWithListCategoryItems/{CategoryId}")]
@@ -85,22 +79,26 @@ namespace AuctionOnline.Controllers.Admin
         public async Task<IActionResult> CategoryDetailWithListCategoryItems(
             int CategoryId,
             [FromQuery] int page = 1,
-            [FromQuery] int take = 10, 
+            [FromQuery] int take = 10,
             [FromQuery] string? search = "",
-            [FromQuery] bool? belongtocategory = null
+            [FromQuery] bool? belongToCategory = null
         )
         {
-            var Item = await _a.CategorylistItem(CategoryId, page, take, search ?? "", belongtocategory);
-            if (Item.Item1 != null)
+            var result = await _a.CategoryWithListItem(CategoryId, page, take, search ?? "", belongToCategory);
+
+            if (result != null && result.Category != null)
             {
+                var items = result.Items.Select(x => new
+                {
+                    Item = x.Item,
+                    Belong = x.BelongsToCategory
+                }).ToList();
+
                 return Ok(new
                 {
-                    Category = Item.Item1,
-                    Items = Item.Item2.Select(x => new {
-                        Item = x.Item1,
-                        belong = x.Item2
-                    }).ToList(),
-                    Count = Item.Item3
+                    Category = result.Category,
+                    Items = items,
+                    Count = result.Count
                 });
             }
             else
@@ -111,7 +109,7 @@ namespace AuctionOnline.Controllers.Admin
                 });
             }
         }
-    
+
 
         [Route("AddCategory")]
         [HttpPost]
@@ -168,7 +166,7 @@ namespace AuctionOnline.Controllers.Admin
         [HttpPost]
         public async Task<IActionResult> AddDeleteCategoryItem(int CategoryId, int ItemId)
         {
-            var checkAddorDel = await _a.addOrDeleteItemForCate(CategoryId, ItemId);
+            var checkAddorDel = await _a.AddOrDeleteCategoryItem(CategoryId, ItemId);
             if (checkAddorDel == true)
             {
                 return Ok(new
@@ -192,18 +190,23 @@ namespace AuctionOnline.Controllers.Admin
             [FromQuery] int take = 10
         )
         {
-            var listItem = await _a.getListItemhaveCount(page, take);
-            if (listItem != (null, 0))
+            var listItemResult = await _a.ListItemWithCount(page, take);
+            if (listItemResult.Item1 != null)
             {
+                var listItem = listItemResult.Item1;
+                var countPage = listItemResult.Item2;
+
+                var itemList = listItem.Select(x => new
+                {
+                    Item = x.Item,
+                    Categories = x.CategoryCount,
+                    BidCount = x.BidCount
+                });
+
                 return Ok(new
                 {
-                    listItem = listItem.Item1.Select(x => new
-                    {
-                        Item = x.Key,
-                        Categories = x.Value.Item1,
-                        bidCount = x.Value.Item2,
-                    }),
-                    Countpage = listItem.Item2
+                    listItem = itemList,
+                    Countpage = countPage
                 });
             }
             else
@@ -219,41 +222,25 @@ namespace AuctionOnline.Controllers.Admin
         [HttpGet]
         public async Task<IActionResult> ItemDetailWithListCategoryItems(int ItemId)
         {
-            var Item = await _a.GetOneItemAndListCategoryItem(ItemId);
+            var itemWithCategory = await _a.ItemWithListCategory(ItemId);
 
-            if (Item.Item1 != null)
+            if (itemWithCategory.Item != null)
             {
-                var categories = Item.Item2.Select(categoryTuple => new
-                {
-                    Category = categoryTuple.Item1,
-                    Belong = categoryTuple.Item2 // Replace with the actual property name of the boolean value
-                }).ToList();
+                var categories = itemWithCategory.Categories.Select(category =>
+                    new
+                    {
+                        Category = category.Category,
+                        Belong = category.BelongsToItem // Use the actual property name
+                    }).ToList();
 
                 return Ok(new
                 {
-                    Item = Item.Item1,
+                    Item = itemWithCategory.Item,
                     Categories = categories,
                 });
             }
 
             return NotFound();
-            // if (Item.Item1 != null)
-            // {
-            //     return Ok(new
-            //     {
-            //         Item = Item.Item1,
-            //         CategoryItems = Item.Item2,
-            //     });
-            // }
-            // else
-            // {
-            //     return NotFound(new
-            //     {
-            //         message = "Fail Actions"
-            //     });
-            // }
         }
     }
-
-
 }

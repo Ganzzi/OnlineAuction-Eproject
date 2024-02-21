@@ -41,7 +41,7 @@ namespace Application.Service
             var des = new SecurityTokenDescriptor
             {
                 Subject = identity,
-                Expires = DateTime.Now.AddSeconds(30),
+                Expires = DateTime.Now.AddMinutes(30),
                 SigningCredentials = cerdential
             };
             var token = jwtHandeler.CreateToken(des);
@@ -51,7 +51,7 @@ namespace Application.Service
             return AccessToken;
         }
 
-        public async Task<RefreshToken> createRrefreshtoken(int? id)
+        public async Task<RefreshToken> CreateRrefreshtoken(int? id)
         {
             var spec = new BaseSpecification<RefreshToken>(z => z.UserId == id);
             var existingToken = await _u.Repository<RefreshToken>().FindOne(spec);
@@ -77,7 +77,7 @@ namespace Application.Service
 
         public async Task<RefreshToken> RefreshAccessToken(string token)
         {
-            var unquiname = dataFormToken(token);
+            var unquiname = UsernameFormToken(token);
             var SpecUser = new BaseSpecification<User>(x => x.Name == unquiname);
             var user = await _u.Repository<User>().FindOne(SpecUser);
 
@@ -91,14 +91,14 @@ namespace Application.Service
             {
                 var UserSpec = new BaseSpecification<User>(x => x.UserId == refreshToken.UserId);
                 var User = await _u.Repository<User>().FindOne(UserSpec);
-                var newRToken = await createRrefreshtoken(refreshToken.UserId);
+                var newRToken = await CreateRrefreshtoken(refreshToken.UserId);
                 var newAccToken = await CreateToken(User);
                 newRToken.AccessToken = newAccToken;
                 return newRToken;
             }
         }
 
-        public string dataFormToken(string token)
+        public string UsernameFormToken(string token)
         {
             var jwtHandler = new JwtSecurityTokenHandler();
             var jwtInput = token.Replace("Bearer ", string.Empty);
