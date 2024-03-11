@@ -53,7 +53,16 @@ Follow these steps to set up and run Bidhub locally on your machine.
     && cd OnlineAuction-Eproject
 ```
 
-2. Run Redis & SQL Server docker images (and set up database):
+2. Set up environment variables: 
+    - Rename appsettings.sample.json in AutionOnline directory to appsettings.json and fill in these fields: 
+        + CloudName
+        + ApiKey
+        + ApiSecret
+        + Mail
+        + Password
+    - Rename .env.local.sample in ClientApp directory to .env.local
+
+3. Run Redis & SQL Server docker images (and set up database):
 ```
     sudo docker run --rm \
     --name some-redis \
@@ -78,15 +87,6 @@ Follow these steps to set up and run Bidhub locally on your machine.
     && sleep 10 \
     && dotnet ef database Update --project ./Infrastructure
 ```
-
-3. Set up environment variables: 
-    - Rename appsettings.sample.json in AutionOnline directory to appsettings.json and fill in these fields: 
-        + CloudName
-        + ApiKey
-        + ApiSecret
-        + Mail
-        + Password
-    - Rename .env.local.sample in ClientApp directory to .env.local
 
 4. Run server:
 ```
